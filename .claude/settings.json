@@ -1,0 +1,17 @@
+{
+  "additionalDirectories": [
+    "../movital/monorepo/apps/backend"
+  ],
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "curl -d \"🛰️ I'm sorry, Dave, but I, Claude AI 9000 require your attention. Make it quick before I lock the pod bay doors.\" ntfy.sh/augusto-samame-claude-requires-you"
+          }
+        ]
+      }
+    ]
+  }
+}
