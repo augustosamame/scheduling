@@ -15,7 +15,19 @@ module Scheduling
                   :reminder_hours_before,
                   :enable_sms_notifications,
                   :enable_google_calendar,
-                  :enable_outlook_calendar
+                  :enable_outlook_calendar,
+                  # Organization defaults
+                  :organization_name,
+                  :organization_slug,
+                  :organization_timezone,
+                  :organization_currency,
+                  :organization_locale,
+                  # Default location/team names (fallbacks)
+                  :default_location_name,
+                  :default_team_name,
+                  # Auto-sync settings
+                  :auto_create_members,
+                  :sync_member_on_user_update
 
     def initialize
       @enable_multi_tenancy = true
@@ -34,6 +46,21 @@ module Scheduling
       @enable_sms_notifications = false
       @enable_google_calendar = true
       @enable_outlook_calendar = true
+
+      # Organization defaults
+      @organization_name = 'My Organization'
+      @organization_slug = 'my-organization'
+      @organization_timezone = 'America/Lima'
+      @organization_currency = 'PEN'
+      @organization_locale = 'es'
+
+      # Default location/team names (used when user doesn't have associations)
+      @default_location_name = 'Sede Principal'
+      @default_team_name = 'Equipo por defecto'
+
+      # Auto-sync settings
+      @auto_create_members = true
+      @sync_member_on_user_update = true
     end
   end
 

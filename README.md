@@ -107,12 +107,35 @@ The engine will be available at:
 - `http://localhost:3000/scheduling/:org_slug/:member_slug` - Member's booking page
 - `http://localhost:3000/scheduling/:org_slug/:member_slug/:event_slug/book` - New booking
 
-### Step 5: Create Initializer (Optional but Recommended)
+### Step 5: Create Initializer (**Required**)
 
 Create `config/initializers/scheduling.rb`:
 
 ```ruby
 Scheduling.configure do |config|
+  # ========================================
+  # Organization Settings (REQUIRED)
+  # ========================================
+  config.organization_name = 'Clinica'           # Your organization name
+  config.organization_slug = 'clinica'           # URL-friendly slug
+  config.organization_timezone = 'America/Lima'  # Default timezone
+  config.organization_currency = 'PEN'           # Default currency
+  config.organization_locale = 'es'              # Default language
+
+  # ========================================
+  # Auto-Sync Settings (REQUIRED)
+  # ========================================
+  # Automatically create Scheduling::Member records when Users are created/updated
+  config.auto_create_members = true
+  config.sync_member_on_user_update = true
+
+  # Default names for location/team when User doesn't have associations
+  config.default_location_name = 'Sede Principal'
+  config.default_team_name = 'Equipo por defecto'
+
+  # ========================================
+  # Optional Settings
+  # ========================================
   # Locale settings
   config.default_locale = :es
   config.available_locales = [:es, :en, :pt, :fr]
@@ -136,6 +159,17 @@ Scheduling.configure do |config|
   config.payment_providers = [:stripe, :culqi]
 end
 ```
+
+**How Auto-Sync Works:**
+
+The engine automatically creates `Scheduling::Member` records when Users are created or updated:
+
+- If `User` has a `location` association → uses `user.location.name`
+- If not → creates default location: "Sede Principal"
+- If `User` has a `team` association → uses `user.team.name`
+- If not → creates default team: "Equipo por defecto"
+
+**No manual setup script needed!** The engine handles everything automatically via callbacks.
 
 ### Step 6: Add Optional Payment Gems
 
@@ -164,9 +198,35 @@ CULQI_PUBLIC_KEY=pk_test_...
 CULQI_SECRET_KEY=sk_test_...
 ```
 
-### Step 7: Create Initial Data
+### Step 7: Create Your First User - Members Auto-Created!
 
-Create your first organization and members:
+**That's it!** When you create a User, the engine automatically creates the corresponding `Scheduling::Member`:
+
+```ruby
+# Just create a user as normal
+user = User.create!(
+  first_name: "Dr. Carlos",
+  last_name: "Mendoza",
+  email: "carlos@clinica.com",
+  title: "Médico General",
+  bio: "Especialista en medicina general"
+)
+
+# Member is automatically created via callback!
+member = Scheduling::Member.find_by(user: user)
+# => #<Scheduling::Member booking_slug: "dr-carlos-mendoza", ...>
+```
+
+The engine automatically:
+- ✅ Creates organization (if doesn't exist)
+- ✅ Creates location (from user.location or default)
+- ✅ Creates team (from user.team or default)
+- ✅ Creates member record
+- ✅ Syncs on user updates
+
+**Optional: Manual Setup for Advanced Cases**
+
+If you need to create organization/members manually (for testing, seeding, etc.):
 
 ```ruby
 # In rails console or db/seeds.rb
@@ -255,7 +315,42 @@ puts "✅ Setup complete!"
 puts "Visit: http://localhost:3000/scheduling/my-clinic/#{member.booking_slug}"
 ```
 
-### Step 8: Test the Integration
+### Step 8: Create Schedules and Event Types
+
+Members are created automatically, but you still need to set up their availability:
+
+```ruby
+member = Scheduling::Member.first
+
+# Create schedule (Monday-Friday, 9am-5pm)
+schedule = member.schedules.create!(
+  name: "Office Hours",
+  timezone: "America/Lima",
+  is_default: true
+)
+
+(1..5).each do |day|
+  schedule.availabilities.create!(
+    day_of_week: day,
+    start_time: "09:00",
+    end_time: "17:00"
+  )
+end
+
+# Create event type (appointment type)
+event_type = member.event_types.create!(
+  title: "Medical Consultation",
+  slug: "consultation",
+  duration_minutes: 30,
+  minimum_notice_hours: 2,
+  maximum_days_in_future: 60,
+  price_cents: 10000,
+  price_currency: "PEN",
+  active: true
+)
+```
+
+### Step 9: Test the Integration
 
 Start your Rails server:
 ```bash
@@ -264,10 +359,10 @@ rails server
 
 Visit the booking page:
 ```
-http://localhost:3000/scheduling/my-clinic/dr-jane-smith
+http://localhost:3000/scheduling/clinica/dr-carlos-mendoza
 ```
 
-Or test in console:
+Or test availability in console:
 ```ruby
 member = Scheduling::Member.first
 event_type = member.event_types.first
@@ -331,9 +426,12 @@ Access at:
 
 ## 📚 Documentation
 
+- **`README.md`** - This file - installation and usage guide
+- **`setup_host_scheduling.rb`** - Ready-to-use setup script for quick start
 - **`TEST_ENGINE.md`** - Complete testing guide with examples
 - **`DATA_OWNERSHIP.md`** - Architecture and DRY principles
 - **`REFACTORING_SUMMARY.md`** - How we avoid data duplication
+- **`CLAUDE.md`** - Guide for AI assistants working with this codebase
 - **`planning.md`** - Full technical specification
 
 ## 🛠️ What's Included

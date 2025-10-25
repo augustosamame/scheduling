@@ -1,6 +1,8 @@
 require "scheduling/version"
+require "scheduling/configuration"
+require "scheduling/user_extensions"
 require "scheduling/engine"
 
 module Scheduling
-  # Your code goes here...
+  # Configuration is defined in scheduling/configuration.rb
 end

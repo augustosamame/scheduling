@@ -22,6 +22,32 @@ rvm 3.3.4@scheduling do bin/rails db:migrate
 
 ## Common Commands
 
+### Automatic Member Sync (Important!)
+
+**The engine automatically creates `Scheduling::Member` records** when Users are created or updated via callbacks:
+
+- User created/updated → `Scheduling::MemberSyncService` runs automatically
+- Organization/Location/Team created if they don't exist
+- Member record created and linked to User
+- Uses `user.location` and `user.team` if available
+- Falls back to configured defaults if associations don't exist
+
+**Key Files:**
+- `app/services/scheduling/member_sync_service.rb` - Sync logic
+- `lib/scheduling/user_extensions.rb` - Callback concern
+- `lib/scheduling/engine.rb` - Auto-includes concern into User model
+
+**Configuration Required:**
+```ruby
+# config/initializers/scheduling.rb
+Scheduling.configure do |config|
+  config.organization_name = 'Clinica'
+  config.organization_slug = 'clinica'
+  config.auto_create_members = true  # Enable auto-sync
+  config.sync_member_on_user_update = true
+end
+```
+
 ### Testing with Dummy App
 
 The engine includes a full dummy Rails app at `test/dummy/` for testing:
@@ -301,32 +327,63 @@ Location: `config/initializers/scheduling.rb`
 
 ```ruby
 Scheduling.configure do |config|
+  # ========================================
+  # Organization Settings (REQUIRED for auto-sync)
+  # ========================================
+  config.organization_name = 'Clinica'
+  config.organization_slug = 'clinica'
+  config.organization_timezone = 'America/Lima'
+  config.organization_currency = 'PEN'
+  config.organization_locale = 'es'
+
+  # Default location/team names (fallbacks when user has no associations)
+  config.default_location_name = 'Sede Principal'
+  config.default_team_name = 'Equipo por defecto'
+
+  # ========================================
+  # Auto-Sync Settings
+  # ========================================
+  config.auto_create_members = true             # Auto-create Member from User
+  config.sync_member_on_user_update = true      # Sync on User updates
+
+  # ========================================
   # Locale settings
+  # ========================================
   config.default_locale = :es
   config.available_locales = [:es, :en, :pt, :fr]
   config.detect_locale_from_browser = true
 
+  # ========================================
   # Currency settings
+  # ========================================
   config.default_currency = 'PEN'
   config.available_currencies = ['PEN', 'USD', 'EUR', 'GBP']
 
+  # ========================================
   # Booking policies
+  # ========================================
   config.default_cancellation_hours = 24
   config.default_rescheduling_hours = 24
   config.default_minimum_notice_hours = 2
 
+  # ========================================
   # Notifications
+  # ========================================
   config.send_confirmation_emails = true
   config.send_reminder_emails = true
   config.reminder_hours_before = 24
   config.enable_sms_notifications = false
 
+  # ========================================
   # Payment and calendar integrations
+  # ========================================
   config.payment_providers = [:stripe, :culqi]
   config.enable_google_calendar = true
   config.enable_outlook_calendar = true
 
-  # Multi-tenancy (default: true)
+  # ========================================
+  # Multi-tenancy
+  # ========================================
   config.enable_multi_tenancy = true
 end
 ```
