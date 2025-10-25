@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    scheduling (0.1.0)
+    scheduling (0.1.1)
       faker (~> 3.2)
       google-api-client (>= 0.53)
       ice_cube (~> 0.16)

@@ -297,15 +297,37 @@ GET  /:org/:member/:event/availability → AJAX slots
 
 Location: `config/initializers/scheduling.rb`
 
+**All Available Configuration Options:**
+
 ```ruby
 Scheduling.configure do |config|
+  # Locale settings
   config.default_locale = :es
   config.available_locales = [:es, :en, :pt, :fr]
+  config.detect_locale_from_browser = true
+
+  # Currency settings
   config.default_currency = 'PEN'
   config.available_currencies = ['PEN', 'USD', 'EUR', 'GBP']
+
+  # Booking policies
   config.default_cancellation_hours = 24
+  config.default_rescheduling_hours = 24
+  config.default_minimum_notice_hours = 2
+
+  # Notifications
   config.send_confirmation_emails = true
+  config.send_reminder_emails = true
+  config.reminder_hours_before = 24
+  config.enable_sms_notifications = false
+
+  # Payment and calendar integrations
   config.payment_providers = [:stripe, :culqi]
+  config.enable_google_calendar = true
+  config.enable_outlook_calendar = true
+
+  # Multi-tenancy (default: true)
+  config.enable_multi_tenancy = true
 end
 ```
 
