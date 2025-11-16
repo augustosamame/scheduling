@@ -27,7 +27,15 @@ module Scheduling
                   :default_team_name,
                   # Auto-sync settings
                   :auto_create_members,
-                  :sync_member_on_user_update
+                  :sync_member_on_user_update,
+                  :auto_create_default_schedule,
+                  :auto_create_default_event_type,
+                  # UI Theming
+                  :logo_url,
+                  :company_name,
+                  :font_family,
+                  :primary_color,
+                  :secondary_color
 
     def initialize
       @enable_multi_tenancy = true
@@ -61,6 +69,15 @@ module Scheduling
       # Auto-sync settings
       @auto_create_members = true
       @sync_member_on_user_update = true
+      @auto_create_default_schedule = true
+      @auto_create_default_event_type = true
+
+      # UI Theming defaults
+      @logo_url = nil  # Optional - will show company_name if not set
+      @company_name = 'Scheduling'  # Fallback name
+      @font_family = 'system-ui, -apple-system, sans-serif'
+      @primary_color = '#3b82f6'  # Blue
+      @secondary_color = '#6b7280'  # Gray
     end
   end
 

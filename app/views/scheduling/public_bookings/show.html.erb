@@ -1,0 +1,207 @@
+<% content_for :title, "Booking Confirmation" %>
+
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+  <!-- Success Message -->
+  <div class="bg-green-50 border border-green-200 rounded-lg p-6 mb-6">
+    <div class="flex">
+      <div class="flex-shrink-0">
+        <svg class="h-8 w-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+      </div>
+      <div class="ml-3">
+        <h2 class="text-2xl font-bold text-green-900">
+          Booking Confirmed!
+        </h2>
+        <p class="mt-2 text-green-700">
+          Your appointment has been successfully scheduled. A confirmation email has been sent to <strong><%= @booking.client.email %></strong>.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Booking Details Card -->
+  <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+    <h3 class="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">
+      Appointment Details
+    </h3>
+
+    <div class="space-y-4">
+      <!-- Event Type -->
+      <div class="flex items-start">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-gray-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+          </svg>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm font-medium text-gray-500">Appointment Type</p>
+          <p class="mt-1 text-gray-900"><%= @booking.event_type.title %></p>
+        </div>
+      </div>
+
+      <!-- Date & Time -->
+      <div class="flex items-start">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-gray-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm font-medium text-gray-500">Date & Time</p>
+          <p class="mt-1 text-gray-900 font-semibold">
+            <%= @booking.start_time.strftime("%A, %B %d, %Y") %>
+          </p>
+          <p class="text-gray-900">
+            <%= @booking.start_time.strftime("%I:%M %p") %> - <%= @booking.end_time.strftime("%I:%M %p") %>
+            <span class="text-gray-500 text-sm">(<%= @booking.timezone %>)</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Duration -->
+      <div class="flex items-start">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-gray-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm font-medium text-gray-500">Duration</p>
+          <p class="mt-1 text-gray-900"><%= @booking.event_type.duration_minutes %> minutes</p>
+        </div>
+      </div>
+
+      <!-- Member -->
+      <div class="flex items-start">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-gray-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+          </svg>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm font-medium text-gray-500">With</p>
+          <p class="mt-1 text-gray-900"><%= @booking.member.full_name %></p>
+          <% if @booking.member.title.present? %>
+            <p class="text-gray-600 text-sm"><%= @booking.member.title %></p>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Location Type -->
+      <% if @booking.event_type.location_type.present? %>
+        <div class="flex items-start">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-gray-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm font-medium text-gray-500">Location</p>
+            <p class="mt-1 text-gray-900"><%= @booking.event_type.location_type.titleize %></p>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Booking Reference -->
+      <div class="flex items-start">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-gray-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
+          </svg>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm font-medium text-gray-500">Confirmation Code</p>
+          <p class="mt-1 text-gray-900 font-mono text-sm"><%= @booking.uid %></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Your Information -->
+  <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+    <h3 class="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">
+      Your Information
+    </h3>
+
+    <div class="space-y-2">
+      <p class="text-gray-900"><strong><%= @booking.client.full_name %></strong></p>
+      <p class="text-gray-600"><%= @booking.client.email %></p>
+      <% if @booking.client.phone.present? %>
+        <p class="text-gray-600"><%= @booking.client.phone %></p>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Answers to Custom Questions -->
+  <% if @booking.booking_answers.any? %>
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">
+        Additional Information
+      </h3>
+
+      <div class="space-y-3">
+        <% @booking.booking_answers.each do |answer| %>
+          <div>
+            <p class="text-sm font-medium text-gray-500"><%= answer.booking_question.label %></p>
+            <p class="mt-1 text-gray-900"><%= answer.answer %></p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Notes -->
+  <% if @booking.notes.present? %>
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">
+        Additional Notes
+      </h3>
+      <p class="text-gray-700"><%= @booking.notes %></p>
+    </div>
+  <% end %>
+
+  <!-- Actions -->
+  <% if @booking.can_cancel? || @booking.can_reschedule? %>
+    <div class="bg-gray-50 rounded-lg p-6 mb-6">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">
+        Manage Your Appointment
+      </h3>
+
+      <div class="flex flex-wrap gap-3">
+        <% if @booking.can_reschedule? %>
+          <%= link_to "Reschedule Appointment",
+                     reschedule_booking_path(@booking.reschedule_token),
+                     class: "inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" %>
+        <% end %>
+
+        <% if @booking.can_cancel? %>
+          <%= link_to "Cancel Appointment",
+                     cancel_booking_path(@booking.cancellation_token),
+                     class: "inline-flex items-center px-4 py-2 border border-red-300 shadow-sm text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50" %>
+        <% end %>
+      </div>
+
+      <p class="mt-4 text-sm text-gray-600">
+        <% if @booking.event_type.allow_cancellation %>
+          You can cancel up to <%= @booking.event_type.cancellation_policy_hours %> hours before your appointment.
+        <% end %>
+        <% if @booking.event_type.allow_rescheduling %>
+          You can reschedule up to <%= @booking.event_type.rescheduling_policy_hours %> hours before your appointment.
+        <% end %>
+      </p>
+    </div>
+  <% end %>
+
+  <!-- Add to Calendar -->
+  <div class="bg-white rounded-lg shadow-sm p-6 text-center">
+    <h3 class="text-lg font-semibold text-gray-900 mb-3">
+      Add to Calendar
+    </h3>
+    <p class="text-gray-600 mb-4">
+      Don't forget! Add this appointment to your calendar.
+    </p>
+    <!-- Add to calendar buttons could be implemented here with calendar file download -->
+  </div>
+</div>

@@ -89,6 +89,10 @@ module Scheduling
           accepts_bookings: should_accept_bookings?
         )
         member.save!
+
+        # Create default schedule and event type for new members
+        create_default_schedule(member) if @config.auto_create_default_schedule
+        create_default_event_type(member) if @config.auto_create_default_event_type
       elsif @config.sync_member_on_user_update
         # Update member if user changed (name might affect booking_slug)
         # Note: booking_slug should remain stable, so we don't regenerate it
@@ -125,6 +129,51 @@ module Scheduling
       else
         true # Default to accepting bookings
       end
+    end
+
+    def create_default_schedule(member)
+      # Create a default schedule (Monday-Friday, 9 AM - 5 PM)
+      schedule = member.schedules.create!(
+        name: 'Default Schedule',
+        timezone: @config.organization_timezone,
+        is_default: true
+      )
+
+      # Add availability for weekdays
+      (1..5).each do |day|  # 1 = Monday, 5 = Friday
+        schedule.availabilities.create!(
+          day_of_week: day,
+          start_time: '09:00',
+          end_time: '17:00'
+        )
+      end
+
+      schedule
+    end
+
+    def create_default_event_type(member)
+      # Create a default event type
+      member.event_types.create!(
+        title: 'General Appointment',
+        slug: 'general-appointment',
+        description: 'Standard appointment',
+        location_type: 'in_person',
+        duration_minutes: 30,
+        buffer_before_minutes: 5,
+        buffer_after_minutes: 10,
+        minimum_notice_hours: @config.default_minimum_notice_hours || 2,
+        maximum_days_in_future: 90,
+        color: '#3b82f6',
+        active: true,
+        requires_payment: false,
+        price_cents: 0,
+        price_currency: @config.default_currency,
+        payment_required_to_book: false,
+        allow_rescheduling: true,
+        rescheduling_policy_hours: @config.default_rescheduling_hours || 24,
+        allow_cancellation: true,
+        cancellation_policy_hours: @config.default_cancellation_hours || 24
+      )
     end
   end
 end

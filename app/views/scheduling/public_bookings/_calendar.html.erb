@@ -1,0 +1,89 @@
+<%
+  # available_dates is now an array of Date objects
+  start_date = available_dates.first || Date.current
+  end_date = available_dates.last || (Date.current + 30.days)
+  current_month = Date.current.beginning_of_month
+
+  # Get the first day to show (start of week containing first day of month)
+  calendar_start = current_month.beginning_of_week(:sunday)
+
+  # Get the last day to show (end of week containing last day of month)
+  calendar_end = current_month.end_of_month.end_of_week(:sunday)
+
+  weeks = []
+  current_day = calendar_start
+
+  while current_day <= calendar_end
+    week = []
+    7.times do
+      week << current_day
+      current_day += 1.day
+    end
+    weeks << week
+  end
+
+  # available_dates array already contains only dates with actual available time slots
+  # (calculated via AvailabilityChecker in the controller)
+%>
+
+<div class="calendar">
+  <!-- Month Navigation -->
+  <div class="flex items-center justify-between mb-3">
+    <button type="button" class="p-1 hover:bg-gray-100 rounded">
+      <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+      </svg>
+    </button>
+
+    <h4 class="text-base font-semibold text-gray-900">
+      <%= I18n.l(current_month, format: '%B %Y').capitalize %>
+    </h4>
+
+    <button type="button" class="p-1 hover:bg-gray-100 rounded">
+      <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Day Headers -->
+  <div class="grid grid-cols-7 gap-1 mb-1">
+    <% %w[DOM. LUN. MAR. MIÉ. JUE. VIE. SÁB.].each do |day| %>
+      <div class="text-center text-xs font-medium text-gray-500 py-1">
+        <%= day %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Calendar Grid -->
+  <div class="grid grid-cols-7 gap-1">
+    <% weeks.each do |week| %>
+      <% week.each do |day| %>
+        <%
+          is_current_month = day.month == current_month.month
+          is_past = day < Date.today
+
+          # Check if this date has actual available time slots
+          is_available = is_current_month && !is_past && available_dates.include?(day)
+        %>
+
+        <% if is_available %>
+          <button type="button"
+                  data-action="click->booking#selectDate"
+                  data-date="<%= day.iso8601 %>"
+                  class="aspect-square p-1 flex items-center justify-center text-center text-sm font-medium text-gray-900 hover:bg-blue-600 hover:text-white transition-all group">
+            <span class="w-9 h-9 flex items-center justify-center rounded-full bg-blue-50 group-hover:bg-transparent">
+              <%= day.day %>
+            </span>
+          </button>
+        <% else %>
+          <div class="aspect-square p-1 flex items-center justify-center text-center text-sm <%= is_current_month ? 'text-gray-400' : 'text-gray-200' %>">
+            <span class="w-9 h-9 flex items-center justify-center">
+              <%= day.day %>
+            </span>
+          </div>
+        <% end %>
+      <% end %>
+    <% end %>
+  </div>
+</div>

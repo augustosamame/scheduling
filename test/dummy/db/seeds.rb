@@ -10,9 +10,15 @@ Scheduling::Organization.destroy_all
 Scheduling::Client.destroy_all
 User.destroy_all
 
-puts "Creating sample data..."
+puts "\n" + "="*80
+puts "TESTING AUTOMATIC MEMBER SYNC (v0.2.0)"
+puts "="*80
 
-# Create Users
+puts "\n📝 Creating Users..."
+puts "   (Watch as Members are AUTO-CREATED via callbacks! ✨)"
+puts ""
+
+# Create Users - Members will be AUTO-CREATED via callbacks!
 user1 = User.create!(
   first_name: "Dr. Maria",
   last_name: "Rodriguez",
@@ -20,6 +26,7 @@ user1 = User.create!(
   title: "Cardiologist",
   bio: "Specialist in preventive cardiology with 15 years of experience"
 )
+puts "   ✅ Created User: #{user1.full_name}"
 
 user2 = User.create!(
   first_name: "Dr. Juan",
@@ -28,53 +35,38 @@ user2 = User.create!(
   title: "Cardiologist",
   bio: "Expert in interventional cardiology"
 )
+puts "   ✅ Created User: #{user2.full_name}"
 
-# Create Organization
-org = Scheduling::Organization.create!(
-  name: "Clinica Lima",
-  slug: "clinica-lima",
-  timezone: "America/Lima",
-  default_currency: "PEN",
-  default_locale: "es",
-  description: "Multi-specialty medical clinic in Lima"
-)
+# Verify Members were auto-created
+puts "\n🔍 Verifying Auto-Sync Results..."
+member1 = Scheduling::Member.find_by(user: user1)
+member2 = Scheduling::Member.find_by(user: user2)
 
-# Create Location
-location = org.locations.create!(
-  name: "Downtown Clinic",
-  slug: "downtown",
-  address: "Av. Arequipa 1234",
-  city: "Lima",
-  state: "Lima",
-  country: "Peru",
-  postal_code: "15001",
-  phone: "+51 1 234 5678",
-  email: "downtown@clinicalima.com",
-  timezone: "America/Lima"
-)
+if member1 && member2
+  puts "   ✅ SUCCESS! Members auto-created:"
+  puts "      - #{member1.full_name} (slug: #{member1.booking_slug})"
+  puts "      - #{member2.full_name} (slug: #{member2.booking_slug})"
 
-# Create Team
-team = location.teams.create!(
-  name: "Cardiology",
-  slug: "cardiology",
-  description: "Heart and cardiovascular specialists",
-  color: "#3b82f6"
-)
+  # Get auto-created resources
+  org = Scheduling::Organization.first
+  location = Scheduling::Location.first
+  team = Scheduling::Team.first
 
-# Create Members
-member1 = team.members.create!(
-  user: user1,
-  role: "admin",
-  active: true,
-  accepts_bookings: true
-)
+  puts "\n   ✅ Auto-created Organization: #{org.name} (#{org.slug})"
+  puts "   ✅ Auto-created Location: #{location.name}"
+  puts "   ✅ Auto-created Team: #{team.name}"
 
-member2 = team.members.create!(
-  user: user2,
-  role: "member",
-  active: true,
-  accepts_bookings: true
-)
+  puts "\n" + "="*80
+  puts "AUTO-SYNC WORKING PERFECTLY! 🎉"
+  puts "="*80
+else
+  puts "   ❌ FAILED! Members were not auto-created"
+  puts "      Check that config.auto_create_members = true in initializer"
+  abort
+end
+
+# Now continue with additional setup (schedules, event types, etc.)
+puts "\n📅 Setting up schedules and event types..."
 
 # Create Schedule for Member 1
 schedule1 = member1.schedules.create!(
@@ -135,7 +127,7 @@ consultation.booking_questions.create!(
 )
 
 # Create a sample client
-client = org.clients.create!(
+client = Scheduling::Organization.first.clients.create!(
   email: "patient@example.com",
   first_name: "Carlos",
   last_name: "Mendoza",
@@ -146,10 +138,10 @@ client = org.clients.create!(
 
 puts "\n✅ Sample data created successfully!"
 puts "\n📊 Summary:"
-puts "  - Organization: #{org.name}"
-puts "  - Location: #{location.name}"
-puts "  - Team: #{team.name}"
-puts "  - Members: #{team.members.count}"
+puts "  - Organization: #{Scheduling::Organization.first.name}"
+puts "  - Location: #{Scheduling::Location.first.name}"
+puts "  - Team: #{Scheduling::Team.first.name}"
+puts "  - Members: #{Scheduling::Member.count}"
 puts "  - Event Types: #{member1.event_types.count}"
 puts "  - Schedule with #{schedule1.availabilities.count} availability slots"
 puts "  - Sample client: #{client.full_name}"

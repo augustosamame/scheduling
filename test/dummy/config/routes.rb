@@ -1,3 +1,5 @@
 Rails.application.routes.draw do
-  mount Scheduling::Engine => "/scheduling"
+  # Mount at /book to mirror real-world usage
+  # This avoids route conflicts with main app routes
+  mount Scheduling::Engine => "/book"
 end

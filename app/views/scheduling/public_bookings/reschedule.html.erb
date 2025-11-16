@@ -1,0 +1,92 @@
+<% content_for :title, "Reschedule Appointment" %>
+
+<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+  <!-- Current Booking Details -->
+  <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+    <h2 class="text-2xl font-bold text-gray-900 mb-4">
+      Reschedule Appointment
+    </h2>
+
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+          </svg>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-blue-800">
+            Select a new date and time for your appointment below.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-gray-50 rounded-lg p-4 mb-6">
+      <h3 class="text-sm font-semibold text-gray-700 mb-3">Current Appointment</h3>
+      <div class="space-y-2">
+        <div>
+          <p class="text-sm text-gray-600">Appointment Type</p>
+          <p class="text-gray-900"><%= @booking.event_type.title %></p>
+        </div>
+        <div>
+          <p class="text-sm text-gray-600">With</p>
+          <p class="text-gray-900"><%= @booking.member.full_name %></p>
+        </div>
+        <div>
+          <p class="text-sm text-gray-600">Currently Scheduled</p>
+          <p class="text-gray-900 font-semibold">
+            <%= @booking.start_time.strftime("%A, %B %d, %Y at %I:%M %p") %>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <%= form_with url: process_reschedule_booking_path(@booking.reschedule_token),
+                 method: :post,
+                 local: true do |f| %>
+      <div class="mb-6">
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          New Date & Time *
+        </label>
+        <%= datetime_field_tag :new_start_time,
+                              nil,
+                              required: true,
+                              class: "w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary" %>
+        <p class="mt-1 text-sm text-gray-500">
+          Timezone: <%= @booking.timezone %>
+        </p>
+      </div>
+
+      <div class="mb-6">
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Reason for rescheduling (optional)
+        </label>
+        <%= text_area_tag :reason,
+                         nil,
+                         rows: 3,
+                         placeholder: "Why are you rescheduling this appointment?",
+                         class: "w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary" %>
+      </div>
+
+      <div class="flex justify-between items-center pt-4 border-t">
+        <%= link_to "Cancel",
+                   booking_confirmation_path(@booking.uid),
+                   class: "text-gray-600 hover:text-gray-900" %>
+
+        <%= f.submit "Confirm New Time",
+                   class: "px-6 py-2 bg-primary text-white font-semibold rounded-md hover:opacity-90 transition-opacity cursor-pointer" %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Rescheduling Policy -->
+  <% if @booking.event_type.rescheduling_policy_hours.present? %>
+    <div class="bg-gray-50 rounded-lg p-4 text-sm text-gray-600">
+      <p class="font-semibold text-gray-700 mb-1">Rescheduling Policy</p>
+      <p>
+        Appointments can be rescheduled up to <%= @booking.event_type.rescheduling_policy_hours %> hours before the scheduled time.
+      </p>
+    </div>
+  <% end %>
+</div>

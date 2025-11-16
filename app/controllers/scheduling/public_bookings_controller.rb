@@ -2,8 +2,9 @@ module Scheduling
   class PublicBookingsController < ApplicationController
     before_action :set_locale
     before_action :find_member, only: [:index, :new, :create, :availability]
-    before_action :find_event_type, only: [:new, :create]
-    before_action :find_booking_by_token, only: [:show, :cancel, :process_cancellation, :reschedule, :process_reschedule]
+    before_action :find_event_type, only: [:new, :create, :availability]
+    before_action :find_booking_by_uid, only: [:show]
+    before_action :find_booking_by_token, only: [:cancel, :process_cancellation, :reschedule, :process_reschedule]
 
     def index
       @event_types = @member.event_types.active
@@ -38,7 +39,7 @@ module Scheduling
       end
 
       if @booking.save
-        redirect_to scheduling_booking_confirmation_path(@booking.uid, locale: I18n.locale)
+        redirect_to booking_confirmation_path(@booking.uid, locale: I18n.locale)
       else
         @booking_questions = @event_type.booking_questions.ordered
         @available_dates = calculate_available_dates
@@ -84,7 +85,7 @@ module Scheduling
           initiated_by: 'client'
         )
         flash[:notice] = t('scheduling.bookings.reschedule.success')
-        redirect_to scheduling_booking_confirmation_path(new_booking.uid, locale: I18n.locale)
+        redirect_to booking_confirmation_path(new_booking.uid, locale: I18n.locale)
       else
         flash[:alert] = t('scheduling.errors.past_reschedule_deadline',
                          hours: @booking.event_type.rescheduling_policy_hours)
@@ -94,18 +95,13 @@ module Scheduling
     end
 
     def availability
-      event_type = @member.event_types.find(params[:event_type_id])
       date = Date.parse(params[:date])
-      timezone = params[:timezone] || 'America/Lima'
+      timezone = params[:timezone] || @member.team.location.timezone
 
-      checker = AvailabilityChecker.new(@member, event_type)
-      @slots = checker.available_slots(date..date, timezone)
+      checker = AvailabilityChecker.new(@member, @event_type)
+      slots = checker.available_slots(date..date, timezone)
 
-      respond_to do |format|
-        format.turbo_stream
-        format.json { render json: @slots }
-        format.html { render partial: 'time_slots', locals: { slots: @slots } }
-      end
+      render json: slots
     end
 
     private
@@ -135,6 +131,10 @@ module Scheduling
       @event_type = @member.event_types.active.find_by!(slug: params[:event_slug])
     end
 
+    def find_booking_by_uid
+      @booking = Booking.find_by!(uid: params[:uid])
+    end
+
     def find_booking_by_token
       token = params[:token]
       @booking = Booking.find_by(cancellation_token: token) ||
@@ -145,20 +145,25 @@ module Scheduling
 
     def find_or_create_client
       @organization.clients.find_or_create_by!(
-        email: booking_params[:client_email]
+        email: client_params[:client_email]
       ) do |client|
-        client.first_name = booking_params[:client_first_name]
-        client.last_name = booking_params[:client_last_name]
-        client.phone = booking_params[:client_phone]
-        client.timezone = booking_params[:timezone] || 'America/Lima'
+        client.first_name = client_params[:client_first_name]
+        client.last_name = client_params[:client_last_name]
+        client.phone = client_params[:client_phone]
+        client.timezone = client_params[:timezone] || 'America/Lima'
         client.locale = I18n.locale.to_s
       end
     end
 
     def booking_params
       params.require(:booking).permit(
-        :start_time, :timezone, :notes,
-        :client_first_name, :client_last_name, :client_email, :client_phone
+        :start_time, :timezone, :notes
+      )
+    end
+
+    def client_params
+      params.require(:booking).permit(
+        :client_first_name, :client_last_name, :client_email, :client_phone, :timezone
       )
     end
 
@@ -189,7 +194,17 @@ module Scheduling
     def calculate_available_dates
       start_date = Date.current
       end_date = start_date + @event_type.maximum_days_in_future.days
-      start_date..end_date
+
+      # Get actual dates that have available time slots
+      checker = AvailabilityChecker.new(@member, @event_type)
+      available_dates = []
+
+      (start_date..end_date).each do |date|
+        slots = checker.available_slots(date..date, @member.team.location.timezone)
+        available_dates << date if slots.any?
+      end
+
+      available_dates
     end
   end
 end

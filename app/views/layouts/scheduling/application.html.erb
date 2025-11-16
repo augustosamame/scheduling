@@ -1,17 +1,107 @@
+<% config = Scheduling.configuration %>
 <!DOCTYPE html>
-<html>
+<html lang="<%= I18n.locale %>">
 <head>
-  <title>Scheduling</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= content_for?(:title) ? "#{yield(:title)} - #{config.company_name}" : config.company_name %></title>
   <%= csrf_meta_tags %>
   <%= csp_meta_tag %>
 
+  <!-- Tailwind CSS CDN (for quick start - replace with proper asset pipeline in production) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    :root {
+      --primary-color: <%= config.primary_color %>;
+      --secondary-color: <%= config.secondary_color %>;
+      --font-family: <%= config.font_family %>;
+    }
+
+    body {
+      font-family: var(--font-family);
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+    }
+
+    .text-primary {
+      color: var(--primary-color);
+    }
+
+    .border-primary {
+      border-color: var(--primary-color);
+    }
+
+    .bg-primary {
+      background-color: var(--primary-color);
+    }
+
+    .bg-primary-50 {
+      background-color: <%= config.primary_color %>10;
+    }
+  </style>
+
   <%= yield :head %>
-
-  <%= stylesheet_link_tag    "scheduling/application", media: "all" %>
+  <%= stylesheet_link_tag "scheduling/application", media: "all" %>
 </head>
-<body>
+<body class="min-h-screen bg-gray-50 flex flex-col">
+  <!-- Header -->
+  <header class="bg-white shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center">
+          <% if config.logo_url.present? %>
+            <%= image_tag config.logo_url, alt: config.company_name, class: "h-10 w-auto" %>
+          <% else %>
+            <h1 class="text-2xl font-bold text-primary">
+              <%= config.company_name %>
+            </h1>
+          <% end %>
+        </div>
 
-<%= yield %>
+        <% if I18n.available_locales.size > 1 %>
+          <div class="flex items-center space-x-2">
+            <% I18n.available_locales.each do |locale| %>
+              <%= link_to locale.to_s.upcase,
+                         url_for(locale: locale),
+                         class: "px-2 py-1 text-sm #{I18n.locale == locale ? 'text-primary font-semibold' : 'text-gray-600 hover:text-gray-900'}" %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </header>
 
+  <!-- Flash Messages -->
+  <% if flash.any? %>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+      <% flash.each do |type, message| %>
+        <div class="rounded-md p-4 mb-4 <%= type == 'notice' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800' %>">
+          <p><%= message %></p>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <!-- Main Content -->
+  <main class="flex-1 py-8">
+    <%= yield %>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-gray-200 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div class="text-center text-sm text-gray-500">
+        <p>&copy; <%= Time.current.year %> <%= config.company_name %>. All rights reserved.</p>
+        <p class="mt-1">Powered by Scheduling Engine</p>
+      </div>
+    </div>
+  </footer>
 </body>
 </html>

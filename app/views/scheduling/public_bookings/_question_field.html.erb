@@ -1,0 +1,79 @@
+<% case question.question_type %>
+<% when 'text', 'url' %>
+  <%= text_field_tag "answers[#{question.id}]",
+                     nil,
+                     type: question.question_type,
+                     required: question.required?,
+                     placeholder: question.placeholder,
+                     class: "w-full px-4 py-3 text-base rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+
+<% when 'email' %>
+  <%= email_field_tag "answers[#{question.id}]",
+                      nil,
+                      required: question.required?,
+                      placeholder: question.placeholder,
+                      class: "w-full px-4 py-3 text-base rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+
+<% when 'phone' %>
+  <%= telephone_field_tag "answers[#{question.id}]",
+                          nil,
+                          required: question.required?,
+                          placeholder: question.placeholder,
+                          class: "w-full px-4 py-3 text-base rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+
+<% when 'textarea' %>
+  <%= text_area_tag "answers[#{question.id}]",
+                    nil,
+                    required: question.required?,
+                    placeholder: question.placeholder,
+                    rows: 3,
+                    class: "w-full px-4 py-3 text-base rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+
+<% when 'number' %>
+  <%= number_field_tag "answers[#{question.id}]",
+                       nil,
+                       required: question.required?,
+                       placeholder: question.placeholder,
+                       class: "w-full px-4 py-3 text-base rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+
+<% when 'date' %>
+  <%= date_field_tag "answers[#{question.id}]",
+                     nil,
+                     required: question.required?,
+                     class: "w-full px-4 py-3 text-base rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+
+<% when 'select' %>
+  <%= select_tag "answers[#{question.id}]",
+                 options_for_select(JSON.parse(question.options || '[]')),
+                 { include_blank: 'Select an option', required: question.required? },
+                 class: "w-full px-4 py-3 text-base rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+
+<% when 'radio' %>
+  <div class="space-y-2">
+    <% JSON.parse(question.options || '[]').each_with_index do |option, index| %>
+      <label class="flex items-center">
+        <%= radio_button_tag "answers[#{question.id}]",
+                            option,
+                            false,
+                            required: question.required?,
+                            id: "question_#{question.id}_option_#{index}",
+                            class: "h-4 w-4 text-primary focus:ring-primary border-gray-300" %>
+        <span class="ml-2 text-gray-700"><%= option %></span>
+      </label>
+    <% end %>
+  </div>
+
+<% when 'checkbox' %>
+  <div class="space-y-2">
+    <% JSON.parse(question.options || '[]').each_with_index do |option, index| %>
+      <label class="flex items-center">
+        <%= check_box_tag "answers[#{question.id}][]",
+                         option,
+                         false,
+                         id: "question_#{question.id}_option_#{index}",
+                         class: "h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded" %>
+        <span class="ml-2 text-gray-700"><%= option %></span>
+      </label>
+    <% end %>
+  </div>
+<% end %>

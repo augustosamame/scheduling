@@ -11,8 +11,16 @@ module Scheduling
     private
 
     def should_sync_scheduling?
-      Scheduling.configuration.auto_create_members &&
-        (first_name_changed? || last_name_changed? || saved_change_to_attribute?(:location_id) || saved_change_to_attribute?(:team_id))
+      return false unless Scheduling.configuration.auto_create_members
+
+      # On create (after_commit), check if this was a new record
+      if previously_new_record?
+        first_name.present? && last_name.present?
+      else
+        # On update, only sync if relevant fields changed
+        saved_change_to_first_name? || saved_change_to_last_name? ||
+          saved_change_to_attribute?(:location_id) || saved_change_to_attribute?(:team_id)
+      end
     end
 
     def sync_scheduling_member

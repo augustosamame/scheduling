@@ -31,6 +31,10 @@ rvm 3.3.4@scheduling do bin/rails db:migrate
 - Member record created and linked to User
 - Uses `user.location` and `user.team` if available
 - Falls back to configured defaults if associations don't exist
+- **NEW:** Auto-creates default schedule (Mon-Fri 9am-5pm) if enabled
+- **NEW:** Auto-creates default event type ("General Appointment") if enabled
+
+**Members are immediately ready to accept bookings!**
 
 **Key Files:**
 - `app/services/scheduling/member_sync_service.rb` - Sync logic
@@ -319,6 +323,41 @@ GET  /:org/:member/:event/availability → AJAX slots
 - Handles custom booking questions
 - Multi-timezone support
 
+## Mounting the Engine (Route Configuration)
+
+**Standard approach - always use `/book`:**
+
+```ruby
+# config/routes.rb
+Rails.application.routes.draw do
+  mount Scheduling::Engine => "/book"
+
+  # Your other routes...
+end
+```
+
+**URLs will be:**
+- Member page: `/book/:organization_slug/:member_slug`
+- Booking form: `/book/:organization_slug/:member_slug/:event_slug/book`
+- Example: `/book/test-clinic/dr-maria-rodriguez/general-appointment/book`
+
+**Why `/book`?**
+- ✅ Avoids route conflicts (engine has greedy routes like `/:org/:member`)
+- ✅ Clear, memorable URL structure
+- ✅ Consistent across dummy app and production
+- ✅ SEO-friendly and professional
+
+**Alternative mounting (advanced):**
+
+If you need subdomain isolation:
+```ruby
+constraints subdomain: 'book' do
+  mount Scheduling::Engine => "/"
+end
+```
+- URLs: `https://book.example.com/test-clinic/dr-maria-rodriguez`
+- Requires DNS/SSL configuration
+
 ## Configuration
 
 Location: `config/initializers/scheduling.rb`
@@ -343,8 +382,10 @@ Scheduling.configure do |config|
   # ========================================
   # Auto-Sync Settings
   # ========================================
-  config.auto_create_members = true             # Auto-create Member from User
-  config.sync_member_on_user_update = true      # Sync on User updates
+  config.auto_create_members = true              # Auto-create Member from User
+  config.sync_member_on_user_update = true       # Sync on User updates
+  config.auto_create_default_schedule = true     # Auto-create Mon-Fri 9am-5pm schedule
+  config.auto_create_default_event_type = true   # Auto-create "General Appointment"
 
   # ========================================
   # Locale settings
