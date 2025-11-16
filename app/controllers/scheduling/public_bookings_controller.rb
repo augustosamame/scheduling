@@ -42,7 +42,7 @@ module Scheduling
       # Build answers
       build_booking_answers if params[:answers].present?
 
-      # Handle payment if required
+      # Handle payment if required (mandatory payment only)
       if @event_type.requires_payment && @event_type.payment_required_to_book
         payment_result = process_payment
 
@@ -126,13 +126,32 @@ module Scheduling
         .where('start_time < ? AND end_time > ?', end_time, start_time)
         .to_a
 
-      # Preload calendar connections
-      @member.calendar_connections.to_a
+      # Preload all associations for this date
+      preloaded_calendar_connections = @member.calendar_connections.to_a
+      preloaded_availabilities = @member.default_schedule&.availabilities&.to_a || []
+      preloaded_date_overrides = @member.date_overrides.where(date: date).to_a
 
-      checker = AvailabilityChecker.new(@member, @event_type, preloaded_bookings: preloaded_bookings)
+      checker = AvailabilityChecker.new(
+        @member,
+        @event_type,
+        preloaded_bookings: preloaded_bookings,
+        preloaded_date_overrides: preloaded_date_overrides,
+        preloaded_availabilities: preloaded_availabilities,
+        preloaded_calendar_connections: preloaded_calendar_connections
+      )
       slots = checker.available_slots(date..date, timezone)
 
-      render json: slots
+      # Format times in the specified timezone for display
+      formatted_slots = slots.map do |slot|
+        {
+          start_time: slot[:start_time].iso8601,
+          end_time: slot[:end_time].iso8601,
+          display_time: slot[:start_time].strftime('%H:%M'),
+          available: slot[:available]
+        }
+      end
+
+      render json: formatted_slots
     end
 
     # Download ICS file for adding to calendar
@@ -141,6 +160,23 @@ module Scheduling
                 filename: @booking.ics_filename,
                 type: 'text/calendar',
                 disposition: 'attachment'
+    end
+
+    # Process payment for existing booking (optional payment)
+    def process_booking_payment
+      @booking = Booking.find_by!(uid: params[:uid])
+
+      # Process payment
+      payment_result = case params[:payment_provider]
+                      when "stripe"
+                        StripePaymentService.new(@booking, params[:payment_method_id]).process
+                      when "culqi"
+                        CulqiPaymentService.new(@booking, params[:token_id]).process
+                      else
+                        { success: false, error: "Invalid payment provider" }
+                      end
+
+      render json: payment_result
     end
 
     private
@@ -267,21 +303,29 @@ module Scheduling
     end
 
     def preload_availability_associations
-      # Preload calendar connections to avoid N+1
-      @member.calendar_connections.to_a
-
-      # Preload default schedule and availabilities
-      if @member.default_schedule
-        @member.default_schedule.availabilities.to_a
-      end
-
-      # Bulk load all confirmed bookings in the date range
+      # Define date range for preloading
       start_date = Date.current
       end_date = start_date + @event_type.maximum_days_in_future.days
       timezone = @member.team.location.timezone
       start_time = start_date.in_time_zone(timezone).beginning_of_day
       end_time = end_date.in_time_zone(timezone).end_of_day
 
+      # Preload calendar connections to avoid N+1
+      @preloaded_calendar_connections = @member.calendar_connections.to_a
+
+      # Preload default schedule and availabilities
+      @preloaded_availabilities = if @member.default_schedule
+        @member.default_schedule.availabilities.to_a
+      else
+        []
+      end
+
+      # Preload date overrides for the entire date range
+      @preloaded_date_overrides = @member.date_overrides
+        .where('date >= ? AND date <= ?', start_date, end_date)
+        .to_a
+
+      # Bulk load all confirmed bookings in the date range
       @preloaded_bookings = @member.bookings
         .where(status: 'confirmed')
         .where('start_time < ? AND end_time > ?', end_time, start_time)
@@ -293,8 +337,15 @@ module Scheduling
       end_date = start_date + @event_type.maximum_days_in_future.days
 
       # Get actual dates that have available time slots
-      # Pass preloaded bookings to avoid N+1 queries
-      checker = AvailabilityChecker.new(@member, @event_type, preloaded_bookings: @preloaded_bookings)
+      # Pass all preloaded associations to avoid N+1 queries
+      checker = AvailabilityChecker.new(
+        @member,
+        @event_type,
+        preloaded_bookings: @preloaded_bookings,
+        preloaded_date_overrides: @preloaded_date_overrides,
+        preloaded_availabilities: @preloaded_availabilities,
+        preloaded_calendar_connections: @preloaded_calendar_connections
+      )
       available_dates = []
 
       (start_date..end_date).each do |date|

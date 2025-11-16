@@ -1,10 +1,13 @@
 module Scheduling
   class AvailabilityChecker
-    def initialize(member, event_type, preloaded_bookings: nil)
+    def initialize(member, event_type, preloaded_bookings: nil, preloaded_date_overrides: nil, preloaded_availabilities: nil, preloaded_calendar_connections: nil)
       @member = member
       @event_type = event_type
       @schedule = member.default_schedule
       @preloaded_bookings = preloaded_bookings
+      @preloaded_date_overrides = preloaded_date_overrides
+      @preloaded_availabilities = preloaded_availabilities
+      @preloaded_calendar_connections = preloaded_calendar_connections
     end
 
     def available_slots(date_range, timezone = 'America/Lima')
@@ -12,7 +15,7 @@ module Scheduling
 
       date_range.each do |date|
         # Check for date overrides first
-        override = @member.date_overrides.find_by(date: date)
+        override = find_date_override(date)
 
         if override&.unavailable?
           next
@@ -20,7 +23,7 @@ module Scheduling
           slots.concat(generate_slots_for_override(date, override, timezone))
         else
           # Use weekly schedule
-          availability = @schedule.availabilities.find_by(day_of_week: date.wday)
+          availability = find_availability(date.wday)
           slots.concat(generate_slots_for_availability(date, availability, timezone)) if availability
         end
       end
@@ -47,8 +50,9 @@ module Scheduling
       slots = []
       tz = ActiveSupport::TimeZone[timezone]
 
-      current_time = tz.parse("#{date} #{availability.start_time}")
-      end_time = tz.parse("#{date} #{availability.end_time}")
+      # Use hour/min components to avoid timezone issues with time-only fields
+      current_time = tz.local(date.year, date.month, date.day, availability.start_time.hour, availability.start_time.min)
+      end_time = tz.local(date.year, date.month, date.day, availability.end_time.hour, availability.end_time.min)
 
       # Apply minimum notice
       minimum_time = Time.current + @event_type.minimum_notice_hours.hours
@@ -80,8 +84,9 @@ module Scheduling
       tz = ActiveSupport::TimeZone[timezone]
       slots = []
 
-      current_time = tz.parse("#{date} #{override.start_time}")
-      end_time = tz.parse("#{date} #{override.end_time}")
+      # Use hour/min components to avoid timezone issues with time-only fields
+      current_time = tz.local(date.year, date.month, date.day, override.start_time.hour, override.start_time.min)
+      end_time = tz.local(date.year, date.month, date.day, override.end_time.hour, override.end_time.min)
 
       while current_time + @event_type.duration_minutes.minutes <= end_time
         slots << {
@@ -116,7 +121,7 @@ module Scheduling
 
     def within_schedule?(time)
       date = time.to_date
-      override = @member.date_overrides.find_by(date: date)
+      override = find_date_override(date)
 
       if override
         return false if override.unavailable?
@@ -125,7 +130,7 @@ module Scheduling
                time_of_day < override.end_time.strftime('%H:%M:%S')
       end
 
-      availability = @schedule.availabilities.find_by(day_of_week: date.wday)
+      availability = find_availability(date.wday)
       return false unless availability
 
       time_of_day = time.strftime('%H:%M:%S')
@@ -149,7 +154,7 @@ module Scheduling
     end
 
     def has_external_calendar_conflicts?(start_time, end_time)
-      @member.calendar_connections.active.each do |connection|
+      active_calendar_connections.each do |connection|
         next unless connection.check_for_conflicts
 
         service = case connection.provider
@@ -163,6 +168,33 @@ module Scheduling
       end
 
       false
+    end
+
+    # Helper methods to use preloaded data or fall back to queries
+    def find_date_override(date)
+      if @preloaded_date_overrides
+        @preloaded_date_overrides.find { |override| override.date == date }
+      else
+        @member.date_overrides.find_by(date: date)
+      end
+    end
+
+    def find_availability(day_of_week)
+      if @preloaded_availabilities
+        @preloaded_availabilities.find { |avail| avail.day_of_week == day_of_week }
+      else
+        @schedule&.availabilities&.find_by(day_of_week: day_of_week)
+      end
+    end
+
+    def active_calendar_connections
+      @active_calendar_connections ||= begin
+        if @preloaded_calendar_connections
+          @preloaded_calendar_connections.select(&:active?)
+        else
+          @member.calendar_connections.active.to_a
+        end
+      end
     end
   end
 end

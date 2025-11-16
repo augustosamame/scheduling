@@ -21,6 +21,11 @@ module Scheduling
                   :google_client_secret,
                   :microsoft_client_id,
                   :microsoft_client_secret,
+                  # Payment gateway credentials
+                  :stripe_publishable_key,
+                  :stripe_secret_key,
+                  :culqi_public_key,
+                  :culqi_secret_key,
                   :mailer_from,
                   # Organization defaults
                   :organization_name,
@@ -66,6 +71,12 @@ module Scheduling
       @google_client_secret = nil
       @microsoft_client_id = nil
       @microsoft_client_secret = nil
+
+      # Payment gateway credentials (fallbacks to ENV variables if not set)
+      @stripe_publishable_key = nil
+      @stripe_secret_key = nil
+      @culqi_public_key = nil
+      @culqi_secret_key = nil
 
       @mailer_from = 'noreply@example.com'
 

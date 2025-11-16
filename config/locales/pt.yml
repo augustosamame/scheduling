@@ -96,6 +96,13 @@ pt:
         with: "Com"
         location: "Local"
         confirmation_code: "Código de Confirmação"
+        payment_information: "Informações de Pagamento"
+        appointment_cost: "Custo da Consulta"
+        payment_confirmed: "Pagamento Confirmado"
+        payment_confirmed_message: "Seu pagamento foi processado com sucesso. Você receberá um recibo por e-mail."
+        payment_pending: "Pagamento Pendente"
+        payment_pending_message: "Para economizar tempo na sua consulta, recomendamos pagar agora. Você também pode pagar quando chegar."
+        no_payment_required: "Nenhum pagamento necessário para esta consulta."
         your_information: "Suas Informações"
         additional_information: "Informações Adicionais"
         additional_notes: "Notas Adicionais"
@@ -213,6 +220,16 @@ pt:
       processing: "Processando pagamento..."
       success: "Pagamento bem-sucedido"
       refund_processing: "Processando reembolso..."
+
+    # Payments (plural form for UI)
+    payments:
+      payment_required: "Pagamento Obrigatório"
+      total: "Total"
+      pay_now: "Pagar Agora"
+      secure_payment: "Pagamento seguro processado por Culqi"
+      processing: "Processando..."
+      payment_success: "Pagamento processado com sucesso"
+      payment_failed: "Erro ao processar pagamento"
 
     # Email notifications
     mailers:

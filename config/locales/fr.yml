@@ -96,6 +96,13 @@ fr:
         with: "Avec"
         location: "Lieu"
         confirmation_code: "Code de Confirmation"
+        payment_information: "Informations de Paiement"
+        appointment_cost: "Coût du Rendez-vous"
+        payment_confirmed: "Paiement Confirmé"
+        payment_confirmed_message: "Votre paiement a été traité avec succès. Vous recevrez un reçu par e-mail."
+        payment_pending: "Paiement en Attente"
+        payment_pending_message: "Pour gagner du temps lors de votre rendez-vous, nous vous recommandons de payer maintenant. Vous pouvez également payer à votre arrivée."
+        no_payment_required: "Aucun paiement requis pour ce rendez-vous."
         your_information: "Vos Informations"
         additional_information: "Informations Supplémentaires"
         additional_notes: "Notes Supplémentaires"
@@ -213,6 +220,16 @@ fr:
       processing: "Traitement du paiement..."
       success: "Paiement réussi"
       refund_processing: "Traitement du remboursement..."
+
+    # Payments (plural form for UI)
+    payments:
+      payment_required: "Paiement Requis"
+      total: "Total"
+      pay_now: "Payer Maintenant"
+      secure_payment: "Paiement sécurisé traité par Culqi"
+      processing: "Traitement..."
+      payment_success: "Paiement traité avec succès"
+      payment_failed: "Erreur de traitement du paiement"
 
     # Email notifications
     mailers:

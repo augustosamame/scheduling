@@ -1,5 +1,182 @@
 <% content_for :title, t('scheduling.bookings.show.title') %>
 
+<% content_for :head do %>
+  <!-- Stimulus.js for interactive payment button -->
+  <script src="https://unpkg.com/@hotwired/stimulus/dist/stimulus.umd.js"></script>
+  <!-- Culqi.js v4 for optional payment processing -->
+  <script src="https://checkout.culqi.com/js/v4"></script>
+  <script>
+    (() => {
+      const application = Stimulus.Application.start()
+
+      // Import the Culqi payment controller
+      // We need to inline it since we don't have a build system
+      const CulqiPaymentController = class extends Stimulus.Controller {
+        static targets = ["payButton", "message"]
+        static values = {
+          amount: Number,
+          currency: String,
+          description: String,
+          publicKey: String,
+          bookingUid: String
+        }
+
+        connect() {
+          console.log("Culqi payment controller connected")
+        }
+
+        payExisting(event) {
+          event.preventDefault()
+
+          console.log('Paying for existing booking:', {
+            bookingUid: this.bookingUidValue,
+            amount: this.amountValue
+          })
+
+          this.buttonElement = event.currentTarget
+          const originalContent = this.buttonElement.innerHTML
+          this.buttonElement.dataset.originalContent = originalContent
+
+          this.buttonElement.disabled = true
+          this.buttonElement.classList.add('opacity-75')
+          this.buttonElement.innerHTML = '<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Procesando...'
+
+          try {
+            Culqi.publicKey = this.publicKeyValue
+            Culqi.settings({
+              title: 'Pago de Cita',
+              currency: this.currencyValue,
+              description: this.descriptionValue,
+              amount: this.amountValue
+            })
+            Culqi.options({
+              style: {
+                maincolor: '#0ea5e9',
+                auxcolor: '#475569',
+                maintext: '#1e293b',
+                auxtext: '#64748b'
+              },
+              modal: true,
+              installments: false,
+              paymentMethods: {
+                tarjeta: true,
+                yape: false,
+                billetera: false,
+                bancaMovil: false,
+                agente: false,
+                cuotealo: false
+              }
+            })
+            Culqi.open()
+          } catch (error) {
+            console.error('Error initializing Culqi:', error)
+            this.showError('Error al inicializar el sistema de pagos')
+            this.resetButton()
+          }
+
+          this.setupCulqiHandlers()
+        }
+
+        setupCulqiHandlers() {
+          window.culqi = () => {
+            if (Culqi.token) {
+              console.log('Culqi token received:', Culqi.token)
+              this.processExistingBookingPayment(Culqi.token.id)
+            } else {
+              console.error('No token received')
+              this.showError('No se recibió el token de pago')
+              this.resetButton()
+            }
+          }
+
+          window.culqi_close = () => {
+            console.log('Culqi modal closed')
+            this.resetButton()
+          }
+
+          window.culqi_error = (error) => {
+            console.error('Culqi error:', error)
+            this.showError(error.user_message || 'Error en el procesamiento del pago')
+            this.resetButton()
+          }
+        }
+
+        async processExistingBookingPayment(token) {
+          try {
+            const bookingUid = this.bookingUidValue || this.extractBookingUidFromUrl()
+
+            const response = await fetch(`/book/bookings/${bookingUid}/process_payment`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+                'Accept': 'application/json'
+              },
+              body: JSON.stringify({
+                payment_provider: 'culqi',
+                token_id: token
+              })
+            })
+
+            const data = await response.json()
+
+            if (data.success) {
+              this.showSuccess(data.message || 'Pago procesado exitosamente')
+              setTimeout(() => window.location.reload(), 2000)
+            } else if (data.requires_3ds) {
+              alert('Verificación 3D Secure requerida. Complete la verificación en la nueva ventana.')
+              window.open(data.three_d_secure_url, '_blank')
+              this.resetButton()
+            } else {
+              this.showError(data.error || 'Error procesando el pago')
+              this.resetButton()
+            }
+          } catch (error) {
+            console.error('Network error:', error)
+            this.showError('Error de conexión. Intente nuevamente.')
+            this.resetButton()
+          }
+        }
+
+        extractBookingUidFromUrl() {
+          const match = window.location.pathname.match(/bookings\/([^\/]+)/)
+          return match ? match[1] : null
+        }
+
+        resetButton() {
+          if (this.buttonElement) {
+            this.buttonElement.disabled = false
+            this.buttonElement.classList.remove('opacity-75')
+            const originalContent = this.buttonElement.dataset.originalContent
+            if (originalContent) {
+              this.buttonElement.innerHTML = originalContent
+              delete this.buttonElement.dataset.originalContent
+            }
+          }
+        }
+
+        showSuccess(message) {
+          if (this.hasMessageTarget) {
+            this.messageTarget.className = 'mb-3 p-4 border rounded-lg bg-green-50 border-green-200 text-green-800'
+            this.messageTarget.innerHTML = `<div class="flex items-center"><svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg><span>${message}</span></div>`
+            this.messageTarget.classList.remove('hidden')
+          }
+        }
+
+        showError(message) {
+          if (this.hasMessageTarget) {
+            this.messageTarget.className = 'mb-3 p-4 border rounded-lg bg-red-50 border-red-200 text-red-800'
+            this.messageTarget.innerHTML = `<div class="flex items-center"><svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg><span>${message}</span></div>`
+            this.messageTarget.classList.remove('hidden')
+          }
+        }
+      }
+
+      application.register("scheduling--culqi-payment", CulqiPaymentController)
+    })()
+  </script>
+<% end %>
+
 <div class="px-4 mx-auto max-w-3xl sm:px-6 lg:px-8">
   <!-- Success Message -->
   <div class="p-6 mb-6 bg-green-50 rounded-lg border border-green-200">
@@ -50,10 +227,10 @@
         <div class="ml-3">
           <p class="text-sm font-medium text-gray-500"><%= t('scheduling.bookings.show.date_time') %></p>
           <p class="mt-1 font-semibold text-gray-900">
-            <%= @booking.start_time.strftime("%A, %B %d, %Y") %>
+            <%= @booking.start_time.in_time_zone(@booking.timezone).strftime("%A, %B %d, %Y") %>
           </p>
           <p class="text-gray-900">
-            <%= @booking.start_time.strftime("%I:%M %p") %> - <%= @booking.end_time.strftime("%I:%M %p") %>
+            <%= @booking.start_time.in_time_zone(@booking.timezone).strftime("%I:%M %p") %> - <%= @booking.end_time.in_time_zone(@booking.timezone).strftime("%I:%M %p") %>
             <span class="text-sm text-gray-500">(<%= @booking.timezone %>)</span>
           </p>
         </div>
@@ -118,6 +295,90 @@
       </div>
     </div>
   </div>
+
+  <!-- Payment Information -->
+  <% if @booking.event_type.requires_payment %>
+    <div class="p-6 mb-6 bg-white rounded-lg shadow-sm border-l-4 <%= @booking.payment_status == 'paid' ? 'border-green-500' : 'border-yellow-500' %>">
+      <div class="flex items-start justify-between">
+        <div class="flex-1">
+          <h3 class="mb-3 text-lg font-semibold text-gray-900">
+            <%= t('scheduling.bookings.show.payment_information') %>
+          </h3>
+
+          <!-- Price -->
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center">
+              <svg class="mr-2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <span class="text-sm font-medium text-gray-500"><%= t('scheduling.bookings.show.appointment_cost') %></span>
+            </div>
+            <span class="text-2xl font-bold text-gray-900">
+              <%= format_price(@booking.event_type.price_cents, @booking.event_type.price_currency) %>
+            </span>
+          </div>
+
+          <!-- Payment Status -->
+          <% if @booking.payment_status == 'paid' %>
+            <!-- Payment Confirmed -->
+            <div class="p-4 bg-green-50 rounded-lg border border-green-200">
+              <div class="flex items-center">
+                <svg class="w-5 h-5 mr-2 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                </svg>
+                <span class="font-medium text-green-900"><%= t('scheduling.bookings.show.payment_confirmed') %></span>
+              </div>
+              <p class="mt-2 text-sm text-green-700">
+                <%= t('scheduling.bookings.show.payment_confirmed_message') %>
+              </p>
+            </div>
+
+          <% elsif @booking.payment_status == 'pending' %>
+            <!-- Payment Pending (Optional Payment) -->
+            <div class="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+              <div class="flex items-center mb-3">
+                <svg class="w-5 h-5 mr-2 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                </svg>
+                <span class="font-medium text-yellow-900"><%= t('scheduling.bookings.show.payment_pending') %></span>
+              </div>
+              <p class="mb-4 text-sm text-yellow-700">
+                <%= t('scheduling.bookings.show.payment_pending_message') %>
+              </p>
+
+              <!-- Pay Now Button (Culqi) -->
+              <div data-controller="scheduling--culqi-payment"
+                   data-scheduling--culqi-payment-amount-value="<%= @booking.event_type.price_cents %>"
+                   data-scheduling--culqi-payment-currency-value="<%= @booking.event_type.price_currency %>"
+                   data-scheduling--culqi-payment-description-value="<%= @booking.event_type.title %> - <%= @booking.member.full_name %>"
+                   data-scheduling--culqi-payment-public-key-value="<%= Culqi.public_key %>">
+
+                <div data-scheduling--culqi-payment-target="message" class="hidden mb-3"></div>
+
+                <button type="button"
+                        data-scheduling--culqi-payment-target="payButton"
+                        data-action="click->scheduling--culqi-payment#payExisting"
+                        class="w-full px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center">
+                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                  </svg>
+                  <%= t('scheduling.payments.pay_now') %> <%= format_price(@booking.event_type.price_cents, @booking.event_type.price_currency) %>
+                </button>
+              </div>
+            </div>
+
+          <% else %>
+            <!-- No Payment Required -->
+            <div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <p class="text-sm text-blue-700">
+                <%= t('scheduling.bookings.show.no_payment_required') %>
+              </p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
 
   <!-- Your Information -->
   <div class="p-6 mb-6 bg-white rounded-lg shadow-sm">

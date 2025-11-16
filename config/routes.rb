@@ -19,6 +19,9 @@ Scheduling::Engine.routes.draw do
     get '/:uid', to: 'public_bookings#show', as: :booking_confirmation
     get '/:uid/calendar', to: 'public_bookings#download_calendar', as: :download_booking_calendar
 
+    # Process payment for existing booking (optional payment)
+    post '/:uid/process_payment', to: 'public_bookings#process_booking_payment', as: :process_booking_payment
+
     # Cancel booking
     get '/:token/cancel', to: 'public_bookings#cancel', as: :cancel_booking
     post '/:token/cancel', to: 'public_bookings#process_cancellation', as: :process_cancel_booking

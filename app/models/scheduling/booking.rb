@@ -177,9 +177,12 @@ module Scheduling
     end
 
     def set_payment_status
-      if event_type.requires_payment && event_type.payment_required_to_book
+      if event_type.requires_payment
+        # If payment is required (either mandatory or optional), set to pending
+        # It will be updated to 'paid' after successful payment
         self.payment_status = 'pending'
       else
+        # No payment required for this event type
         self.payment_status = 'not_required'
       end
     end
@@ -270,6 +273,8 @@ module Scheduling
       CalendarSyncJob.perform_later(id, 'update', new_booking.id)
     end
 
+    public
+
     # Generate ICS (iCalendar) file content for this booking
     # This allows users to add the event to any calendar app (Google, Outlook, Apple, etc.)
     def to_ics
@@ -304,9 +309,9 @@ module Scheduling
       # Build location string
       location_str = case event_type.location_type
                      when 'in_person'
-                       event_type.location || member.team.location.address || "In Person"
+                       event_type.location_details || member.team.location.address || "In Person"
                      when 'video_call'
-                       event_type.video_call_url || "Video Call"
+                       event_type.location_details || "Video Call"
                      when 'phone_call'
                        "Phone Call"
                      else

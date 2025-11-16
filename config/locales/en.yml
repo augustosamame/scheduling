@@ -96,6 +96,13 @@ en:
         with: "With"
         location: "Location"
         confirmation_code: "Confirmation Code"
+        payment_information: "Payment Information"
+        appointment_cost: "Appointment Cost"
+        payment_confirmed: "Payment Confirmed"
+        payment_confirmed_message: "Your payment has been processed successfully. You will receive a receipt via email."
+        payment_pending: "Payment Pending"
+        payment_pending_message: "To save time at your appointment, we recommend paying now. You can also pay when you arrive."
+        no_payment_required: "No payment required for this appointment."
         your_information: "Your Information"
         additional_information: "Additional Information"
         additional_notes: "Additional Notes"
@@ -213,6 +220,16 @@ en:
       processing: "Processing payment..."
       success: "Payment successful"
       refund_processing: "Processing refund..."
+
+    # Payments (plural form for UI)
+    payments:
+      payment_required: "Payment Required"
+      total: "Total"
+      pay_now: "Pay Now"
+      secure_payment: "Secure payment processed by Culqi"
+      processing: "Processing..."
+      payment_success: "Payment processed successfully"
+      payment_failed: "Payment processing error"
 
     # Email notifications
     mailers:

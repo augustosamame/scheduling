@@ -96,6 +96,13 @@ es:
         with: "Con"
         location: "Ubicación"
         confirmation_code: "Código de Confirmación"
+        payment_information: "Información de Pago"
+        appointment_cost: "Costo de la Cita"
+        payment_confirmed: "Pago Confirmado"
+        payment_confirmed_message: "Tu pago ha sido procesado exitosamente. Recibirás un recibo por correo electrónico."
+        payment_pending: "Pago Pendiente"
+        payment_pending_message: "Para ahorrar tiempo en tu cita, te recomendamos pagar ahora. También puedes pagar cuando llegues."
+        no_payment_required: "No se requiere pago para esta cita."
         your_information: "Tu Información"
         additional_information: "Información Adicional"
         additional_notes: "Notas Adicionales"
@@ -213,6 +220,16 @@ es:
       processing: "Procesando pago..."
       success: "Pago exitoso"
       refund_processing: "Procesando reembolso..."
+
+    # Payments (plural form for UI)
+    payments:
+      payment_required: "Pago Requerido"
+      total: "Total"
+      pay_now: "Pagar Ahora"
+      secure_payment: "Pago seguro procesado por Culqi"
+      processing: "Procesando..."
+      payment_success: "Pago procesado exitosamente"
+      payment_failed: "Error al procesar el pago"
 
     # Email notifications (for future mailer implementation)
     mailers:
