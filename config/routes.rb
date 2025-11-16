@@ -1,8 +1,23 @@
 Scheduling::Engine.routes.draw do
+  # Calendar connections OAuth callbacks (must be at root level for OAuth providers)
+  get '/calendar_connections/google_callback', to: 'calendar_connections#google_callback', as: :google_callback
+  get '/calendar_connections/outlook_callback', to: 'calendar_connections#outlook_callback', as: :outlook_callback
+
+  # Calendar connections management (requires authentication - implement in host app)
+  resources :members, only: [] do
+    resources :calendar_connections, only: [:index, :destroy] do
+      collection do
+        post :connect_google
+        post :connect_outlook
+      end
+    end
+  end
+
   # Booking management with tokens (no authentication required)
   # IMPORTANT: This must come BEFORE the greedy /:organization_slug routes
   scope '/bookings' do
     get '/:uid', to: 'public_bookings#show', as: :booking_confirmation
+    get '/:uid/calendar', to: 'public_bookings#download_calendar', as: :download_booking_calendar
 
     # Cancel booking
     get '/:token/cancel', to: 'public_bookings#cancel', as: :cancel_booking

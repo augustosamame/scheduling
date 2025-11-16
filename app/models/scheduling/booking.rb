@@ -269,5 +269,85 @@ module Scheduling
     def update_external_calendar(new_booking)
       CalendarSyncJob.perform_later(id, 'update', new_booking.id)
     end
+
+    # Generate ICS (iCalendar) file content for this booking
+    # This allows users to add the event to any calendar app (Google, Outlook, Apple, etc.)
+    def to_ics
+      # Format times in UTC for ICS format
+      dtstamp = Time.current.utc.strftime('%Y%m%dT%H%M%SZ')
+      dtstart = start_time.utc.strftime('%Y%m%dT%H%M%SZ')
+      dtend = end_time.utc.strftime('%Y%m%dT%H%M%SZ')
+
+      # Generate unique UID for this event
+      event_uid = "booking-#{uid}@#{member.organization.slug}.scheduling"
+
+      # Build description with booking details
+      description_lines = []
+      description_lines << event_type.description if event_type.description.present?
+      description_lines << "\\n"
+      description_lines << "Duration: #{duration_minutes} minutes"
+      description_lines << "\\n"
+      description_lines << "Booking Reference: #{uid}"
+
+      if notes.present?
+        description_lines << "\\n"
+        description_lines << "Notes: #{notes}"
+      end
+
+      # Add confirmation URL
+      confirmation_url = "#{ENV['APP_URL'] || 'http://localhost:3000'}/book/bookings/#{uid}"
+      description_lines << "\\n"
+      description_lines << "View booking: #{confirmation_url}"
+
+      description = description_lines.join.gsub("\n", "\\n")
+
+      # Build location string
+      location_str = case event_type.location_type
+                     when 'in_person'
+                       event_type.location || member.team.location.address || "In Person"
+                     when 'video_call'
+                       event_type.video_call_url || "Video Call"
+                     when 'phone_call'
+                       "Phone Call"
+                     else
+                       ""
+                     end
+
+      # Build ICS content following RFC 5545 format
+      ics_content = []
+      ics_content << "BEGIN:VCALENDAR"
+      ics_content << "VERSION:2.0"
+      ics_content << "PRODID:-//#{member.organization.name}//Scheduling Engine//EN"
+      ics_content << "CALSCALE:GREGORIAN"
+      ics_content << "METHOD:PUBLISH"
+      ics_content << "X-WR-TIMEZONE:#{timezone}"
+      ics_content << "BEGIN:VEVENT"
+      ics_content << "UID:#{event_uid}"
+      ics_content << "DTSTAMP:#{dtstamp}"
+      ics_content << "DTSTART:#{dtstart}"
+      ics_content << "DTEND:#{dtend}"
+      ics_content << "SUMMARY:#{event_type.title} - #{member.full_name}"
+      ics_content << "DESCRIPTION:#{description}"
+      ics_content << "LOCATION:#{location_str}" if location_str.present?
+      ics_content << "ORGANIZER;CN=#{member.full_name}:mailto:#{member.email}"
+      ics_content << "ATTENDEE;CN=#{client.full_name};RSVP=TRUE:mailto:#{client.email}"
+      ics_content << "STATUS:CONFIRMED"
+      ics_content << "SEQUENCE:0"
+      ics_content << "BEGIN:VALARM"
+      ics_content << "TRIGGER:-PT24H"
+      ics_content << "ACTION:DISPLAY"
+      ics_content << "DESCRIPTION:Reminder: #{event_type.title} with #{member.full_name} tomorrow"
+      ics_content << "END:VALARM"
+      ics_content << "END:VEVENT"
+      ics_content << "END:VCALENDAR"
+
+      ics_content.join("\r\n")
+    end
+
+    # Generate filename for ICS download
+    def ics_filename
+      date_str = start_time.strftime('%Y%m%d')
+      "#{event_type.slug}-#{date_str}.ics"
+    end
   end
 end

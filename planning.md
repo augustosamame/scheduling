@@ -246,6 +246,132 @@ module Schedulable
 end
 ```
 
+### 1.4 Payment Configuration
+
+The scheduling engine supports three payment modes that can be configured per EventType:
+
+#### Payment Modes
+
+1. **`:no_payment`** (Default)
+   - The scheduling engine does NOT handle payment processing
+   - Appointments are created without any payment requirement
+   - Admin interface provides ability to manually mark appointments as `:paid`
+   - Use case: Free consultations, internal meetings, or when payment is handled externally
+
+2. **`:optional_payment`**
+   - Payment is optional but encouraged
+   - Appointments can be created without payment
+   - After booking confirmation, a "Pay Now" button appears on the confirmation page
+   - Includes messaging: "Pay now to save time at your appointment"
+   - Supports both Stripe and Culqi payment gateways
+   - Payment status tracked: `not_required`, `pending`, `paid`, `failed`
+   - Use case: Services where payment is preferred but not mandatory
+
+3. **`:mandatory_payment`**
+   - Payment is required before appointment is confirmed
+   - Appointment will NOT be saved until payment successfully processes
+   - Multi-step booking flow: Select time → Enter details → Process payment → Confirmation
+   - If payment fails, user returns to payment step with error message
+   - Supports both Stripe and Culqi payment gateways
+   - Use case: Paid services, deposits, prepaid consultations
+
+#### EventType Payment Configuration
+
+**Database Schema:**
+```ruby
+# In event_types table
+t.string :payment_mode, default: 'no_payment' # no_payment, optional_payment, mandatory_payment
+t.integer :price_cents, default: 0
+t.string :price_currency, default: 'PEN'
+```
+
+**Model Implementation:**
+```ruby
+class EventType < ApplicationRecord
+  PAYMENT_MODES = %w[no_payment optional_payment mandatory_payment].freeze
+  
+  validates :payment_mode, inclusion: { in: PAYMENT_MODES }
+  validates :price_cents, numericality: { greater_than_or_equal_to: 0 }
+  
+  def requires_payment?
+    payment_mode != 'no_payment' && price_cents > 0
+  end
+  
+  def payment_optional?
+    payment_mode == 'optional_payment'
+  end
+  
+  def payment_mandatory?
+    payment_mode == 'mandatory_payment'
+  end
+  
+  def free?
+    price_cents.zero?
+  end
+end
+```
+
+#### Booking Payment Flow
+
+**For `:no_payment` mode:**
+1. User selects time and fills details
+2. Booking is created with `payment_status: 'not_required'`
+3. Confirmation page shows booking details
+4. Admin can manually mark as paid in admin interface
+
+**For `:optional_payment` mode:**
+1. User selects time and fills details
+2. Booking is created with `payment_status: 'pending'`
+3. Confirmation page shows:
+   - Booking details
+   - "Pay Now" button (prominent)
+   - Message: "Pay now to save time at your appointment"
+   - Payment can be completed later via email link
+4. If user pays: `payment_status: 'paid'`
+5. If user doesn't pay: booking remains valid with `payment_status: 'pending'`
+
+**For `:mandatory_payment` mode:**
+1. User selects time and fills details
+2. User is taken to payment step (cannot skip)
+3. Payment is processed via Stripe or Culqi
+4. If payment succeeds:
+   - Booking is created with `payment_status: 'paid'`
+   - Confirmation page is shown
+5. If payment fails:
+   - Booking is NOT created
+   - User returns to payment step with error
+   - Can retry payment or go back to change details
+
+#### Payment Gateway Configuration
+
+**Stripe Configuration:**
+```ruby
+# config/initializers/scheduling.rb
+Scheduling.configure do |config|
+  config.payment_providers = [:stripe, :culqi]
+  config.stripe_publishable_key = ENV['STRIPE_PUBLISHABLE_KEY']
+  config.stripe_secret_key = ENV['STRIPE_SECRET_KEY']
+end
+```
+
+**Culqi Configuration:**
+```ruby
+# config/initializers/scheduling.rb
+Scheduling.configure do |config|
+  config.culqi_public_key = ENV['CULQI_PUBLIC_KEY']
+  config.culqi_secret_key = ENV['CULQI_SECRET_KEY']
+end
+```
+
+#### Admin Payment Management
+
+Admins can:
+- View payment status for all bookings
+- Manually mark bookings as paid (for `:no_payment` mode or external payments)
+- Issue refunds for cancelled appointments
+- View payment transaction history
+- Export payment reports
+
 ---
 
 ## Phase 2: Database Schema
@@ -371,10 +497,9 @@ class CreateSchedulableEventTypes < ActiveRecord::Migration[8.0]
       t.boolean :active, default: true
       
       # Payment settings
-      t.boolean :requires_payment, default: false
+      t.string :payment_mode, default: 'no_payment' # no_payment, optional_payment, mandatory_payment
       t.integer :price_cents, default: 0
       t.string :price_currency, default: 'PEN'
-      t.boolean :payment_required_to_book, default: true
       
       # Policies
       t.boolean :allow_rescheduling, default: true
@@ -797,15 +922,28 @@ module Schedulable
     
     before_validation :generate_slug, on: :create
     
+    PAYMENT_MODES = %w[no_payment optional_payment mandatory_payment].freeze
+    
+    validates :payment_mode, inclusion: { in: PAYMENT_MODES }
+    validates :price_cents, numericality: { greater_than_or_equal_to: 0 }
+    
     scope :active, -> { where(active: true) }
-    scope :requiring_payment, -> { where(requires_payment: true) }
+    scope :requiring_payment, -> { where.not(payment_mode: 'no_payment').where('price_cents > 0') }
     
     def free?
-      !requires_payment || price_cents.zero?
+      price_cents.zero?
+    end
+    
+    def requires_payment?
+      payment_mode != 'no_payment' && price_cents > 0
     end
     
     def payment_optional?
-      requires_payment && !payment_required_to_book
+      payment_mode == 'optional_payment'
+    end
+    
+    def payment_mandatory?
+      payment_mode == 'mandatory_payment'
     end
     
     def allows_cancellation_until
@@ -1106,10 +1244,13 @@ module Schedulable
     end
     
     def set_payment_status
-      if event_type.requires_payment && event_type.payment_required_to_book
-        self.payment_status = 'pending'
-      else
+      case event_type.payment_mode
+      when 'no_payment'
         self.payment_status = 'not_required'
+      when 'optional_payment'
+        self.payment_status = 'pending'
+      when 'mandatory_payment'
+        self.payment_status = 'pending' # Will be updated to 'paid' after successful payment
       end
     end
     
@@ -1146,7 +1287,7 @@ module Schedulable
     end
     
     def payment_completed_if_required
-      if event_type.requires_payment && event_type.payment_required_to_book
+      if event_type.payment_mandatory?
         unless payment_status == 'paid'
           errors.add(:payment_status, 'must be completed before booking')
         end

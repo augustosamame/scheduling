@@ -1,0 +1,170 @@
+<% content_for :title, "Calendar Connections - #{@member.full_name}" %>
+
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Header -->
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">
+      Calendar Connections
+    </h1>
+    <p class="text-gray-600">
+      Connect your calendars to automatically sync bookings and check for conflicts
+    </p>
+  </div>
+
+  <!-- Google Calendar Connection -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-4">
+    <div class="flex items-start justify-between">
+      <div class="flex items-center">
+        <!-- Google Calendar Icon -->
+        <div class="flex-shrink-0">
+          <svg class="w-12 h-12" viewBox="0 0 48 48" fill="none">
+            <path d="M38.4 24C38.4 29.7 33.7 34.4 28 34.4C22.3 34.4 17.6 29.7 17.6 24C17.6 18.3 22.3 13.6 28 13.6C33.7 13.6 38.4 18.3 38.4 24Z" fill="#4285F4"/>
+            <path d="M38.4 24H28V13.6C33.7 13.6 38.4 18.3 38.4 24Z" fill="#EA4335"/>
+            <path d="M28 13.6V24L35.2 29.6C37.3 27.8 38.4 25.1 38.4 22.4C38.4 17.7 34.7 13.6 30 13.6H28Z" fill="#FBBC04"/>
+            <path d="M17.6 24C17.6 29.7 22.3 34.4 28 34.4V24H17.6Z" fill="#34A853"/>
+          </svg>
+        </div>
+
+        <div class="ml-4">
+          <h3 class="text-lg font-semibold text-gray-900">Google Calendar</h3>
+          <% if @google_connected %>
+            <p class="text-sm text-green-600 flex items-center mt-1">
+              <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              </svg>
+              Connected
+            </p>
+            <p class="text-sm text-gray-500 mt-1">
+              Your Google Calendar is synced with bookings
+            </p>
+          <% else %>
+            <p class="text-sm text-gray-500 mt-1">
+              Not connected
+            </p>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="ml-4">
+        <% if @google_connected %>
+          <% google_connection = @connections.google.active.first %>
+          <%= button_to "Disconnect",
+                member_calendar_connection_path(@member, google_connection),
+                method: :delete,
+                class: "px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors",
+                data: { confirm: "Are you sure you want to disconnect Google Calendar? Future bookings will not be synced." } %>
+        <% else %>
+          <%= button_to "Connect Google Calendar",
+                connect_google_member_calendar_connections_path(@member),
+                class: "px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center" do %>
+            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
+            </svg>
+            Connect
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+
+    <% if @google_connected %>
+      <div class="mt-4 pt-4 border-t border-gray-200">
+        <div class="flex items-start">
+          <svg class="w-5 h-5 text-gray-400 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+          </svg>
+          <div class="text-sm text-gray-600">
+            <p>Bookings will automatically appear on your Google Calendar when confirmed.</p>
+            <p class="mt-1">Cancellations and reschedules will also sync automatically.</p>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Microsoft Outlook Calendar Connection -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div class="flex items-start justify-between">
+      <div class="flex items-center">
+        <!-- Outlook Icon -->
+        <div class="flex-shrink-0">
+          <svg class="w-12 h-12" viewBox="0 0 48 48" fill="none">
+            <rect width="48" height="48" fill="#0078D4"/>
+            <path d="M24 14C19.6 14 16 17.6 16 22V26C16 30.4 19.6 34 24 34C28.4 34 32 30.4 32 26V22C32 17.6 28.4 14 24 14ZM24 30C21.8 30 20 28.2 20 26V22C20 19.8 21.8 18 24 18C26.2 18 28 19.8 28 22V26C28 28.2 26.2 30 24 30Z" fill="white"/>
+          </svg>
+        </div>
+
+        <div class="ml-4">
+          <h3 class="text-lg font-semibold text-gray-900">Microsoft Outlook</h3>
+          <% if @outlook_connected %>
+            <p class="text-sm text-green-600 flex items-center mt-1">
+              <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              </svg>
+              Connected
+            </p>
+            <p class="text-sm text-gray-500 mt-1">
+              Your Outlook Calendar is synced with bookings
+            </p>
+          <% else %>
+            <p class="text-sm text-gray-500 mt-1">
+              Not connected
+            </p>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="ml-4">
+        <% if @outlook_connected %>
+          <% outlook_connection = @connections.outlook.active.first %>
+          <%= button_to "Disconnect",
+                member_calendar_connection_path(@member, outlook_connection),
+                method: :delete,
+                class: "px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors",
+                data: { confirm: "Are you sure you want to disconnect Outlook Calendar? Future bookings will not be synced." } %>
+        <% else %>
+          <%= button_to "Connect Outlook",
+                connect_outlook_member_calendar_connections_path(@member),
+                class: "px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center" do %>
+            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
+            </svg>
+            Connect
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+
+    <% if @outlook_connected %>
+      <div class="mt-4 pt-4 border-t border-gray-200">
+        <div class="flex items-start">
+          <svg class="w-5 h-5 text-gray-400 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+          </svg>
+          <div class="text-sm text-gray-600">
+            <p>Bookings will automatically appear on your Outlook Calendar when confirmed.</p>
+            <p class="mt-1">Cancellations and reschedules will also sync automatically.</p>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Information Section -->
+  <div class="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
+    <div class="flex items-start">
+      <svg class="w-6 h-6 text-blue-600 mr-3 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+      </svg>
+      <div>
+        <h4 class="text-sm font-semibold text-blue-900 mb-2">How Calendar Sync Works</h4>
+        <ul class="text-sm text-blue-800 space-y-1 list-disc list-inside">
+          <li>When a booking is confirmed, it's automatically added to your calendar</li>
+          <li>When a client cancels or reschedules, your calendar is updated</li>
+          <li>The system checks your calendar for conflicts when customers book</li>
+          <li>You can connect both Google and Outlook calendars simultaneously</li>
+          <li>Disconnecting will stop future syncing but won't delete existing events</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

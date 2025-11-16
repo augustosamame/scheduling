@@ -9,6 +9,12 @@ module Scheduling
       @member = @booking.member
       @event_type = @booking.event_type
 
+      # Attach ICS calendar file
+      attachments[@booking.ics_filename] = {
+        mime_type: 'text/calendar',
+        content: @booking.to_ics
+      }
+
       I18n.with_locale(@booking.locale) do
         mail(
           to: @client.email,
@@ -23,6 +29,12 @@ module Scheduling
       @client = @booking.client
       @member = @booking.member
       @event_type = @booking.event_type
+
+      # Attach ICS calendar file
+      attachments[@booking.ics_filename] = {
+        mime_type: 'text/calendar',
+        content: @booking.to_ics
+      }
 
       I18n.with_locale(@booking.locale) do
         mail(

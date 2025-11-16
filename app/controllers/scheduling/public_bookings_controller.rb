@@ -4,7 +4,7 @@ module Scheduling
     before_action :find_organization_only, only: [ :organization_index ]
     before_action :find_member, only: [ :index, :new, :create, :availability ]
     before_action :find_event_type, only: [ :new, :create, :availability ]
-    before_action :find_booking_by_uid, only: [ :show ]
+    before_action :find_booking_by_uid, only: [ :show, :download_calendar ]
     before_action :find_booking_by_token, only: [ :cancel, :process_cancellation, :reschedule, :process_reschedule ]
 
     def organization_index
@@ -133,6 +133,14 @@ module Scheduling
       slots = checker.available_slots(date..date, timezone)
 
       render json: slots
+    end
+
+    # Download ICS file for adding to calendar
+    def download_calendar
+      send_data @booking.to_ics,
+                filename: @booking.ics_filename,
+                type: 'text/calendar',
+                disposition: 'attachment'
     end
 
     private

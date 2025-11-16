@@ -16,6 +16,11 @@ module Scheduling
                   :enable_sms_notifications,
                   :enable_google_calendar,
                   :enable_outlook_calendar,
+                  # Calendar OAuth credentials
+                  :google_client_id,
+                  :google_client_secret,
+                  :microsoft_client_id,
+                  :microsoft_client_secret,
                   :mailer_from,
                   # Organization defaults
                   :organization_name,
@@ -55,6 +60,13 @@ module Scheduling
       @enable_sms_notifications = false
       @enable_google_calendar = true
       @enable_outlook_calendar = true
+
+      # Calendar OAuth credentials (fallbacks to ENV variables if not set)
+      @google_client_id = nil
+      @google_client_secret = nil
+      @microsoft_client_id = nil
+      @microsoft_client_secret = nil
+
       @mailer_from = 'noreply@example.com'
 
       # Organization defaults
