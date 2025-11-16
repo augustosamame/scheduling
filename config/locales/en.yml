@@ -1,0 +1,250 @@
+en:
+  # Rails standard date/time translations
+  date:
+    formats:
+      default: "%Y-%m-%d"
+      short: "%b %d"
+      long: "%B %d, %Y"
+    day_names:
+      - Sunday
+      - Monday
+      - Tuesday
+      - Wednesday
+      - Thursday
+      - Friday
+      - Saturday
+    abbr_day_names:
+      - Sun
+      - Mon
+      - Tue
+      - Wed
+      - Thu
+      - Fri
+      - Sat
+    month_names:
+      - ~
+      - January
+      - February
+      - March
+      - April
+      - May
+      - June
+      - July
+      - August
+      - September
+      - October
+      - November
+      - December
+    abbr_month_names:
+      - ~
+      - Jan
+      - Feb
+      - Mar
+      - Apr
+      - May
+      - Jun
+      - Jul
+      - Aug
+      - Sep
+      - Oct
+      - Nov
+      - Dec
+    order:
+      - year
+      - month
+      - day
+
+  time:
+    formats:
+      default: "%a, %d %b %Y %H:%M:%S %z"
+      short: "%d %b %H:%M"
+      long: "%B %d, %Y %H:%M"
+    am: "am"
+    pm: "pm"
+
+  scheduling:
+    organization:
+      view_all_events: "View all events"
+      no_members_available: "No members available for booking at this time"
+
+
+    # Public booking flow
+    bookings:
+      index:
+        title: "Book with %{member_name}"
+        available_types: "Available Appointment Types"
+        no_types: "No appointment types are currently available. Please check back later."
+      new:
+        title: "Book %{event_type}"
+        select_datetime: "Select a date and time"
+        select_date: "Select a date"
+        select_time: "Select a time"
+        no_times_available: "No times available for this date"
+        timezone: "Time zone"
+        next: "Next"
+        back: "Back"
+        enter_details: "Enter your details"
+        confirm_booking: "Confirm Booking"
+      show:
+        title: "Booking Confirmation"
+        confirmed_title: "Booking Confirmed!"
+        confirmed_message: "Your appointment has been successfully scheduled. A confirmation email has been sent to %{email}."
+        appointment_details: "Appointment Details"
+        appointment_type: "Appointment Type"
+        date_time: "Date & Time"
+        duration: "Duration"
+        with: "With"
+        location: "Location"
+        confirmation_code: "Confirmation Code"
+        your_information: "Your Information"
+        additional_information: "Additional Information"
+        additional_notes: "Additional Notes"
+        manage_appointment: "Manage Your Appointment"
+        reschedule_appointment: "Reschedule Appointment"
+        cancel_appointment: "Cancel Appointment"
+        cancel_policy: "You can cancel up to %{hours} hours before your appointment."
+        reschedule_policy: "You can reschedule up to %{hours} hours before your appointment."
+        add_to_calendar: "Add to Calendar"
+        add_to_calendar_message: "Don't forget! Add this appointment to your calendar."
+        minutes: "minutes"
+        your_answers: "Your Answers"
+        notes: "Notes"
+        view_booking: "View Booking"
+      cancel:
+        title: "Cancel Appointment"
+        warning_message: "You are about to cancel the following appointment. This action cannot be undone."
+        appointment: "Appointment"
+        with: "With"
+        scheduled_for: "Scheduled For"
+        reason: "Reason for cancellation (optional)"
+        reason_placeholder: "Please let us know why you're cancelling..."
+        keep_appointment: "Keep Appointment"
+        cancel_appointment: "Cancel Appointment"
+        confirm: "Are you sure you want to cancel this appointment?"
+        cancellation_policy: "Cancellation Policy"
+        cancellation_policy_message: "Appointments can be cancelled up to %{hours} hours before the scheduled time."
+        success: "Your appointment has been cancelled successfully"
+      reschedule:
+        title: "Reschedule Appointment"
+        select_new_time: "Select a new date and time for your appointment below."
+        current_appointment: "Current Appointment"
+        appointment_type: "Appointment Type"
+        with: "With"
+        currently_scheduled: "Currently Scheduled"
+        new_date_time: "New Date & Time"
+        timezone: "Timezone"
+        reason: "Reason for rescheduling (optional)"
+        reason_placeholder: "Why are you rescheduling this appointment?"
+        cancel: "Cancel"
+        confirm_new_time: "Confirm New Time"
+        rescheduling_policy: "Rescheduling Policy"
+        rescheduling_policy_message: "Appointments can be rescheduled up to %{hours} hours before the scheduled time."
+        select_time_alert: "Please select a date and time"
+        price: "Price"
+        success: "Your appointment has been rescheduled successfully"
+
+    # Form fields
+    forms:
+      first_name: "First Name"
+      last_name: "Last Name"
+      email: "Email"
+      phone: "Phone"
+      notes: "Additional Notes (Optional)"
+      notes_placeholder: "Anything else we should know?"
+      required: "*"
+
+    # Event type details
+    event_types:
+      duration: "%{minutes} min"
+      duration_minutes: "%{minutes} minutes"
+      price: "%{amount}"
+      price_label: "Price"
+      free: "Free"
+      book_now: "Book Now"
+      in_person: "In Person"
+      video_call: "Video Call"
+      phone_call: "Phone Call"
+
+    # Calendar
+    calendar:
+      months:
+        january: "January"
+        february: "February"
+        march: "March"
+        april: "April"
+        may: "May"
+        june: "June"
+        july: "July"
+        august: "August"
+        september: "September"
+        october: "October"
+        november: "November"
+        december: "December"
+      days:
+        sunday: "Sunday"
+        monday: "Monday"
+        tuesday: "Tuesday"
+        wednesday: "Wednesday"
+        thursday: "Thursday"
+        friday: "Friday"
+        saturday: "Saturday"
+      days_short:
+        sun: "SUN"
+        mon: "MON"
+        tue: "TUE"
+        wed: "WED"
+        thu: "THU"
+        fri: "FRI"
+        sat: "SAT"
+
+    # Errors
+    errors:
+      booking_not_found: "Booking not found"
+      past_cancellation_deadline: "Cannot cancel. Cancellation deadline was %{hours} hours before the appointment"
+      past_reschedule_deadline: "Cannot reschedule. Reschedule deadline was %{hours} hours before the appointment"
+      invalid_time_slot: "The selected time slot is no longer available"
+      payment_failed: "Payment could not be processed. Please try again"
+      required_field: "This field is required"
+
+    # Payment
+    payment:
+      required: "Payment required"
+      optional: "Payment optional"
+      processing: "Processing payment..."
+      success: "Payment successful"
+      refund_processing: "Processing refund..."
+
+    # Email notifications
+    mailers:
+      confirmation:
+        subject: "Appointment Confirmation - %{event_type}"
+        greeting: "Hi %{client_name},"
+        confirmed: "Your appointment has been confirmed"
+        details: "Appointment details:"
+        date: "Date"
+        time: "Time"
+        duration: "Duration"
+        with: "With"
+        location: "Location"
+        cancel_link: "Cancel appointment"
+        reschedule_link: "Reschedule appointment"
+      reminder:
+        subject: "Appointment Reminder - %{event_type}"
+        reminder: "This is a reminder of your upcoming appointment"
+        tomorrow: "tomorrow"
+        today: "today"
+      cancellation:
+        subject: "Appointment Cancelled - %{event_type}"
+        cancelled: "Your appointment has been cancelled"
+        refund: "If you made a payment, you will receive a refund in 5-10 business days"
+      reschedule:
+        subject: "Appointment Rescheduled - %{event_type}"
+        rescheduled: "Your appointment has been rescheduled"
+        new_time: "New date and time:"
+
+    # Time
+    time:
+      formats:
+        booking: "%A, %B %d at %I:%M %p"
+        short_date: "%m/%d/%Y"
+        short_time: "%I:%M %p"

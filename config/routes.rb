@@ -15,6 +15,9 @@ Scheduling::Engine.routes.draw do
 
   # Public booking pages (customer-facing)
   scope '/:organization_slug' do
+    # Organization landing page - shows all bookable members
+    get '/', to: 'public_bookings#organization_index', as: :organization_booking
+
     # Member's booking page - shows all event types for a member
     get '/:booking_slug', to: 'public_bookings#index', as: :member_booking
 

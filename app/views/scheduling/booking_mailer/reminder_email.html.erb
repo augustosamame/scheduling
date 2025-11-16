@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  <style>
+    body {
+      font-family: <%= Scheduling.configuration.font_family || 'Arial, sans-serif' %>;
+      line-height: 1.6;
+      color: #333;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .header {
+      background: <%= Scheduling.configuration.primary_color || '#3b82f6' %>;
+      color: white;
+      padding: 30px;
+      text-align: center;
+      border-radius: 8px 8px 0 0;
+    }
+    .content {
+      background: #f9fafb;
+      padding: 30px;
+    }
+    .reminder-badge {
+      display: inline-block;
+      background: #fbbf24;
+      color: #78350f;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 14px;
+      margin: 20px 0;
+    }
+    .details {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    .detail-row {
+      padding: 10px 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .detail-row:last-child {
+      border-bottom: none;
+    }
+    .label {
+      font-weight: bold;
+      color: #6b7280;
+      font-size: 14px;
+    }
+    .value {
+      color: #111827;
+      margin-top: 5px;
+    }
+    .button {
+      display: inline-block;
+      background: <%= Scheduling.configuration.primary_color || '#3b82f6' %>;
+      color: white;
+      padding: 12px 24px;
+      text-decoration: none;
+      border-radius: 6px;
+      margin: 10px 5px;
+      font-weight: 600;
+    }
+    .button-secondary {
+      background: white;
+      color: <%= Scheduling.configuration.primary_color || '#3b82f6' %>;
+      border: 2px solid <%= Scheduling.configuration.primary_color || '#3b82f6' %>;
+    }
+    .footer {
+      text-align: center;
+      padding: 20px;
+      color: #6b7280;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1><%= t('scheduling.mailers.reminder.subject', event_type: @event_type.title) %></h1>
+    </div>
+
+    <div class="content">
+      <p><%= t('scheduling.mailers.confirmation.greeting', client_name: @client.full_name) %></p>
+
+      <div style="text-align: center;">
+        <span class="reminder-badge">
+          <%= t('scheduling.mailers.reminder.reminder') %>
+        </span>
+      </div>
+
+      <div class="details">
+        <h2><%= t('scheduling.mailers.confirmation.details') %></h2>
+
+        <div class="detail-row">
+          <div class="label"><%= t('scheduling.mailers.confirmation.date') %></div>
+          <div class="value"><%= l(@booking.start_time.in_time_zone(@booking.timezone), format: :long) %></div>
+        </div>
+
+        <div class="detail-row">
+          <div class="label"><%= t('scheduling.mailers.confirmation.time') %></div>
+          <div class="value">
+            <%= @booking.start_time.in_time_zone(@booking.timezone).strftime('%I:%M %p') %> -
+            <%= @booking.end_time.in_time_zone(@booking.timezone).strftime('%I:%M %p') %>
+          </div>
+        </div>
+
+        <div class="detail-row">
+          <div class="label"><%= t('scheduling.mailers.confirmation.duration') %></div>
+          <div class="value"><%= @event_type.duration_minutes %> <%= t('scheduling.event_types.duration_minutes', minutes: @event_type.duration_minutes) %></div>
+        </div>
+
+        <div class="detail-row">
+          <div class="label"><%= t('scheduling.mailers.confirmation.with') %></div>
+          <div class="value"><%= @member.full_name %></div>
+        </div>
+
+        <% if @event_type.location_type == 'in_person' && @member.team.location.address.present? %>
+          <div class="detail-row">
+            <div class="label"><%= t('scheduling.mailers.confirmation.location') %></div>
+            <div class="value"><%= @member.team.location.address %></div>
+          </div>
+        <% end %>
+
+        <div class="detail-row">
+          <div class="label"><%= t('scheduling.bookings.show.confirmation_code') %></div>
+          <div class="value" style="font-family: monospace;"><%= @booking.uid %></div>
+        </div>
+      </div>
+
+      <% if @booking.booking_answers.any? %>
+        <div class="details">
+          <h3><%= t('scheduling.bookings.show.your_answers') %></h3>
+          <% @booking.booking_answers.includes(:booking_question).each do |answer| %>
+            <div class="detail-row">
+              <div class="label"><%= answer.booking_question.question %></div>
+              <div class="value"><%= answer.answer %></div>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+
+      <!-- Action Buttons -->
+      <div style="text-align: center; margin: 30px 0;">
+        <% if @booking.can_reschedule? %>
+          <a href="<%= reschedule_booking_url(@booking.reschedule_token) %>" class="button button-secondary">
+            <%= t('scheduling.mailers.confirmation.reschedule_link') %>
+          </a>
+        <% end %>
+
+        <% if @booking.can_cancel? %>
+          <a href="<%= cancel_booking_url(@booking.cancellation_token) %>" class="button button-secondary">
+            <%= t('scheduling.mailers.confirmation.cancel_link') %>
+          </a>
+        <% end %>
+      </div>
+
+      <% if @booking.notes.present? %>
+        <div style="background: #fef3c7; border-left: 4px solid #fbbf24; padding: 15px; margin: 20px 0; border-radius: 4px;">
+          <p style="margin: 0; color: #78350f;"><strong><%= t('scheduling.bookings.show.notes') %>:</strong> <%= @booking.notes %></p>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="footer">
+      <p><%= Scheduling.configuration.company_name || 'Scheduling' %></p>
+    </div>
+  </div>
+</body>
+</html>

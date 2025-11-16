@@ -1,0 +1,107 @@
+<% content_for :title, @organization.name %>
+
+<div class="min-h-screen py-12 px-4 bg-gray-50">
+  <div class="mx-auto max-w-7xl">
+    <!-- Organization Header -->
+    <div class="mb-12 text-center">
+      <h1 class="mb-4 text-4xl font-bold text-gray-900">
+        <%= @organization.name %>
+      </h1>
+      <% if @organization.description.present? %>
+        <p class="text-lg text-gray-600">
+          <%= @organization.description %>
+        </p>
+      <% end %>
+    </div>
+
+    <% if @members.any? %>
+      <!-- Members Grid -->
+      <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+        <% @members.each do |member| %>
+          <div class="p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+            <!-- Member Info -->
+            <div class="mb-4 pb-4 border-b">
+              <h2 class="mb-2 text-xl font-bold text-gray-900">
+                <%= member.full_name %>
+              </h2>
+              <% if member.title.present? %>
+                <p class="text-sm text-gray-600"><%= member.title %></p>
+              <% end %>
+            </div>
+
+            <!-- Member's Event Types -->
+            <div class="space-y-3">
+              <h3 class="text-sm font-semibold text-gray-700">
+                <%= t('scheduling.bookings.index.available_types') %>
+              </h3>
+
+              <% member.event_types.active.each do |event_type| %>
+                <%= link_to member_booking_path(
+                      organization_slug: @organization.slug,
+                      booking_slug: member.booking_slug,
+                      locale: I18n.locale
+                    ),
+                    class: "block p-4 rounded-md border border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-colors" do %>
+                  <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                      <h4 class="font-semibold text-gray-900"><%= event_type.title %></h4>
+                      <div class="mt-2 space-y-1 text-sm text-gray-600">
+                        <!-- Duration -->
+                        <div class="flex items-center gap-1">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                          </svg>
+                          <span><%= t('scheduling.event_types.duration_minutes', minutes: event_type.duration_minutes) %></span>
+                        </div>
+
+                        <!-- Location Type -->
+                        <% if event_type.location_type.present? %>
+                          <div class="flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            <span><%= t("scheduling.event_types.#{event_type.location_type}") %></span>
+                          </div>
+                        <% end %>
+                      </div>
+                    </div>
+
+                    <!-- Price -->
+                    <div class="ml-4 text-right">
+                      <span class="text-lg font-bold <%= (event_type.price_cents && event_type.price_cents > 0) ? 'text-blue-600' : 'text-green-600' %>">
+                        <%= format_price(event_type.price_cents, event_type.price_currency) %>
+                      </span>
+                    </div>
+                  </div>
+                <% end %>
+              <% end %>
+            </div>
+
+            <!-- View Profile Button -->
+            <div class="mt-4 pt-4 border-t">
+              <%= link_to member_booking_path(
+                    organization_slug: @organization.slug,
+                    booking_slug: member.booking_slug,
+                    locale: I18n.locale
+                  ),
+                  class: "block w-full py-2 text-center text-sm font-semibold text-blue-600 hover:text-blue-700" do %>
+                <%= t('scheduling.organization.view_all_events') %> →
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <!-- No Members Available -->
+      <div class="py-12 text-center">
+        <svg class="mx-auto w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+        </svg>
+        <p class="mt-4 text-lg text-gray-600">
+          <%= t('scheduling.organization.no_members_available') %>
+        </p>
+      </div>
+    <% end %>
+  </div>
+</div>

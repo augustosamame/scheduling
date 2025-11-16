@@ -27,7 +27,7 @@
   <!-- Event Types -->
   <div class="space-y-4">
     <h2 class="text-2xl font-bold text-gray-900 mb-6">
-      Available Appointment Types
+      <%= t('scheduling.bookings.index.available_types') %>
     </h2>
 
     <% if @event_types.any? %>
@@ -53,7 +53,7 @@
                     <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
-                    <span class="font-medium"><%= event_type.duration_minutes %> min</span>
+                    <span class="font-medium"><%= t('scheduling.event_types.duration', minutes: event_type.duration_minutes) %></span>
                   </div>
 
                   <!-- Location Type -->
@@ -66,30 +66,26 @@
                       <span class="font-medium"><%= event_type.location_type.titleize %></span>
                     </div>
                   <% end %>
-
-                  <!-- Price - Prominent -->
-                  <% if event_type.price_cents > 0 %>
-                    <div class="flex items-center text-blue-600">
-                      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                      </svg>
-                      <span class="text-2xl font-bold"><%= number_to_currency(event_type.price_cents / 100.0, unit: event_type.price_currency) %></span>
-                    </div>
-                  <% else %>
-                    <div class="flex items-center">
-                      <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-bold">FREE</span>
-                    </div>
-                  <% end %>
                 </div>
               </div>
 
-              <div class="flex-shrink-0">
+              <!-- Right side: Button and Price -->
+              <div class="flex-shrink-0 flex flex-col items-end gap-3">
+                <!-- Book Now Button -->
                 <span class="inline-flex items-center px-6 py-3 bg-blue-600 text-white text-base font-semibold rounded-lg group-hover:bg-blue-700 transition-colors shadow-sm">
-                  Book Now
+                  <%= t('scheduling.event_types.book_now') %>
                   <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                   </svg>
                 </span>
+
+                <!-- Price (below button) -->
+                <div class="flex items-baseline justify-end gap-2">
+                  <span class="text-sm text-gray-600"><%= t('scheduling.event_types.price_label') %>:</span>
+                  <span class="text-xl font-bold <%= (event_type.price_cents && event_type.price_cents > 0) ? 'text-blue-600' : 'text-green-600' %>">
+                    <%= format_price(event_type.price_cents, event_type.price_currency) %>
+                  </span>
+                </div>
               </div>
             </div>
           <% end %>
@@ -98,7 +94,7 @@
     <% else %>
       <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
         <p class="text-yellow-800">
-          No appointment types are currently available. Please check back later.
+          <%= t('scheduling.bookings.index.no_types') %>
         </p>
       </div>
     <% end %>

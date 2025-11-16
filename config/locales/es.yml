@@ -1,0 +1,250 @@
+es:
+  # Rails standard date/time translations
+  date:
+    formats:
+      default: "%d/%m/%Y"
+      short: "%d de %b"
+      long: "%d de %B de %Y"
+    day_names:
+      - domingo
+      - lunes
+      - martes
+      - miércoles
+      - jueves
+      - viernes
+      - sábado
+    abbr_day_names:
+      - dom
+      - lun
+      - mar
+      - mié
+      - jue
+      - vie
+      - sáb
+    month_names:
+      - ~
+      - enero
+      - febrero
+      - marzo
+      - abril
+      - mayo
+      - junio
+      - julio
+      - agosto
+      - septiembre
+      - octubre
+      - noviembre
+      - diciembre
+    abbr_month_names:
+      - ~
+      - ene
+      - feb
+      - mar
+      - abr
+      - may
+      - jun
+      - jul
+      - ago
+      - sep
+      - oct
+      - nov
+      - dic
+    order:
+      - day
+      - month
+      - year
+
+  time:
+    formats:
+      default: "%A, %d de %B de %Y %H:%M:%S %z"
+      short: "%d de %b %H:%M"
+      long: "%d de %B de %Y %H:%M"
+    am: "am"
+    pm: "pm"
+
+  scheduling:
+    organization:
+      view_all_events: "Ver todos los eventos"
+      no_members_available: "No hay miembros disponibles para reservar en este momento"
+
+
+    # Public booking flow
+    bookings:
+      index:
+        title: "Reservar con %{member_name}"
+        available_types: "Tipos de Cita Disponibles"
+        no_types: "No hay tipos de cita disponibles actualmente. Por favor vuelva más tarde."
+      new:
+        title: "Reservar %{event_type}"
+        select_datetime: "Selecciona una fecha y hora"
+        select_date: "Selecciona una fecha"
+        select_time: "Selecciona una hora"
+        no_times_available: "No hay horarios disponibles para esta fecha"
+        timezone: "Zona horaria"
+        next: "Siguiente"
+        back: "Volver"
+        enter_details: "Introduce tus datos"
+        confirm_booking: "Confirmar Reserva"
+      show:
+        title: "Confirmación de Reserva"
+        confirmed_title: "¡Reserva Confirmada!"
+        confirmed_message: "Tu cita ha sido programada exitosamente. Se ha enviado un correo de confirmación a %{email}."
+        appointment_details: "Detalles de la Cita"
+        appointment_type: "Tipo de Cita"
+        date_time: "Fecha y Hora"
+        duration: "Duración"
+        with: "Con"
+        location: "Ubicación"
+        confirmation_code: "Código de Confirmación"
+        your_information: "Tu Información"
+        additional_information: "Información Adicional"
+        additional_notes: "Notas Adicionales"
+        manage_appointment: "Administrar tu Cita"
+        reschedule_appointment: "Reprogramar Cita"
+        cancel_appointment: "Cancelar Cita"
+        cancel_policy: "Puedes cancelar hasta %{hours} horas antes de tu cita."
+        reschedule_policy: "Puedes reprogramar hasta %{hours} horas antes de tu cita."
+        add_to_calendar: "Agregar al Calendario"
+        add_to_calendar_message: "¡No lo olvides! Agrega esta cita a tu calendario."
+        minutes: "minutos"
+        your_answers: "Tus Respuestas"
+        notes: "Notas"
+        view_booking: "Ver Reserva"
+      cancel:
+        title: "Cancelar Cita"
+        warning_message: "Estás a punto de cancelar la siguiente cita. Esta acción no se puede deshacer."
+        appointment: "Cita"
+        with: "Con"
+        scheduled_for: "Programada Para"
+        reason: "Razón de cancelación (opcional)"
+        reason_placeholder: "Por favor déjanos saber por qué estás cancelando..."
+        keep_appointment: "Mantener Cita"
+        cancel_appointment: "Cancelar Cita"
+        confirm: "¿Estás seguro de que deseas cancelar esta cita?"
+        cancellation_policy: "Política de Cancelación"
+        cancellation_policy_message: "Las citas pueden ser canceladas hasta %{hours} horas antes de la hora programada."
+        success: "Tu cita ha sido cancelada exitosamente"
+      reschedule:
+        title: "Reprogramar Cita"
+        select_new_time: "Selecciona una nueva fecha y hora para tu cita a continuación."
+        current_appointment: "Cita Actual"
+        appointment_type: "Tipo de Cita"
+        with: "Con"
+        currently_scheduled: "Programada Actualmente"
+        new_date_time: "Nueva Fecha y Hora"
+        timezone: "Zona horaria"
+        reason: "Razón de reprogramación (opcional)"
+        reason_placeholder: "¿Por qué estás reprogramando esta cita?"
+        cancel: "Cancelar"
+        confirm_new_time: "Confirmar Nueva Hora"
+        rescheduling_policy: "Política de Reprogramación"
+        rescheduling_policy_message: "Las citas pueden ser reprogramadas hasta %{hours} horas antes de la hora programada."
+        select_time_alert: "Por favor selecciona una fecha y hora"
+        price: "Precio"
+        success: "Tu cita ha sido reprogramada exitosamente"
+
+    # Form fields
+    forms:
+      first_name: "Nombre"
+      last_name: "Apellido"
+      email: "Correo electrónico"
+      phone: "Teléfono"
+      notes: "Notas adicionales (Opcional)"
+      notes_placeholder: "¿Algo más que debamos saber?"
+      required: "*"
+
+    # Event type details
+    event_types:
+      duration: "%{minutes} min"
+      duration_minutes: "%{minutes} minutos"
+      price: "%{amount}"
+      price_label: "Precio"
+      free: "Gratis"
+      book_now: "Reservar Ahora"
+      in_person: "Presencial"
+      video_call: "Videollamada"
+      phone_call: "Llamada Telefónica"
+
+    # Calendar
+    calendar:
+      months:
+        january: "Enero"
+        february: "Febrero"
+        march: "Marzo"
+        april: "Abril"
+        may: "Mayo"
+        june: "Junio"
+        july: "Julio"
+        august: "Agosto"
+        september: "Septiembre"
+        october: "Octubre"
+        november: "Noviembre"
+        december: "Diciembre"
+      days:
+        sunday: "Domingo"
+        monday: "Lunes"
+        tuesday: "Martes"
+        wednesday: "Miércoles"
+        thursday: "Jueves"
+        friday: "Viernes"
+        saturday: "Sábado"
+      days_short:
+        sun: "DOM"
+        mon: "LUN"
+        tue: "MAR"
+        wed: "MIÉ"
+        thu: "JUE"
+        fri: "VIE"
+        sat: "SÁB"
+
+    # Errors
+    errors:
+      booking_not_found: "Reserva no encontrada"
+      past_cancellation_deadline: "No se puede cancelar. El plazo de cancelación era %{hours} horas antes de la cita"
+      past_reschedule_deadline: "No se puede reprogramar. El plazo de reprogramación era %{hours} horas antes de la cita"
+      invalid_time_slot: "El horario seleccionado ya no está disponible"
+      payment_failed: "El pago no pudo ser procesado. Por favor intenta de nuevo"
+      required_field: "Este campo es obligatorio"
+
+    # Payment
+    payment:
+      required: "Pago requerido"
+      optional: "Pago opcional"
+      processing: "Procesando pago..."
+      success: "Pago exitoso"
+      refund_processing: "Procesando reembolso..."
+
+    # Email notifications (for future mailer implementation)
+    mailers:
+      confirmation:
+        subject: "Confirmación de cita - %{event_type}"
+        greeting: "Hola %{client_name},"
+        confirmed: "Tu cita ha sido confirmada"
+        details: "Detalles de la cita:"
+        date: "Fecha"
+        time: "Hora"
+        duration: "Duración"
+        with: "Con"
+        location: "Ubicación"
+        cancel_link: "Cancelar cita"
+        reschedule_link: "Reprogramar cita"
+      reminder:
+        subject: "Recordatorio de cita - %{event_type}"
+        reminder: "Este es un recordatorio de tu próxima cita"
+        tomorrow: "mañana"
+        today: "hoy"
+      cancellation:
+        subject: "Cita cancelada - %{event_type}"
+        cancelled: "Tu cita ha sido cancelada"
+        refund: "Si realizaste un pago, recibirás un reembolso en 5-10 días hábiles"
+      reschedule:
+        subject: "Cita reprogramada - %{event_type}"
+        rescheduled: "Tu cita ha sido reprogramada"
+        new_time: "Nueva fecha y hora:"
+
+    # Time
+    time:
+      formats:
+        booking: "%A, %d de %B a las %H:%M"
+        short_date: "%d/%m/%Y"
+        short_time: "%H:%M"

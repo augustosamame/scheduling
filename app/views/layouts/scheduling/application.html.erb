@@ -50,19 +50,40 @@
   <%= yield :head %>
   <%= stylesheet_link_tag "scheduling/application", media: "all" %>
 </head>
-<body class="min-h-screen bg-gray-50 flex flex-col">
+<body class="flex flex-col min-h-screen bg-gray-50">
   <!-- Header -->
   <header class="bg-white shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center">
+    <div class="px-4 py-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center gap-2">
           <% if config.logo_url.present? %>
             <%= image_tag config.logo_url, alt: config.company_name, class: "h-10 w-auto" %>
-          <% else %>
-            <h1 class="text-2xl font-bold text-primary">
-              <%= config.company_name %>
-            </h1>
           <% end %>
+
+          <!-- Breadcrumb Navigation -->
+          <div class="flex items-center gap-2 text-lg">
+            <% if defined?(@organization) && @organization.present? %>
+              <!-- Organization Name (always clickable if present) -->
+              <%= link_to @organization.name,
+                         organization_booking_path(organization_slug: @organization.slug, locale: I18n.locale),
+                         class: "font-bold text-primary hover:underline" %>
+
+              <% if defined?(@member) && @member.present? %>
+                <!-- Separator -->
+                <span class="text-gray-400">/</span>
+
+                <!-- Member Name (clickable to their booking page) -->
+                <%= link_to @member.full_name,
+                           member_booking_path(organization_slug: @organization.slug, booking_slug: @member.booking_slug, locale: I18n.locale),
+                           class: "font-semibold text-gray-700 hover:text-primary hover:underline" %>
+              <% end %>
+            <% else %>
+              <!-- Fallback to company name if no organization context -->
+              <h1 class="font-bold text-primary">
+                <%= config.company_name %>
+              </h1>
+            <% end %>
+          </div>
         </div>
 
         <% if I18n.available_locales.size > 1 %>
@@ -80,7 +101,7 @@
 
   <!-- Flash Messages -->
   <% if flash.any? %>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+    <div class="px-4 mx-auto mt-4 max-w-7xl sm:px-6 lg:px-8">
       <% flash.each do |type, message| %>
         <div class="rounded-md p-4 mb-4 <%= type == 'notice' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800' %>">
           <p><%= message %></p>
@@ -95,11 +116,11 @@
   </main>
 
   <!-- Footer -->
-  <footer class="bg-white border-t border-gray-200 mt-auto">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      <div class="text-center text-sm text-gray-500">
+  <footer class="mt-auto bg-white border-t border-gray-200">
+    <div class="px-4 py-6 mx-auto max-w-7xl sm:px-6 lg:px-8">
+      <div class="text-sm text-center text-gray-500">
         <p>&copy; <%= Time.current.year %> <%= config.company_name %>. All rights reserved.</p>
-        <p class="mt-1">Powered by Scheduling Engine</p>
+        <p class="mt-1">Powered by DevtechPeru.com Scheduling Engine</p>
       </div>
     </div>
   </footer>

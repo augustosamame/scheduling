@@ -24,12 +24,15 @@
 
   # available_dates array already contains only dates with actual available time slots
   # (calculated via AvailabilityChecker in the controller)
+
+  # Default controller name to 'booking' if not provided
+  controller_name ||= 'booking'
 %>
 
 <div class="calendar">
   <!-- Month Navigation -->
-  <div class="flex items-center justify-between mb-3">
-    <button type="button" class="p-1 hover:bg-gray-100 rounded">
+  <div class="flex justify-between items-center mb-3">
+    <button type="button" class="p-1 rounded hover:bg-gray-100">
       <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
       </svg>
@@ -39,7 +42,7 @@
       <%= I18n.l(current_month, format: '%B %Y').capitalize %>
     </h4>
 
-    <button type="button" class="p-1 hover:bg-gray-100 rounded">
+    <button type="button" class="p-1 rounded hover:bg-gray-100">
       <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
       </svg>
@@ -48,9 +51,9 @@
 
   <!-- Day Headers -->
   <div class="grid grid-cols-7 gap-1 mb-1">
-    <% %w[DOM. LUN. MAR. MIÉ. JUE. VIE. SÁB.].each do |day| %>
-      <div class="text-center text-xs font-medium text-gray-500 py-1">
-        <%= day %>
+    <% %w[sun mon tue wed thu fri sat].each do |day| %>
+      <div class="py-1 text-xs font-medium text-center text-gray-500">
+        <%= t("scheduling.calendar.days_short.#{day}") %>
       </div>
     <% end %>
   </div>
@@ -69,16 +72,16 @@
 
         <% if is_available %>
           <button type="button"
-                  data-action="click->booking#selectDate"
+                  data-action="click-><%= controller_name %>#selectDate"
                   data-date="<%= day.iso8601 %>"
-                  class="aspect-square p-1 flex items-center justify-center text-center text-sm font-medium text-gray-900 hover:bg-blue-600 hover:text-white transition-all group">
-            <span class="w-9 h-9 flex items-center justify-center rounded-full bg-blue-50 group-hover:bg-transparent">
+                  class="flex justify-center items-center p-1 text-sm font-medium text-center text-gray-900 transition-all aspect-square hover:bg-blue-600 hover:text-white group">
+            <span class="flex justify-center items-center w-9 h-9 bg-blue-50 rounded-full group-hover:bg-transparent">
               <%= day.day %>
             </span>
           </button>
         <% else %>
           <div class="aspect-square p-1 flex items-center justify-center text-center text-sm <%= is_current_month ? 'text-gray-400' : 'text-gray-200' %>">
-            <span class="w-9 h-9 flex items-center justify-center">
+            <span class="flex justify-center items-center w-9 h-9">
               <%= day.day %>
             </span>
           </div>

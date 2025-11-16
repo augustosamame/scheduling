@@ -1,9 +1,10 @@
 module Scheduling
   class AvailabilityChecker
-    def initialize(member, event_type)
+    def initialize(member, event_type, preloaded_bookings: nil)
       @member = member
       @event_type = event_type
       @schedule = member.default_schedule
+      @preloaded_bookings = preloaded_bookings
     end
 
     def available_slots(date_range, timezone = 'America/Lima')
@@ -133,10 +134,18 @@ module Scheduling
     end
 
     def has_conflicts?(start_time, end_time)
-      @member.bookings
-             .confirmed
-             .where('start_time < ? AND end_time > ?', end_time, start_time)
-             .exists?
+      if @preloaded_bookings
+        # Use in-memory check with preloaded bookings
+        @preloaded_bookings.any? do |booking|
+          booking.start_time < end_time && booking.end_time > start_time
+        end
+      else
+        # Fall back to database query if bookings not preloaded
+        @member.bookings
+               .confirmed
+               .where('start_time < ? AND end_time > ?', end_time, start_time)
+               .exists?
+      end
     end
 
     def has_external_calendar_conflicts?(start_time, end_time)

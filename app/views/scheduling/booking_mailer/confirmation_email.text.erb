@@ -1,0 +1,44 @@
+<%= t('scheduling.mailers.confirmation.greeting', client_name: @client.full_name) %>
+
+<%= t('scheduling.mailers.confirmation.confirmed') %>
+
+<%= t('scheduling.mailers.confirmation.details') %>:
+================================================================================
+
+<%= t('scheduling.mailers.confirmation.date') %>: <%= l(@booking.start_time.in_time_zone(@booking.timezone), format: :long) %>
+<%= t('scheduling.mailers.confirmation.time') %>: <%= @booking.start_time.in_time_zone(@booking.timezone).strftime('%I:%M %p') %> - <%= @booking.end_time.in_time_zone(@booking.timezone).strftime('%I:%M %p') %> (<%= @booking.timezone %>)
+<%= t('scheduling.mailers.confirmation.duration') %>: <%= @event_type.duration_minutes %> <%= t('scheduling.bookings.show.minutes') %>
+<%= t('scheduling.mailers.confirmation.with') %>: <%= @member.full_name %><% if @member.title.present? %> - <%= @member.title %><% end %>
+<% if @event_type.location_type.present? %><%= t('scheduling.mailers.confirmation.location') %>: <%= @event_type.location_type.titleize %><% end %>
+
+<%= t('scheduling.bookings.show.confirmation_code') %>: <%= @booking.uid %>
+
+<% if @booking.notes.present? %>
+<%= t('scheduling.bookings.show.additional_notes') %>:
+<%= @booking.notes %>
+<% end %>
+
+<% if @booking.booking_answers.any? %>
+<%= t('scheduling.bookings.show.additional_information') %>:
+<% @booking.booking_answers.each do |answer| %>
+  - <%= answer.booking_question.label %>: <%= answer.answer %>
+<% end %>
+<% end %>
+
+<%= t('scheduling.bookings.show.manage_appointment') %>:
+<% if @booking.can_reschedule? %>
+<%= t('scheduling.mailers.confirmation.reschedule_link') %>: <%= reschedule_booking_url(@booking.reschedule_token) %>
+<% end %>
+<% if @booking.can_cancel? %>
+<%= t('scheduling.mailers.confirmation.cancel_link') %>: <%= cancel_booking_url(@booking.cancellation_token) %>
+<% end %>
+
+<% if @booking.event_type.allow_cancellation %>
+<%= t('scheduling.bookings.show.cancel_policy', hours: @booking.event_type.cancellation_policy_hours) %>
+<% end %>
+<% if @booking.event_type.allow_rescheduling %>
+<%= t('scheduling.bookings.show.reschedule_policy', hours: @booking.event_type.rescheduling_policy_hours) %>
+<% end %>
+
+---
+<%= Scheduling.configuration.company_name || 'Scheduling' %>

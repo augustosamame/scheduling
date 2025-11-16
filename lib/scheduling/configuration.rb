@@ -16,6 +16,7 @@ module Scheduling
                   :enable_sms_notifications,
                   :enable_google_calendar,
                   :enable_outlook_calendar,
+                  :mailer_from,
                   # Organization defaults
                   :organization_name,
                   :organization_slug,
@@ -54,6 +55,7 @@ module Scheduling
       @enable_sms_notifications = false
       @enable_google_calendar = true
       @enable_outlook_calendar = true
+      @mailer_from = 'noreply@example.com'
 
       # Organization defaults
       @organization_name = 'My Organization'

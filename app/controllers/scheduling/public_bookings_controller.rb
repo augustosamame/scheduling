@@ -1,10 +1,21 @@
 module Scheduling
   class PublicBookingsController < ApplicationController
     before_action :set_locale
-    before_action :find_member, only: [:index, :new, :create, :availability]
-    before_action :find_event_type, only: [:new, :create, :availability]
-    before_action :find_booking_by_uid, only: [:show]
-    before_action :find_booking_by_token, only: [:cancel, :process_cancellation, :reschedule, :process_reschedule]
+    before_action :find_organization_only, only: [ :organization_index ]
+    before_action :find_member, only: [ :index, :new, :create, :availability ]
+    before_action :find_event_type, only: [ :new, :create, :availability ]
+    before_action :find_booking_by_uid, only: [ :show ]
+    before_action :find_booking_by_token, only: [ :cancel, :process_cancellation, :reschedule, :process_reschedule ]
+
+    def organization_index
+      # Show all bookable members in the organization
+      @members = @organization.members
+        .joins(:event_types)
+        .where(active: true, accepts_bookings: true)
+        .where(scheduling_event_types: { active: true })
+        .includes(:event_types, :team, user: [])
+        .distinct
+    end
 
     def index
       @event_types = @member.event_types.active
@@ -13,6 +24,10 @@ module Scheduling
     def new
       @booking = @event_type.bookings.build
       @booking_questions = @event_type.booking_questions.ordered
+
+      # Eager load associations to prevent N+1 queries
+      preload_availability_associations
+
       @available_dates = calculate_available_dates
     end
 
@@ -59,18 +74,23 @@ module Scheduling
       if @booking.can_cancel?
         @booking.cancel!(
           reason: params[:reason],
-          initiated_by: 'client'
+          initiated_by: "client"
         )
-        flash[:notice] = t('scheduling.bookings.cancel.success')
+        flash[:notice] = t("scheduling.bookings.cancel.success")
         redirect_to root_path
       else
-        flash[:alert] = t('scheduling.errors.past_cancellation_deadline',
+        flash[:alert] = t("scheduling.errors.past_cancellation_deadline",
                          hours: @booking.event_type.cancellation_policy_hours)
         render :cancel
       end
     end
 
     def reschedule
+      @organization = @member.team.location.organization
+
+      # Eager load associations to prevent N+1 queries
+      preload_availability_associations
+
       @available_dates = calculate_available_dates
       @booking_questions = @booking.event_type.booking_questions.ordered
     end
@@ -82,12 +102,12 @@ module Scheduling
         new_booking = @booking.reschedule_to!(
           new_start_time,
           reason: params[:reason],
-          initiated_by: 'client'
+          initiated_by: "client"
         )
-        flash[:notice] = t('scheduling.bookings.reschedule.success')
+        flash[:notice] = t("scheduling.bookings.reschedule.success")
         redirect_to booking_confirmation_path(new_booking.uid, locale: I18n.locale)
       else
-        flash[:alert] = t('scheduling.errors.past_reschedule_deadline',
+        flash[:alert] = t("scheduling.errors.past_reschedule_deadline",
                          hours: @booking.event_type.rescheduling_policy_hours)
         @available_dates = calculate_available_dates
         render :reschedule
@@ -98,7 +118,18 @@ module Scheduling
       date = Date.parse(params[:date])
       timezone = params[:timezone] || @member.team.location.timezone
 
-      checker = AvailabilityChecker.new(@member, @event_type)
+      # Preload bookings for this specific date to avoid N+1
+      start_time = date.in_time_zone(timezone).beginning_of_day
+      end_time = date.in_time_zone(timezone).end_of_day
+      preloaded_bookings = @member.bookings
+        .confirmed
+        .where('start_time < ? AND end_time > ?', end_time, start_time)
+        .to_a
+
+      # Preload calendar connections
+      @member.calendar_connections.to_a
+
+      checker = AvailabilityChecker.new(@member, @event_type, preloaded_bookings: preloaded_bookings)
       slots = checker.available_slots(date..date, timezone)
 
       render json: slots
@@ -107,19 +138,46 @@ module Scheduling
     private
 
     def set_locale
-      if Scheduling.configuration.detect_locale_from_browser
+      # Priority order:
+      # 1. URL parameter (?locale=xx) - saves to session
+      # 2. Session stored locale
+      # 3. Browser detected locale (if enabled)
+      # 4. Default locale from configuration
+
+      if params[:locale].present?
+        # User explicitly selected a locale via URL parameter
+        locale = params[:locale].to_sym
+        if Scheduling.configuration.available_locales.include?(locale)
+          session[:locale] = locale
+          I18n.locale = locale
+        else
+          I18n.locale = Scheduling.configuration.default_locale
+        end
+      elsif session[:locale].present?
+        # Use previously stored locale from session
+        I18n.locale = session[:locale]
+      elsif Scheduling.configuration.detect_locale_from_browser
+        # Detect from browser and save to session
         browser_locale = extract_locale_from_accept_language_header
-        I18n.locale = params[:locale] || browser_locale || Scheduling.configuration.default_locale
+        locale = browser_locale&.to_sym || Scheduling.configuration.default_locale
+        session[:locale] = locale
+        I18n.locale = locale
       else
-        I18n.locale = params[:locale] || Scheduling.configuration.default_locale
+        # Use default locale and save to session
+        session[:locale] = Scheduling.configuration.default_locale
+        I18n.locale = Scheduling.configuration.default_locale
       end
     end
 
     def extract_locale_from_accept_language_header
-      return nil unless request.env['HTTP_ACCEPT_LANGUAGE']
+      return nil unless request.env["HTTP_ACCEPT_LANGUAGE"]
 
-      accepted = request.env['HTTP_ACCEPT_LANGUAGE'].scan(/^[a-z]{2}/).first
+      accepted = request.env["HTTP_ACCEPT_LANGUAGE"].scan(/^[a-z]{2}/).first
       Scheduling.configuration.available_locales.include?(accepted.to_sym) ? accepted : nil
+    end
+
+    def find_organization_only
+      @organization = Organization.find_by!(slug: params[:organization_slug])
     end
 
     def find_member
@@ -133,6 +191,9 @@ module Scheduling
 
     def find_booking_by_uid
       @booking = Booking.find_by!(uid: params[:uid])
+      @member = @booking.member
+      @event_type = @booking.event_type
+      @organization = @member.organization
     end
 
     def find_booking_by_token
@@ -140,7 +201,13 @@ module Scheduling
       @booking = Booking.find_by(cancellation_token: token) ||
                  Booking.find_by(reschedule_token: token)
 
-      redirect_to root_path, alert: 'Booking not found' unless @booking
+      if @booking
+        @member = @booking.member
+        @event_type = @booking.event_type
+        @organization = @member.organization
+      else
+        redirect_to root_path, alert: "Booking not found"
+      end
     end
 
     def find_or_create_client
@@ -150,7 +217,7 @@ module Scheduling
         client.first_name = client_params[:client_first_name]
         client.last_name = client_params[:client_last_name]
         client.phone = client_params[:client_phone]
-        client.timezone = client_params[:timezone] || 'America/Lima'
+        client.timezone = client_params[:timezone] || "America/Lima"
         client.locale = I18n.locale.to_s
       end
     end
@@ -179,16 +246,38 @@ module Scheduling
     end
 
     def process_payment
-      provider = params[:payment_provider] || 'stripe'
+      provider = params[:payment_provider] || "stripe"
 
       case provider
-      when 'stripe'
+      when "stripe"
         StripePaymentService.new(@booking, params[:payment_method_id]).process
-      when 'culqi'
+      when "culqi"
         CulqiPaymentService.new(@booking, params[:token_id]).process
       else
-        { success: false, error: 'Invalid payment provider' }
+        { success: false, error: "Invalid payment provider" }
       end
+    end
+
+    def preload_availability_associations
+      # Preload calendar connections to avoid N+1
+      @member.calendar_connections.to_a
+
+      # Preload default schedule and availabilities
+      if @member.default_schedule
+        @member.default_schedule.availabilities.to_a
+      end
+
+      # Bulk load all confirmed bookings in the date range
+      start_date = Date.current
+      end_date = start_date + @event_type.maximum_days_in_future.days
+      timezone = @member.team.location.timezone
+      start_time = start_date.in_time_zone(timezone).beginning_of_day
+      end_time = end_date.in_time_zone(timezone).end_of_day
+
+      @preloaded_bookings = @member.bookings
+        .where(status: 'confirmed')
+        .where('start_time < ? AND end_time > ?', end_time, start_time)
+        .to_a
     end
 
     def calculate_available_dates
@@ -196,7 +285,8 @@ module Scheduling
       end_date = start_date + @event_type.maximum_days_in_future.days
 
       # Get actual dates that have available time slots
-      checker = AvailabilityChecker.new(@member, @event_type)
+      # Pass preloaded bookings to avoid N+1 queries
+      checker = AvailabilityChecker.new(@member, @event_type, preloaded_bookings: @preloaded_bookings)
       available_dates = []
 
       (start_date..end_date).each do |date|

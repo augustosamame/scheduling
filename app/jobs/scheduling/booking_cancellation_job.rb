@@ -8,14 +8,10 @@ module Scheduling
       # Check if email notifications are enabled
       return unless Scheduling.configuration.send_confirmation_emails
 
-      # This is a placeholder - you'll need to implement the mailer
-      # BookingMailer.cancellation(booking).deliver_now
+      # Send cancellation email
+      BookingMailer.cancellation_email(booking_id).deliver_now
 
-      Rails.logger.info("Booking cancellation email queued for booking ##{booking_id}")
-
-      # TODO: Implement actual mailer
-      # Example:
-      # BookingMailer.with(booking: booking).cancellation_email.deliver_now
+      Rails.logger.info("Booking cancellation email sent for booking ##{booking_id}")
     rescue StandardError => e
       Rails.logger.error("Failed to send booking cancellation for ##{booking_id}: #{e.message}")
       raise # Re-raise to retry the job

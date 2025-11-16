@@ -1,0 +1,250 @@
+fr:
+  # Rails standard date/time translations
+  date:
+    formats:
+      default: "%d/%m/%Y"
+      short: "%e %b"
+      long: "%e %B %Y"
+    day_names:
+      - dimanche
+      - lundi
+      - mardi
+      - mercredi
+      - jeudi
+      - vendredi
+      - samedi
+    abbr_day_names:
+      - dim
+      - lun
+      - mar
+      - mer
+      - jeu
+      - ven
+      - sam
+    month_names:
+      - ~
+      - janvier
+      - février
+      - mars
+      - avril
+      - mai
+      - juin
+      - juillet
+      - août
+      - septembre
+      - octobre
+      - novembre
+      - décembre
+    abbr_month_names:
+      - ~
+      - jan.
+      - fév.
+      - mar.
+      - avr.
+      - mai
+      - juin
+      - juil.
+      - août
+      - sept.
+      - oct.
+      - nov.
+      - déc.
+    order:
+      - day
+      - month
+      - year
+
+  time:
+    formats:
+      default: "%d %B %Y %H:%M:%S"
+      short: "%d %b %H:%M"
+      long: "%A %d %B %Y %H:%M"
+    am: "am"
+    pm: "pm"
+
+  scheduling:
+    organization:
+      view_all_events: "Voir tous les événements"
+      no_members_available: "Aucun membre disponible pour la réservation pour le moment"
+
+
+    # Public booking flow
+    bookings:
+      index:
+        title: "Réserver avec %{member_name}"
+        available_types: "Types de Rendez-vous Disponibles"
+        no_types: "Aucun type de rendez-vous n'est actuellement disponible. Veuillez revenir plus tard."
+      new:
+        title: "Réserver %{event_type}"
+        select_datetime: "Sélectionnez une date et une heure"
+        select_date: "Sélectionnez une date"
+        select_time: "Sélectionnez une heure"
+        no_times_available: "Aucun créneau disponible pour cette date"
+        timezone: "Fuseau horaire"
+        next: "Suivant"
+        back: "Retour"
+        enter_details: "Entrez vos coordonnées"
+        confirm_booking: "Confirmer la Réservation"
+      show:
+        title: "Confirmation de Réservation"
+        confirmed_title: "Réservation Confirmée !"
+        confirmed_message: "Votre rendez-vous a été programmé avec succès. Un e-mail de confirmation a été envoyé à %{email}."
+        appointment_details: "Détails du Rendez-vous"
+        appointment_type: "Type de Rendez-vous"
+        date_time: "Date et Heure"
+        duration: "Durée"
+        with: "Avec"
+        location: "Lieu"
+        confirmation_code: "Code de Confirmation"
+        your_information: "Vos Informations"
+        additional_information: "Informations Supplémentaires"
+        additional_notes: "Notes Supplémentaires"
+        manage_appointment: "Gérer Votre Rendez-vous"
+        reschedule_appointment: "Reporter le Rendez-vous"
+        cancel_appointment: "Annuler le Rendez-vous"
+        cancel_policy: "Vous pouvez annuler jusqu'à %{hours} heures avant votre rendez-vous."
+        reschedule_policy: "Vous pouvez reporter jusqu'à %{hours} heures avant votre rendez-vous."
+        add_to_calendar: "Ajouter au Calendrier"
+        add_to_calendar_message: "N'oubliez pas ! Ajoutez ce rendez-vous à votre calendrier."
+        minutes: "minutes"
+        your_answers: "Vos Réponses"
+        notes: "Notes"
+        view_booking: "Voir la Réservation"
+      cancel:
+        title: "Annuler le Rendez-vous"
+        warning_message: "Vous êtes sur le point d'annuler le rendez-vous suivant. Cette action ne peut pas être annulée."
+        appointment: "Rendez-vous"
+        with: "Avec"
+        scheduled_for: "Prévu Pour"
+        reason: "Raison de l'annulation (facultatif)"
+        reason_placeholder: "Veuillez nous faire savoir pourquoi vous annulez..."
+        keep_appointment: "Conserver le Rendez-vous"
+        cancel_appointment: "Annuler le Rendez-vous"
+        confirm: "Êtes-vous sûr de vouloir annuler ce rendez-vous ?"
+        cancellation_policy: "Politique d'Annulation"
+        cancellation_policy_message: "Les rendez-vous peuvent être annulés jusqu'à %{hours} heures avant l'heure prévue."
+        success: "Votre rendez-vous a été annulé avec succès"
+      reschedule:
+        title: "Reporter le Rendez-vous"
+        select_new_time: "Sélectionnez une nouvelle date et heure pour votre rendez-vous ci-dessous."
+        current_appointment: "Rendez-vous Actuel"
+        appointment_type: "Type de Rendez-vous"
+        with: "Avec"
+        currently_scheduled: "Actuellement Programmé"
+        new_date_time: "Nouvelle Date et Heure"
+        timezone: "Fuseau horaire"
+        reason: "Raison du report (facultatif)"
+        reason_placeholder: "Pourquoi reportez-vous ce rendez-vous ?"
+        cancel: "Annuler"
+        confirm_new_time: "Confirmer la Nouvelle Heure"
+        rescheduling_policy: "Politique de Report"
+        rescheduling_policy_message: "Les rendez-vous peuvent être reportés jusqu'à %{hours} heures avant l'heure prévue."
+        select_time_alert: "Veuillez sélectionner une date et une heure"
+        price: "Prix"
+        success: "Votre rendez-vous a été reporté avec succès"
+
+    # Form fields
+    forms:
+      first_name: "Prénom"
+      last_name: "Nom"
+      email: "E-mail"
+      phone: "Téléphone"
+      notes: "Notes Supplémentaires (Facultatif)"
+      notes_placeholder: "Quelque chose d'autre que nous devrions savoir ?"
+      required: "*"
+
+    # Event type details
+    event_types:
+      duration: "%{minutes} min"
+      duration_minutes: "%{minutes} minutes"
+      price: "%{amount}"
+      price_label: "Prix"
+      free: "Gratuit"
+      book_now: "Réserver Maintenant"
+      in_person: "En Personne"
+      video_call: "Appel Vidéo"
+      phone_call: "Appel Téléphonique"
+
+    # Calendar
+    calendar:
+      months:
+        january: "Janvier"
+        february: "Février"
+        march: "Mars"
+        april: "Avril"
+        may: "Mai"
+        june: "Juin"
+        july: "Juillet"
+        august: "Août"
+        september: "Septembre"
+        october: "Octobre"
+        november: "Novembre"
+        december: "Décembre"
+      days:
+        sunday: "Dimanche"
+        monday: "Lundi"
+        tuesday: "Mardi"
+        wednesday: "Mercredi"
+        thursday: "Jeudi"
+        friday: "Vendredi"
+        saturday: "Samedi"
+      days_short:
+        sun: "DIM"
+        mon: "LUN"
+        tue: "MAR"
+        wed: "MER"
+        thu: "JEU"
+        fri: "VEN"
+        sat: "SAM"
+
+    # Errors
+    errors:
+      booking_not_found: "Réservation non trouvée"
+      past_cancellation_deadline: "Impossible d'annuler. La date limite d'annulation était %{hours} heures avant le rendez-vous"
+      past_reschedule_deadline: "Impossible de reporter. La date limite de report était %{hours} heures avant le rendez-vous"
+      invalid_time_slot: "Le créneau sélectionné n'est plus disponible"
+      payment_failed: "Le paiement n'a pas pu être traité. Veuillez réessayer"
+      required_field: "Ce champ est obligatoire"
+
+    # Payment
+    payment:
+      required: "Paiement requis"
+      optional: "Paiement facultatif"
+      processing: "Traitement du paiement..."
+      success: "Paiement réussi"
+      refund_processing: "Traitement du remboursement..."
+
+    # Email notifications
+    mailers:
+      confirmation:
+        subject: "Confirmation de Rendez-vous - %{event_type}"
+        greeting: "Bonjour %{client_name},"
+        confirmed: "Votre rendez-vous a été confirmé"
+        details: "Détails du rendez-vous :"
+        date: "Date"
+        time: "Heure"
+        duration: "Durée"
+        with: "Avec"
+        location: "Lieu"
+        cancel_link: "Annuler le rendez-vous"
+        reschedule_link: "Reporter le rendez-vous"
+      reminder:
+        subject: "Rappel de Rendez-vous - %{event_type}"
+        reminder: "Ceci est un rappel de votre prochain rendez-vous"
+        tomorrow: "demain"
+        today: "aujourd'hui"
+      cancellation:
+        subject: "Rendez-vous Annulé - %{event_type}"
+        cancelled: "Votre rendez-vous a été annulé"
+        refund: "Si vous avez effectué un paiement, vous recevrez un remboursement dans 5 à 10 jours ouvrables"
+      reschedule:
+        subject: "Rendez-vous Reporté - %{event_type}"
+        rescheduled: "Votre rendez-vous a été reporté"
+        new_time: "Nouvelle date et heure :"
+
+    # Time
+    time:
+      formats:
+        booking: "%A %d %B à %H:%M"
+        short_date: "%d/%m/%Y"
+        short_time: "%H:%M"

@@ -1,0 +1,250 @@
+pt:
+  # Rails standard date/time translations
+  date:
+    formats:
+      default: "%d/%m/%Y"
+      short: "%d de %B"
+      long: "%d de %B de %Y"
+    day_names:
+      - Domingo
+      - Segunda-feira
+      - Terça-feira
+      - Quarta-feira
+      - Quinta-feira
+      - Sexta-feira
+      - Sábado
+    abbr_day_names:
+      - Dom
+      - Seg
+      - Ter
+      - Qua
+      - Qui
+      - Sex
+      - Sáb
+    month_names:
+      - ~
+      - Janeiro
+      - Fevereiro
+      - Março
+      - Abril
+      - Maio
+      - Junho
+      - Julho
+      - Agosto
+      - Setembro
+      - Outubro
+      - Novembro
+      - Dezembro
+    abbr_month_names:
+      - ~
+      - Jan
+      - Fev
+      - Mar
+      - Abr
+      - Mai
+      - Jun
+      - Jul
+      - Ago
+      - Set
+      - Out
+      - Nov
+      - Dez
+    order:
+      - day
+      - month
+      - year
+
+  time:
+    formats:
+      default: "%a, %d de %B de %Y, %H:%M:%S %z"
+      short: "%d de %B, %H:%M"
+      long: "%d de %B de %Y, %H:%M"
+    am: "am"
+    pm: "pm"
+
+  scheduling:
+    organization:
+      view_all_events: "Ver todos os eventos"
+      no_members_available: "Nenhum membro disponível para reserva no momento"
+
+
+    # Public booking flow
+    bookings:
+      index:
+        title: "Agendar com %{member_name}"
+        available_types: "Tipos de Consulta Disponíveis"
+        no_types: "Nenhum tipo de consulta está disponível no momento. Por favor, volte mais tarde."
+      new:
+        title: "Agendar %{event_type}"
+        select_datetime: "Selecione uma data e hora"
+        select_date: "Selecione uma data"
+        select_time: "Selecione um horário"
+        no_times_available: "Não há horários disponíveis para esta data"
+        timezone: "Fuso horário"
+        next: "Próximo"
+        back: "Voltar"
+        enter_details: "Insira seus dados"
+        confirm_booking: "Confirmar Agendamento"
+      show:
+        title: "Confirmação de Agendamento"
+        confirmed_title: "Agendamento Confirmado!"
+        confirmed_message: "Sua consulta foi agendada com sucesso. Um e-mail de confirmação foi enviado para %{email}."
+        appointment_details: "Detalhes da Consulta"
+        appointment_type: "Tipo de Consulta"
+        date_time: "Data e Hora"
+        duration: "Duração"
+        with: "Com"
+        location: "Local"
+        confirmation_code: "Código de Confirmação"
+        your_information: "Suas Informações"
+        additional_information: "Informações Adicionais"
+        additional_notes: "Notas Adicionais"
+        manage_appointment: "Gerenciar Sua Consulta"
+        reschedule_appointment: "Reagendar Consulta"
+        cancel_appointment: "Cancelar Consulta"
+        cancel_policy: "Você pode cancelar até %{hours} horas antes da sua consulta."
+        reschedule_policy: "Você pode reagendar até %{hours} horas antes da sua consulta."
+        add_to_calendar: "Adicionar ao Calendário"
+        add_to_calendar_message: "Não esqueça! Adicione esta consulta ao seu calendário."
+        minutes: "minutos"
+        your_answers: "Suas Respostas"
+        notes: "Notas"
+        view_booking: "Ver Reserva"
+      cancel:
+        title: "Cancelar Consulta"
+        warning_message: "Você está prestes a cancelar a seguinte consulta. Esta ação não pode ser desfeita."
+        appointment: "Consulta"
+        with: "Com"
+        scheduled_for: "Agendada Para"
+        reason: "Motivo do cancelamento (opcional)"
+        reason_placeholder: "Por favor, nos informe por que você está cancelando..."
+        keep_appointment: "Manter Consulta"
+        cancel_appointment: "Cancelar Consulta"
+        confirm: "Tem certeza de que deseja cancelar esta consulta?"
+        cancellation_policy: "Política de Cancelamento"
+        cancellation_policy_message: "As consultas podem ser canceladas até %{hours} horas antes do horário agendado."
+        success: "Sua consulta foi cancelada com sucesso"
+      reschedule:
+        title: "Reagendar Consulta"
+        select_new_time: "Selecione uma nova data e hora para sua consulta abaixo."
+        current_appointment: "Consulta Atual"
+        appointment_type: "Tipo de Consulta"
+        with: "Com"
+        currently_scheduled: "Agendada Atualmente"
+        new_date_time: "Nova Data e Hora"
+        timezone: "Fuso horário"
+        reason: "Motivo do reagendamento (opcional)"
+        reason_placeholder: "Por que você está reagendando esta consulta?"
+        cancel: "Cancelar"
+        confirm_new_time: "Confirmar Novo Horário"
+        rescheduling_policy: "Política de Reagendamento"
+        rescheduling_policy_message: "As consultas podem ser reagendadas até %{hours} horas antes do horário agendado."
+        select_time_alert: "Por favor, selecione uma data e hora"
+        price: "Preço"
+        success: "Sua consulta foi reagendada com sucesso"
+
+    # Form fields
+    forms:
+      first_name: "Nome"
+      last_name: "Sobrenome"
+      email: "E-mail"
+      phone: "Telefone"
+      notes: "Notas Adicionais (Opcional)"
+      notes_placeholder: "Algo mais que devemos saber?"
+      required: "*"
+
+    # Event type details
+    event_types:
+      duration: "%{minutes} min"
+      duration_minutes: "%{minutes} minutos"
+      price: "%{amount}"
+      price_label: "Preço"
+      free: "Grátis"
+      book_now: "Agendar Agora"
+      in_person: "Presencial"
+      video_call: "Videochamada"
+      phone_call: "Chamada Telefônica"
+
+    # Calendar
+    calendar:
+      months:
+        january: "Janeiro"
+        february: "Fevereiro"
+        march: "Março"
+        april: "Abril"
+        may: "Maio"
+        june: "Junho"
+        july: "Julho"
+        august: "Agosto"
+        september: "Setembro"
+        october: "Outubro"
+        november: "Novembro"
+        december: "Dezembro"
+      days:
+        sunday: "Domingo"
+        monday: "Segunda-feira"
+        tuesday: "Terça-feira"
+        wednesday: "Quarta-feira"
+        thursday: "Quinta-feira"
+        friday: "Sexta-feira"
+        saturday: "Sábado"
+      days_short:
+        sun: "DOM"
+        mon: "SEG"
+        tue: "TER"
+        wed: "QUA"
+        thu: "QUI"
+        fri: "SEX"
+        sat: "SÁB"
+
+    # Errors
+    errors:
+      booking_not_found: "Agendamento não encontrado"
+      past_cancellation_deadline: "Não é possível cancelar. O prazo de cancelamento era %{hours} horas antes da consulta"
+      past_reschedule_deadline: "Não é possível reagendar. O prazo de reagendamento era %{hours} horas antes da consulta"
+      invalid_time_slot: "O horário selecionado não está mais disponível"
+      payment_failed: "O pagamento não pôde ser processado. Por favor, tente novamente"
+      required_field: "Este campo é obrigatório"
+
+    # Payment
+    payment:
+      required: "Pagamento necessário"
+      optional: "Pagamento opcional"
+      processing: "Processando pagamento..."
+      success: "Pagamento bem-sucedido"
+      refund_processing: "Processando reembolso..."
+
+    # Email notifications
+    mailers:
+      confirmation:
+        subject: "Confirmação de Consulta - %{event_type}"
+        greeting: "Olá %{client_name},"
+        confirmed: "Sua consulta foi confirmada"
+        details: "Detalhes da consulta:"
+        date: "Data"
+        time: "Hora"
+        duration: "Duração"
+        with: "Com"
+        location: "Local"
+        cancel_link: "Cancelar consulta"
+        reschedule_link: "Reagendar consulta"
+      reminder:
+        subject: "Lembrete de Consulta - %{event_type}"
+        reminder: "Este é um lembrete da sua próxima consulta"
+        tomorrow: "amanhã"
+        today: "hoje"
+      cancellation:
+        subject: "Consulta Cancelada - %{event_type}"
+        cancelled: "Sua consulta foi cancelada"
+        refund: "Se você fez um pagamento, receberá um reembolso em 5-10 dias úteis"
+      reschedule:
+        subject: "Consulta Reagendada - %{event_type}"
+        rescheduled: "Sua consulta foi reagendada"
+        new_time: "Nova data e hora:"
+
+    # Time
+    time:
+      formats:
+        booking: "%A, %d de %B às %H:%M"
+        short_date: "%d/%m/%Y"
+        short_time: "%H:%M"

@@ -1,0 +1,19 @@
+<%= t('scheduling.mailers.confirmation.greeting', client_name: @client.full_name) %>
+
+<%= t('scheduling.mailers.cancellation.cancelled') %>
+
+<%= t('scheduling.mailers.confirmation.details') %>:
+================================================================================
+
+<%= t('scheduling.mailers.confirmation.date') %>: <%= l(@booking.start_time.in_time_zone(@booking.timezone), format: :long) %>
+<%= t('scheduling.mailers.confirmation.time') %>: <%= @booking.start_time.in_time_zone(@booking.timezone).strftime('%I:%M %p') %> - <%= @booking.end_time.in_time_zone(@booking.timezone).strftime('%I:%M %p') %>
+<%= t('scheduling.mailers.confirmation.with') %>: <%= @member.full_name %>
+
+<%= t('scheduling.bookings.show.confirmation_code') %>: <%= @booking.uid %>
+
+<% if @booking.payment.present? && @booking.payment.amount > 0 %>
+<%= t('scheduling.mailers.cancellation.refund') %>
+<% end %>
+
+---
+<%= Scheduling.configuration.company_name || 'Scheduling' %>

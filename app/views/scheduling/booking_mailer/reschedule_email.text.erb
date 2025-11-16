@@ -1,0 +1,45 @@
+<%= t('scheduling.mailers.confirmation.greeting', client_name: @client.full_name) %>
+
+<%= t('scheduling.mailers.reschedule.rescheduled') %>
+
+<%= t('scheduling.mailers.reschedule.new_time') %>
+================================================================================
+<%= l(@booking.start_time.in_time_zone(@booking.timezone), format: :long) %>
+<%= @booking.start_time.in_time_zone(@booking.timezone).strftime('%I:%M %p') %> - <%= @booking.end_time.in_time_zone(@booking.timezone).strftime('%I:%M %p') %>
+
+<%= t('scheduling.mailers.confirmation.details') %>:
+================================================================================
+
+<%= t('scheduling.mailers.confirmation.date') %>: <%= l(@booking.start_time.in_time_zone(@booking.timezone), format: :long) %>
+<%= t('scheduling.mailers.confirmation.time') %>: <%= @booking.start_time.in_time_zone(@booking.timezone).strftime('%I:%M %p') %> - <%= @booking.end_time.in_time_zone(@booking.timezone).strftime('%I:%M %p') %>
+<%= t('scheduling.mailers.confirmation.duration') %>: <%= @event_type.duration_minutes %> <%= t('scheduling.event_types.duration_minutes', minutes: @event_type.duration_minutes) %>
+<%= t('scheduling.mailers.confirmation.with') %>: <%= @member.full_name %>
+<% if @event_type.location_type == 'in_person' && @member.team.location.address.present? %>
+<%= t('scheduling.mailers.confirmation.location') %>: <%= @member.team.location.address %>
+<% end %>
+
+<%= t('scheduling.bookings.show.confirmation_code') %>: <%= @booking.uid %>
+
+<% if @booking.booking_answers.any? %>
+
+<%= t('scheduling.bookings.show.your_answers') %>:
+--------------------------------------------------------------------------------
+<% @booking.booking_answers.includes(:booking_question).each do |answer| %>
+<%= answer.booking_question.question %>
+<%= answer.answer %>
+
+<% end %>
+<% end %>
+
+<% if @booking.notes.present? %>
+<%= t('scheduling.bookings.show.notes') %>: <%= @booking.notes %>
+
+<% end %>
+<%= t('scheduling.bookings.show.view_booking') %>: <%= booking_confirmation_url(@booking.uid) %>
+
+<% if @booking.can_cancel? %>
+<%= t('scheduling.mailers.confirmation.cancel_link') %>: <%= cancel_booking_url(@booking.cancellation_token) %>
+<% end %>
+
+---
+<%= Scheduling.configuration.company_name || 'Scheduling' %>
