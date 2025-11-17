@@ -1,0 +1,317 @@
+<% content_for :title, "Admin Dashboard" %>
+
+<!-- Statistics Cards -->
+<div class="grid grid-cols-1 gap-5 mb-8 sm:grid-cols-2 lg:grid-cols-4">
+  <!-- Total Bookings -->
+  <div class="overflow-hidden bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg shadow-lg">
+    <div class="p-6">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <div class="p-3 bg-white bg-opacity-30 rounded-lg">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+          </div>
+        </div>
+        <div class="flex-1 ml-5 w-0">
+          <dl>
+            <dt class="text-sm font-medium text-purple-100 truncate"><%= t('scheduling.admin.dashboard.total_bookings') %></dt>
+            <dd class="text-3xl font-bold text-white"><%= @stats[:total] %></dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upcoming -->
+  <div class="overflow-hidden bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-lg">
+    <div class="p-6">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <div class="p-3 bg-white bg-opacity-30 rounded-lg">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+        </div>
+        <div class="flex-1 ml-5 w-0">
+          <dl>
+            <dt class="text-sm font-medium text-blue-100 truncate"><%= t('scheduling.admin.dashboard.upcoming') %></dt>
+            <dd class="text-3xl font-bold text-white"><%= @stats[:upcoming] %></dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Today -->
+  <div class="overflow-hidden bg-gradient-to-br from-green-500 to-green-600 rounded-lg shadow-lg">
+    <div class="p-6">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <div class="p-3 bg-white bg-opacity-30 rounded-lg">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+        </div>
+        <div class="flex-1 ml-5 w-0">
+          <dl>
+            <dt class="text-sm font-medium text-green-100 truncate"><%= t('scheduling.admin.dashboard.today') %></dt>
+            <dd class="text-3xl font-bold text-white"><%= @stats[:today] %></dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pending Payment -->
+  <div class="overflow-hidden bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg shadow-lg">
+    <div class="p-6">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <div class="p-3 bg-white bg-opacity-30 rounded-lg">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+        </div>
+        <div class="flex-1 ml-5 w-0">
+          <dl>
+            <dt class="text-sm font-medium text-orange-100 truncate"><%= t('scheduling.admin.dashboard.pending_payment') %></dt>
+            <dd class="text-3xl font-bold text-white"><%= @stats[:pending_payment] %></dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading Spinner -->
+<div id="loading-overlay" class="hidden fixed inset-0 z-[9999] flex items-center justify-center pointer-events-none">
+  <div class="bg-white rounded-full p-4 shadow-lg">
+    <svg class="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+    </svg>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="p-6 mb-6 bg-white rounded-lg shadow-sm border border-gray-200" data-controller="scheduling--date-filters">
+  <%= form_with url: admin_root_path, method: :get, class: "space-y-6", id: "filters-form", data: { scheduling__date_filters_target: "form" } do |f| %>
+
+    <!-- Date Filters Section -->
+    <div class="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+      <div class="grid grid-cols-1 gap-4 lg:grid-cols-12">
+        <!-- Quick Date Buttons -->
+        <div class="flex flex-col gap-2 lg:col-span-6">
+          <label class="text-xs font-semibold text-blue-900 uppercase tracking-wider">Rango Rápido</label>
+          <div class="flex flex-wrap gap-2">
+            <button type="button" data-date-pill data-action="click->scheduling--date-filters#setToday" class="px-4 py-2 text-sm font-medium text-blue-700 bg-white rounded-lg border-2 border-blue-300 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all shadow-sm">
+              <%= t('scheduling.admin.dashboard.filters.today', default: 'Hoy') %>
+            </button>
+            <button type="button" data-date-pill data-action="click->scheduling--date-filters#setTomorrow" class="px-4 py-2 text-sm font-medium text-blue-700 bg-white rounded-lg border-2 border-blue-300 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all shadow-sm">
+              <%= t('scheduling.admin.dashboard.filters.tomorrow', default: 'Mañana') %>
+            </button>
+            <button type="button" data-date-pill data-action="click->scheduling--date-filters#setThisWeek" class="px-4 py-2 text-sm font-medium text-blue-700 bg-white rounded-lg border-2 border-blue-300 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all shadow-sm">
+              <%= t('scheduling.admin.dashboard.filters.this_week', default: 'Esta Semana') %>
+            </button>
+            <button type="button" data-date-pill data-action="click->scheduling--date-filters#setNextWeek" class="px-4 py-2 text-sm font-medium text-blue-700 bg-white rounded-lg border-2 border-blue-300 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all shadow-sm">
+              <%= t('scheduling.admin.dashboard.filters.next_week', default: 'Próxima Semana') %>
+            </button>
+          </div>
+        </div>
+
+        <!-- Custom Date Range -->
+        <div class="lg:col-span-6">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block mb-2 text-xs font-semibold text-blue-900 uppercase tracking-wider"><%= t('scheduling.admin.dashboard.filters.from_date') %></label>
+              <%= text_field_tag :date_from, params[:date_from], type: :date, data: { scheduling__date_filters_target: "fromDate" }, class: "block w-full px-3 py-2.5 text-sm rounded-lg border-2 border-blue-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 bg-white" %>
+            </div>
+            <div>
+              <label class="block mb-2 text-xs font-semibold text-blue-900 uppercase tracking-wider"><%= t('scheduling.admin.dashboard.filters.to_date') %></label>
+              <%= text_field_tag :date_to, params[:date_to], type: :date, data: { scheduling__date_filters_target: "toDate" }, class: "block w-full px-3 py-2.5 text-sm rounded-lg border-2 border-blue-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 bg-white" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Organization Filters Section -->
+    <div class="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div>
+          <label class="block mb-2 text-xs font-medium text-purple-800"><%= t('scheduling.admin.dashboard.filters.location', default: 'Ubicación') %></label>
+          <%= select_tag :location_id,
+              options_for_select(
+                [['Todas', '']] + @locations.map { |l| [l.name, l.id] },
+                params[:location_id]
+              ),
+              class: "block w-full px-3 py-2.5 text-sm rounded-lg border-2 border-purple-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 bg-white" %>
+        </div>
+        <div>
+          <label class="block mb-2 text-xs font-medium text-purple-800"><%= t('scheduling.admin.dashboard.filters.team', default: 'Equipo') %></label>
+          <%= select_tag :team_id,
+              options_for_select(
+                [['Todos', '']] + @teams.map { |t| [t.name, t.id] },
+                params[:team_id]
+              ),
+              class: "block w-full px-3 py-2.5 text-sm rounded-lg border-2 border-purple-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 bg-white" %>
+        </div>
+        <div>
+          <label class="block mb-2 text-xs font-medium text-purple-800"><%= t('scheduling.admin.dashboard.filters.member', default: 'Profesional') %></label>
+          <%= select_tag :member_id,
+              options_for_select(
+                [['Todos', '']] + @members.map { |m| [m.full_name, m.id] },
+                params[:member_id]
+              ),
+              class: "block w-full px-3 py-2.5 text-sm rounded-lg border-2 border-purple-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 bg-white" %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status & Search Section -->
+    <div class="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+      <div class="grid grid-cols-1 gap-4 lg:grid-cols-12">
+        <div class="lg:col-span-3">
+          <label class="block mb-2 text-xs font-medium text-green-800"><%= t('scheduling.admin.dashboard.filters.status') %></label>
+          <%= select_tag :status, options_for_select([
+            [t('scheduling.admin.dashboard.filters.all'), ''],
+            [t('scheduling.admin.dashboard.filters.confirmed'), 'confirmed'],
+            [t('scheduling.admin.dashboard.filters.cancelled'), 'cancelled'],
+            [t('scheduling.admin.dashboard.filters.completed'), 'completed'],
+            ['No Show', 'no_show']
+          ], params[:status]), class: "block w-full px-3 py-2.5 text-sm rounded-lg border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 bg-white" %>
+        </div>
+        <div class="lg:col-span-3">
+          <label class="block mb-2 text-xs font-medium text-green-800"><%= t('scheduling.admin.dashboard.filters.payment_status') %></label>
+          <%= select_tag :payment_status, options_for_select([
+            [t('scheduling.admin.dashboard.filters.all'), ''],
+            [t('scheduling.admin.dashboard.filters.pending'), 'pending'],
+            [t('scheduling.admin.dashboard.filters.paid'), 'paid'],
+            [t('scheduling.admin.dashboard.filters.refunded'), 'refunded'],
+            ['Not Required', 'not_required']
+          ], params[:payment_status]), class: "block w-full px-3 py-2.5 text-sm rounded-lg border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 bg-white" %>
+        </div>
+        <div class="lg:col-span-4">
+          <label class="block mb-2 text-xs font-medium text-green-800"><%= t('scheduling.admin.dashboard.filters.search') %></label>
+          <%= text_field_tag :q, params[:q], placeholder: t('scheduling.admin.dashboard.filters.search_placeholder'), class: "block w-full px-3 py-2.5 text-sm rounded-lg border-2 border-green-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 bg-white" %>
+        </div>
+        <div class="flex gap-2 items-end lg:col-span-2">
+          <%= submit_tag t('scheduling.admin.dashboard.filters.filter_button'), class: "flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg transition-all" %>
+          <%= link_to t('scheduling.admin.dashboard.filters.clear_button'), admin_root_path, class: "flex-1 px-4 py-2.5 text-sm font-semibold text-center text-gray-700 bg-white rounded-lg border-2 border-gray-300 hover:bg-gray-50 shadow-sm transition-all" %>
+        </div>
+      </div>
+    </div>
+
+  <% end %>
+</div>
+
+<!-- Form Submit Loader Script -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('filters-form');
+    const loader = document.getElementById('loading-overlay');
+
+    if (form && loader) {
+      form.addEventListener('submit', function() {
+        loader.classList.remove('hidden');
+      });
+    }
+  });
+</script>
+
+<!-- Bookings Table -->
+<div class="overflow-hidden bg-white rounded-lg shadow">
+  <div class="px-4 py-5 sm:px-6">
+    <h3 class="text-lg font-medium leading-6 text-gray-900">
+      <%= t('scheduling.admin.bookings.index.title') %>
+      <span class="ml-2 text-sm font-normal text-gray-500">(<%= @bookings.respond_to?(:total_count) ? @bookings.total_count : @bookings.size %>)</span>
+    </h3>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"><%= t('scheduling.admin.dashboard.table.client') %></th>
+          <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"><%= t('scheduling.admin.dashboard.table.event_type') %></th>
+          <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"><%= t('scheduling.admin.bookings.show.member') %></th>
+          <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"><%= t('scheduling.admin.dashboard.table.date_time') %></th>
+          <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"><%= t('scheduling.admin.dashboard.table.status') %></th>
+          <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"><%= t('scheduling.admin.dashboard.table.payment') %></th>
+          <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"><%= t('scheduling.admin.dashboard.table.actions') %></th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <% @bookings.each do |booking| %>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex items-center">
+                <div>
+                  <div class="text-sm font-medium text-gray-900"><%= booking.client.full_name %></div>
+                  <div class="text-sm text-gray-500"><%= booking.client.email %></div>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4">
+              <div class="text-sm text-gray-900"><%= booking.event_type.title %></div>
+              <div class="text-sm text-gray-500"><%= booking.event_type.duration_minutes %> min</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-900"><%= booking.member.full_name %></div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm font-medium text-gray-900"><%= booking.start_time.strftime("%b %d, %Y") %></div>
+              <div class="text-sm text-gray-500"><%= booking.start_time.strftime("%I:%M %p") %> - <%= booking.end_time.strftime("%I:%M %p") %></div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="inline-flex px-2 text-xs font-semibold leading-5 rounded-full <%= case booking.status
+                when 'confirmed' then 'bg-green-100 text-green-800'
+                when 'cancelled' then 'bg-red-100 text-red-800'
+                when 'completed' then 'bg-blue-100 text-blue-800'
+                when 'no_show' then 'bg-gray-100 text-gray-800'
+                else 'bg-gray-100 text-gray-800'
+              end %>">
+                <%= booking.status.titleize %>
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="inline-flex px-2 text-xs font-semibold leading-5 rounded-full <%= case booking.payment_status
+                when 'paid' then 'bg-green-100 text-green-800'
+                when 'pending' then 'bg-yellow-100 text-yellow-800'
+                when 'refunded' then 'bg-purple-100 text-purple-800'
+                else 'bg-gray-100 text-gray-800'
+              end %>">
+                <%= booking.payment_status.titleize.gsub('_', ' ') %>
+              </span>
+            </td>
+            <td class="px-6 py-4 text-sm font-medium whitespace-nowrap">
+              <%= link_to t('scheduling.admin.dashboard.table.view'), admin_booking_path(booking), class: "text-blue-600 hover:text-blue-900" %>
+            </td>
+          </tr>
+        <% end %>
+
+        <!-- Empty State -->
+        <% if @bookings.empty? %>
+        <tr>
+          <td colspan="7" class="px-6 py-12 text-center">
+            <svg class="mx-auto w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900"><%= t('scheduling.admin.dashboard.table.no_bookings') %></h3>
+            <p class="mt-1 text-sm text-gray-500"><%= t('scheduling.admin.dashboard.table.try_adjusting') %></p>
+          </td>
+        </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="px-4 py-3 bg-gray-50 sm:px-6">
+    <%= paginate @bookings if defined?(paginate) %>
+  </div>
+</div>

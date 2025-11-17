@@ -1,0 +1,258 @@
+<% content_for :title, @event_type.title %>
+
+<div class="mb-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="text-2xl font-bold text-gray-900"><%= @event_type.title %></h2>
+      <p class="mt-1 text-sm text-gray-500"><%= t('scheduling.admin.event_types.show.title') %></p>
+    </div>
+    <div class="flex space-x-2">
+      <%= link_to "← #{t('scheduling.admin.event_types.show.back_to_list')}", admin_event_types_path, class: "px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-md border border-gray-300 hover:bg-gray-50" %>
+      <%= link_to edit_admin_event_type_path(@event_type), class: "inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700" do %>
+        <svg class="mr-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+        </svg>
+        <%= t('scheduling.admin.event_types.show.edit') %>
+      <% end %>
+      <%= button_to admin_event_type_path(@event_type), method: :delete, data: { confirm: t('scheduling.admin.event_types.show.delete_confirmation') }, class: "inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700" do %>
+        <svg class="mr-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+        </svg>
+        <%= t('scheduling.admin.event_types.show.delete') %>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- Status Card -->
+<div class="mb-6 overflow-hidden bg-white rounded-lg shadow">
+  <div class="p-5">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <div class="p-3 rounded-full <%= @event_type.active? ? 'bg-green-100' : 'bg-gray-100' %>">
+            <svg class="w-6 h-6 <%= @event_type.active? ? 'text-green-600' : 'text-gray-600' %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+        </div>
+        <div class="ml-5">
+          <p class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.event_types.show.status') %></p>
+          <p class="text-lg font-semibold <%= @event_type.active? ? 'text-green-600' : 'text-gray-600' %>">
+            <%= @event_type.active? ? t('scheduling.admin.event_types.show.active') : t('scheduling.admin.event_types.show.inactive') %>
+          </p>
+        </div>
+      </div>
+      <div class="text-right">
+        <p class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.event_types.show.booking_url') %></p>
+        <p class="text-xs text-gray-600 font-mono">/<%= @event_type.slug %></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main Details Grid -->
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+  <!-- Basic Information -->
+  <div class="bg-white rounded-lg shadow">
+    <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+      <h3 class="text-lg font-medium leading-6 text-gray-900"><%= t('scheduling.admin.event_types.show.basic_information') %></h3>
+    </div>
+    <div class="px-4 py-5 sm:p-6">
+      <dl class="space-y-4">
+        <div>
+          <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.event_types.show.name') %></dt>
+          <dd class="mt-1 text-sm font-semibold text-gray-900"><%= @event_type.title %></dd>
+        </div>
+        <% if @event_type.description.present? %>
+        <div>
+          <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.event_types.show.description') %></dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @event_type.description %></dd>
+        </div>
+        <% end %>
+        <div>
+          <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.bookings.show.member') %></dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @event_type.member.full_name %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.event_types.show.duration') %></dt>
+          <dd class="mt-1 text-sm font-semibold text-gray-900"><%= t('scheduling.admin.event_types.show.minutes', count: @event_type.duration_minutes) %></dd>
+        </div>
+        <% if @event_type.color.present? %>
+        <div>
+          <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.event_types.show.color') %></dt>
+          <dd class="mt-1 flex items-center">
+            <div class="w-8 h-8 rounded border border-gray-300" style="background-color: <%= @event_type.color %>"></div>
+            <span class="ml-2 text-sm font-mono text-gray-900"><%= @event_type.color %></span>
+          </dd>
+        </div>
+        <% end %>
+      </dl>
+    </div>
+  </div>
+
+  <!-- Scheduling Settings -->
+  <div class="bg-white rounded-lg shadow">
+    <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+      <h3 class="text-lg font-medium leading-6 text-gray-900"><%= t('scheduling.admin.event_types.show.scheduling_settings') %></h3>
+    </div>
+    <div class="px-4 py-5 sm:p-6">
+      <dl class="space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.event_types.show.buffer_before') %></dt>
+            <dd class="mt-1 text-sm font-semibold text-gray-900"><%= @event_type.buffer_before_minutes %> <%= t('scheduling.admin.event_types.show.min_abbr') %></dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.event_types.show.buffer_after') %></dt>
+            <dd class="mt-1 text-sm font-semibold text-gray-900"><%= @event_type.buffer_after_minutes %> <%= t('scheduling.admin.event_types.show.min_abbr') %></dd>
+          </div>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.event_types.show.minimum_notice') %></dt>
+          <dd class="mt-1 text-sm font-semibold text-gray-900"><%= t('scheduling.admin.event_types.show.hours', count: @event_type.minimum_notice_hours) %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.event_types.show.maximum_booking_window') %></dt>
+          <dd class="mt-1 text-sm font-semibold text-gray-900"><%= t('scheduling.admin.event_types.show.days', count: @event_type.maximum_days_in_future) %> <%= t('scheduling.admin.event_types.show.in_advance') %></dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.event_types.show.slots_per_time_slot') %></dt>
+          <dd class="mt-1 text-sm font-semibold text-gray-900"><%= @event_type.slots_per_time_slot %></dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+
+  <!-- Location Details -->
+  <div class="bg-white rounded-lg shadow">
+    <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+      <h3 class="text-lg font-medium leading-6 text-gray-900"><%= t('scheduling.admin.event_types.show.location_settings') %></h3>
+    </div>
+    <div class="px-4 py-5 sm:p-6">
+      <dl class="space-y-4">
+        <div>
+          <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.event_types.show.location_type') %></dt>
+          <dd class="mt-1">
+            <span class="inline-flex px-2 py-1 text-xs font-semibold leading-5 rounded-full <%= @event_type.location_type == 'in_person' ? 'bg-blue-100 text-blue-800' : @event_type.location_type == 'video' ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800' %>">
+              <%= @event_type.location_type.present? ? @event_type.location_type.titleize : 'Not specified' %>
+            </span>
+          </dd>
+        </div>
+        <% if @event_type.location_details.present? %>
+        <div>
+          <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.event_types.show.location_details') %></dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @event_type.location_details %></dd>
+        </div>
+        <% end %>
+      </dl>
+    </div>
+  </div>
+
+  <!-- Payment Settings -->
+  <div class="bg-white rounded-lg shadow">
+    <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+      <h3 class="text-lg font-medium leading-6 text-gray-900"><%= t('scheduling.admin.event_types.show.payment_settings') %></h3>
+    </div>
+    <div class="px-4 py-5 sm:p-6">
+      <dl class="space-y-4">
+        <div>
+          <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.event_types.show.requires_payment') %></dt>
+          <dd class="mt-1">
+            <span class="inline-flex px-2 py-1 text-xs font-semibold leading-5 rounded-full <%= @event_type.requires_payment ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' %>">
+              <%= @event_type.requires_payment ? t('scheduling.admin.event_types.show.yes') : t('scheduling.admin.event_types.show.no') %>
+            </span>
+          </dd>
+        </div>
+        <% if @event_type.requires_payment %>
+        <div>
+          <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.event_types.show.price') %></dt>
+          <dd class="mt-1 text-2xl font-bold text-gray-900">
+            <%= number_to_currency(@event_type.price_cents / 100.0, unit: @event_type.price_currency == 'PEN' ? 'S/. ' : '$', precision: 2) %>
+          </dd>
+        </div>
+        <div>
+          <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.event_types.show.payment_timing') %></dt>
+          <dd class="mt-1">
+            <span class="inline-flex px-2 py-1 text-xs font-semibold leading-5 rounded-full <%= @event_type.payment_required_to_book ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800' %>">
+              <%= @event_type.payment_required_to_book ? t('scheduling.admin.event_types.show.payment_required_before') : t('scheduling.admin.event_types.show.payment_optional') %>
+            </span>
+          </dd>
+        </div>
+        <% end %>
+      </dl>
+    </div>
+  </div>
+
+  <!-- Cancellation & Rescheduling Policies -->
+  <div class="bg-white rounded-lg shadow lg:col-span-2">
+    <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+      <h3 class="text-lg font-medium leading-6 text-gray-900"><%= t('scheduling.admin.event_types.show.booking_policies') %></h3>
+    </div>
+    <div class="px-4 py-5 sm:p-6">
+      <dl class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div>
+          <dt class="flex items-center text-sm font-medium text-gray-500">
+            <svg class="mr-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+            <%= t('scheduling.admin.event_types.show.cancellation_policy') %>
+          </dt>
+          <dd class="mt-2">
+            <% if @event_type.allow_cancellation %>
+              <span class="inline-flex px-2 py-1 text-xs font-semibold leading-5 text-green-800 bg-green-100 rounded-full"><%= t('scheduling.admin.event_types.show.allowed') %></span>
+              <p class="mt-1 text-sm text-gray-900">Up to <strong><%= t('scheduling.admin.event_types.show.hours_before', count: @event_type.cancellation_policy_hours) %></strong></p>
+            <% else %>
+              <span class="inline-flex px-2 py-1 text-xs font-semibold leading-5 text-red-800 bg-red-100 rounded-full"><%= t('scheduling.admin.event_types.show.not_allowed') %></span>
+            <% end %>
+          </dd>
+        </div>
+        <div>
+          <dt class="flex items-center text-sm font-medium text-gray-500">
+            <svg class="mr-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <%= t('scheduling.admin.event_types.show.rescheduling_policy') %>
+          </dt>
+          <dd class="mt-2">
+            <% if @event_type.allow_rescheduling %>
+              <span class="inline-flex px-2 py-1 text-xs font-semibold leading-5 text-green-800 bg-green-100 rounded-full"><%= t('scheduling.admin.event_types.show.allowed') %></span>
+              <p class="mt-1 text-sm text-gray-900">Up to <strong><%= t('scheduling.admin.event_types.show.hours_before', count: @event_type.rescheduling_policy_hours) %></strong></p>
+            <% else %>
+              <span class="inline-flex px-2 py-1 text-xs font-semibold leading-5 text-red-800 bg-red-100 rounded-full"><%= t('scheduling.admin.event_types.show.not_allowed') %></span>
+            <% end %>
+          </dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+</div>
+
+<!-- Booking URL Preview -->
+<div class="p-4 mt-6 bg-blue-50 rounded-lg border border-blue-200">
+  <div class="flex">
+    <div class="flex-shrink-0">
+      <svg class="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"></path>
+        <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z"></path>
+      </svg>
+    </div>
+    <div class="flex-1 ml-3">
+      <h3 class="text-sm font-medium text-blue-800"><%= t('scheduling.admin.event_types.show.public_booking_page') %></h3>
+      <div class="mt-2 text-sm text-blue-700">
+        <p class="mb-2"><%= t('scheduling.admin.event_types.show.share_booking_url') %></p>
+        <div class="flex items-center p-3 bg-white rounded border border-blue-300">
+          <input type="text"
+                 readonly
+                 value="<%= new_booking_url(@event_type.member.organization.slug, @event_type.member.booking_slug, @event_type.slug) %>"
+                 class="flex-1 text-sm bg-transparent border-none focus:outline-none focus:ring-0"
+                 onclick="this.select()">
+          <button onclick="const btn = this; const copyText = '<%= t('scheduling.admin.event_types.show.copy') %>'; navigator.clipboard.writeText(this.previousElementSibling.value); btn.textContent='Copied!'; setTimeout(() => btn.textContent=copyText, 2000)"
+                  class="px-3 py-1 ml-2 text-xs font-medium text-blue-700 bg-blue-100 rounded hover:bg-blue-200">
+            <%= t('scheduling.admin.event_types.show.copy') %>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

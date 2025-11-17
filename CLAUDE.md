@@ -150,6 +150,80 @@ raise NotImplementedError, "Stripe not installed" unless defined?(Stripe)
 - `stripe` - Stripe payments
 - External Culqi gem - Peruvian payments
 
+## UI & Styling Standards
+
+### Tailwind CSS Form Fields
+
+**CRITICAL**: All form input fields MUST include proper padding for consistent UI.
+
+**Standard Form Field Classes**:
+```erb
+<!-- Text inputs, number inputs, date inputs -->
+<%= f.text_field :field_name,
+    class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+
+<!-- Text areas -->
+<%= f.text_area :field_name,
+    rows: 3,
+    class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+
+<!-- Select dropdowns -->
+<%= f.select :field_name,
+    options,
+    {},
+    class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+
+<!-- Number fields -->
+<%= f.number_field :field_name,
+    min: 0,
+    class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+```
+
+**Key Classes Breakdown**:
+- `block` - Display as block element
+- `mt-1` - Margin top (spacing from label)
+- `w-full` - Full width
+- **`px-3 py-2`** - **REQUIRED** horizontal and vertical padding (DO NOT OMIT)
+- `rounded-md` - Rounded corners
+- `border-gray-300` - Border color
+- `shadow-sm` - Subtle shadow
+- `focus:border-blue-500 focus:ring-blue-500` - Focus states
+
+**Why px-3 py-2 is Critical**:
+- Without padding, fields look cramped and text touches borders
+- Creates consistent spacing across all form inputs
+- Improves readability and user experience
+- Matches modern form design patterns
+
+**When Creating New Forms**:
+1. Always copy the full class string from examples above
+2. Never omit `px-3 py-2` from input fields
+3. Apply to: text_field, number_field, email_field, password_field, text_area, select, date_field, etc.
+4. Checkboxes and radio buttons use different classes (w-4 h-4)
+
+### Stimulus Controllers
+
+**IMPORTANT**: Always use Stimulus for interactive JavaScript, never inline onclick handlers.
+
+**Pattern**:
+```erb
+<!-- Container with controller -->
+<div data-controller="scheduling--feature-name">
+  <!-- Element with action -->
+  <button data-action="click->scheduling--feature-name#methodName">
+    Click me
+  </button>
+
+  <!-- Element with target -->
+  <input data-scheduling--feature-name-target="inputField" />
+</div>
+```
+
+**Controller Location**:
+- `/app/javascript/scheduling/controllers/` for public-facing features
+- `/app/javascript/controllers/scheduling/` for admin features
+- Copy to both locations if unsure
+
 ## Core Services
 
 ### AvailabilityChecker - The Scheduling Brain

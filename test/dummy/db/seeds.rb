@@ -1,14 +1,22 @@
 # Clear existing data
 puts "Clearing existing data..."
-Scheduling::Booking.destroy_all
-Scheduling::EventType.destroy_all
-Scheduling::Schedule.destroy_all
-Scheduling::Member.destroy_all
-Scheduling::Team.destroy_all
-Scheduling::Location.destroy_all
-Scheduling::Organization.destroy_all
-Scheduling::Client.destroy_all
-User.destroy_all
+
+# Use delete_all in correct order (children first, then parents)
+Scheduling::BookingAnswer.delete_all
+Scheduling::BookingChange.delete_all
+Scheduling::Payment.delete_all
+Scheduling::Booking.delete_all
+Scheduling::BookingQuestion.delete_all
+Scheduling::Availability.delete_all
+Scheduling::DateOverride.delete_all
+Scheduling::EventType.delete_all
+Scheduling::Schedule.delete_all
+Scheduling::Member.delete_all
+Scheduling::Client.delete_all
+Scheduling::Team.delete_all
+Scheduling::Location.delete_all
+Scheduling::Organization.delete_all
+User.delete_all
 
 puts "\n" + "="*80
 puts "TESTING AUTOMATIC MEMBER SYNC (v0.2.0)"
@@ -65,11 +73,73 @@ else
   abort
 end
 
+# Create admin users for testing the admin system
+puts "\n👥 Creating admin users for testing..."
+
+# Update existing member to be a regular member
+member1.update!(role: 'member')
+
+# Create test user for admin
+admin_user = User.create!(
+  first_name: "Admin",
+  last_name: "User",
+  email: "admin@test.com",
+  title: "System Administrator",
+  bio: "Full access administrator"
+)
+
+# Find the auto-created member and update role to admin
+admin_member = Scheduling::Member.find_by(user: admin_user)
+admin_member.update!(
+  role: 'admin',
+  booking_slug: 'admin-user',
+  active: true,
+  accepts_bookings: false
+)
+
+# Create manager user
+manager_user = User.create!(
+  first_name: "Manager",
+  last_name: "User",
+  email: "manager@test.com",
+  title: "Location Manager",
+  bio: "Manages location and teams"
+)
+
+manager_member = Scheduling::Member.find_by(user: manager_user)
+manager_member.update!(
+  role: 'manager',
+  booking_slug: 'manager-user',
+  active: true,
+  accepts_bookings: false
+)
+
+# Create a regular doctor user for member testing
+doctor_user = User.create!(
+  first_name: "Dr. Carlos",
+  last_name: "Gomez",
+  email: "doctor@test.com",
+  title: "General Practitioner",
+  bio: "Family medicine specialist"
+)
+
+doctor_member = Scheduling::Member.find_by(user: doctor_user)
+doctor_member.update!(
+  role: 'member',
+  booking_slug: 'dr-carlos-gomez',
+  active: true,
+  accepts_bookings: true
+)
+
+puts "   ✅ Admin user: #{admin_user.email} (role: #{admin_member.role})"
+puts "   ✅ Manager user: #{manager_user.email} (role: #{manager_member.role})"
+puts "   ✅ Member user: #{doctor_user.email} (role: #{doctor_member.role})"
+
 # Now continue with additional setup (schedules, event types, etc.)
 puts "\n📅 Setting up schedules and event types..."
 
-# Create Schedule for Member 1
-schedule1 = member1.schedules.create!(
+# Use the auto-created default schedule or create a new one
+schedule1 = doctor_member.default_schedule || doctor_member.schedules.create!(
   name: "Regular Hours",
   timezone: "America/Lima",
   is_default: true
@@ -84,8 +154,8 @@ schedule1 = member1.schedules.create!(
   )
 end
 
-# Create Event Types
-consultation = member1.event_types.create!(
+# Create Event Types for the doctor member
+consultation = doctor_member.event_types.create!(
   title: "Cardiology Consultation",
   slug: "cardiology-consultation",
   description: "Initial consultation for heart health evaluation",
@@ -142,9 +212,29 @@ puts "  - Organization: #{Scheduling::Organization.first.name}"
 puts "  - Location: #{Scheduling::Location.first.name}"
 puts "  - Team: #{Scheduling::Team.first.name}"
 puts "  - Members: #{Scheduling::Member.count}"
-puts "  - Event Types: #{member1.event_types.count}"
+puts "  - Event Types: #{doctor_member.event_types.count}"
 puts "  - Schedule with #{schedule1.availabilities.count} availability slots"
 puts "  - Sample client: #{client.full_name}"
+
+puts "\n👥 Admin Users (for testing admin panel):"
+puts ""
+puts "  ┌─────────────────────────────────────────┐"
+puts "  │ LOGIN CREDENTIALS                       │"
+puts "  ├─────────────────────────────────────────┤"
+puts "  │ Admin:   admin@test.com                 │"
+puts "  │ Role:    admin                          │"
+puts "  │ Access:  Full organization              │"
+puts "  ├─────────────────────────────────────────┤"
+puts "  │ Manager: manager@test.com               │"
+puts "  │ Role:    manager                        │"
+puts "  │ Access:  Location #{location.name.ljust(21)} │"
+puts "  ├─────────────────────────────────────────┤"
+puts "  │ Member:  doctor@test.com                │"
+puts "  │ Role:    member                         │"
+puts "  │ Access:  Own bookings only              │"
+puts "  └─────────────────────────────────────────┘"
+puts ""
+puts "  Admin panel: http://localhost:3000/book/admin"
 
 puts "\n🚀 Try it in the console:"
 puts "  rvm 3.3.4@scheduling do bin/rails console"

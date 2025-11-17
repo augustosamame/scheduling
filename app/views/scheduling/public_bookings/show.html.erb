@@ -177,31 +177,42 @@
   </script>
 <% end %>
 
-<div class="px-4 mx-auto max-w-3xl sm:px-6 lg:px-8">
+<div class="px-4 mx-auto max-w-4xl sm:px-6 lg:px-8">
   <!-- Success Message -->
-  <div class="p-6 mb-6 bg-green-50 rounded-lg border border-green-200">
-    <div class="flex">
-      <div class="flex-shrink-0">
-        <svg class="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-        </svg>
-      </div>
-      <div class="ml-3">
-        <h2 class="text-2xl font-bold text-green-900">
-          <%= t('scheduling.bookings.show.confirmed_title') %>
-        </h2>
-        <p class="mt-2 text-green-700">
-          <%= t('scheduling.bookings.show.confirmed_message', email: @booking.client.email) %>
-        </p>
+  <div class="overflow-hidden mb-8 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl shadow-2xl">
+    <div class="p-8">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <div class="p-4 bg-white bg-opacity-30 rounded-full">
+            <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+        </div>
+        <div class="ml-6">
+          <h2 class="text-3xl font-bold text-white">
+            <%= t('scheduling.bookings.show.confirmed_title') %>
+          </h2>
+          <p class="mt-2 text-lg text-green-50">
+            <%= t('scheduling.bookings.show.confirmed_message', email: @booking.client.email) %>
+          </p>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- Booking Details Card -->
-  <div class="p-6 mb-6 bg-white rounded-lg shadow-sm">
-    <h3 class="pb-2 mb-4 text-lg font-semibold text-gray-900 border-b">
-      <%= t('scheduling.bookings.show.appointment_details') %>
-    </h3>
+  <div class="p-8 mb-8 bg-white rounded-xl shadow-lg border-t-4 border-blue-500">
+    <div class="flex items-center mb-6">
+      <div class="p-3 bg-blue-100 rounded-lg">
+        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+        </svg>
+      </div>
+      <h3 class="ml-4 text-2xl font-bold text-gray-900">
+        <%= t('scheduling.bookings.show.appointment_details') %>
+      </h3>
+    </div>
 
     <div class="space-y-4">
       <!-- Event Type -->
@@ -298,74 +309,79 @@
 
   <!-- Payment Information -->
   <% if @booking.event_type.requires_payment %>
-    <div class="p-6 mb-6 bg-white rounded-lg shadow-sm border-l-4 <%= @booking.payment_status == 'paid' ? 'border-green-500' : 'border-yellow-500' %>">
-      <div class="flex items-start justify-between">
-        <div class="flex-1">
-          <h3 class="mb-3 text-lg font-semibold text-gray-900">
-            <%= t('scheduling.bookings.show.payment_information') %>
-          </h3>
+    <div class="p-8 mb-8 bg-white rounded-xl shadow-lg border-t-4 <%= @booking.payment_status == 'paid' ? 'border-green-500' : 'border-yellow-500' %>">
+      <div class="flex items-center mb-6">
+        <div class="p-3 <%= @booking.payment_status == 'paid' ? 'bg-green-100' : 'bg-yellow-100' %> rounded-lg">
+          <svg class="w-6 h-6 <%= @booking.payment_status == 'paid' ? 'text-green-600' : 'text-yellow-600' %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+        <h3 class="ml-4 text-2xl font-bold text-gray-900">
+          <%= t('scheduling.bookings.show.payment_information') %>
+        </h3>
+      </div>
 
-          <!-- Price -->
-          <div class="flex items-center justify-between mb-4">
+      <!-- Price -->
+      <div class="flex items-center justify-between p-6 mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl">
+        <span class="text-lg font-medium text-gray-700"><%= t('scheduling.bookings.show.appointment_cost') %></span>
+        <span class="text-4xl font-bold text-blue-600">
+          <%= format_price(@booking.event_type.price_cents, @booking.event_type.price_currency) %>
+        </span>
+      </div>
+
+      <!-- Payment Status -->
+      <% if @booking.payment_status == 'paid' %>
+        <!-- Payment Confirmed -->
+        <div class="overflow-hidden bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl shadow-lg">
+          <div class="p-6">
             <div class="flex items-center">
-              <svg class="mr-2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              <svg class="w-8 h-8 mr-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
               </svg>
-              <span class="text-sm font-medium text-gray-500"><%= t('scheduling.bookings.show.appointment_cost') %></span>
+              <span class="text-xl font-bold text-white"><%= t('scheduling.bookings.show.payment_confirmed') %></span>
             </div>
-            <span class="text-2xl font-bold text-gray-900">
-              <%= format_price(@booking.event_type.price_cents, @booking.event_type.price_currency) %>
-            </span>
+            <p class="mt-3 text-green-50">
+              <%= t('scheduling.bookings.show.payment_confirmed_message') %>
+            </p>
           </div>
+        </div>
 
-          <!-- Payment Status -->
-          <% if @booking.payment_status == 'paid' %>
-            <!-- Payment Confirmed -->
-            <div class="p-4 bg-green-50 rounded-lg border border-green-200">
-              <div class="flex items-center">
-                <svg class="w-5 h-5 mr-2 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                </svg>
-                <span class="font-medium text-green-900"><%= t('scheduling.bookings.show.payment_confirmed') %></span>
-              </div>
-              <p class="mt-2 text-sm text-green-700">
-                <%= t('scheduling.bookings.show.payment_confirmed_message') %>
-              </p>
+      <% elsif @booking.payment_status == 'pending' %>
+        <!-- Payment Pending (Optional Payment) -->
+        <div class="overflow-hidden bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl shadow-lg">
+          <div class="p-6">
+            <div class="flex items-center mb-3">
+              <svg class="w-8 h-8 mr-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+              </svg>
+              <span class="text-xl font-bold text-white"><%= t('scheduling.bookings.show.payment_pending') %></span>
             </div>
+            <p class="mb-6 text-yellow-50">
+              <%= t('scheduling.bookings.show.payment_pending_message') %>
+            </p>
 
-          <% elsif @booking.payment_status == 'pending' %>
-            <!-- Payment Pending (Optional Payment) -->
-            <div class="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-              <div class="flex items-center mb-3">
-                <svg class="w-5 h-5 mr-2 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+            <!-- Pay Now Button (Culqi) -->
+            <div data-controller="scheduling--culqi-payment"
+                 data-scheduling--culqi-payment-amount-value="<%= @booking.event_type.price_cents %>"
+                 data-scheduling--culqi-payment-currency-value="<%= @booking.event_type.price_currency %>"
+                 data-scheduling--culqi-payment-description-value="<%= @booking.event_type.title %> - <%= @booking.member.full_name %>"
+                 data-scheduling--culqi-payment-public-key-value="<%= Culqi.public_key %>"
+                 data-scheduling--culqi-payment-booking-uid-value="<%= @booking.uid %>">
+
+              <div data-scheduling--culqi-payment-target="message" class="hidden mb-3"></div>
+
+              <button type="button"
+                      data-scheduling--culqi-payment-target="payButton"
+                      data-action="click->scheduling--culqi-payment#payExisting"
+                      class="w-full px-8 py-4 bg-white text-yellow-600 text-lg font-bold rounded-xl hover:bg-yellow-50 transition-all shadow-lg hover:shadow-xl flex items-center justify-center">
+                <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
                 </svg>
-                <span class="font-medium text-yellow-900"><%= t('scheduling.bookings.show.payment_pending') %></span>
-              </div>
-              <p class="mb-4 text-sm text-yellow-700">
-                <%= t('scheduling.bookings.show.payment_pending_message') %>
-              </p>
-
-              <!-- Pay Now Button (Culqi) -->
-              <div data-controller="scheduling--culqi-payment"
-                   data-scheduling--culqi-payment-amount-value="<%= @booking.event_type.price_cents %>"
-                   data-scheduling--culqi-payment-currency-value="<%= @booking.event_type.price_currency %>"
-                   data-scheduling--culqi-payment-description-value="<%= @booking.event_type.title %> - <%= @booking.member.full_name %>"
-                   data-scheduling--culqi-payment-public-key-value="<%= Culqi.public_key %>">
-
-                <div data-scheduling--culqi-payment-target="message" class="hidden mb-3"></div>
-
-                <button type="button"
-                        data-scheduling--culqi-payment-target="payButton"
-                        data-action="click->scheduling--culqi-payment#payExisting"
-                        class="w-full px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center">
-                  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
-                  </svg>
-                  <%= t('scheduling.payments.pay_now') %> <%= format_price(@booking.event_type.price_cents, @booking.event_type.price_currency) %>
-                </button>
-              </div>
+                <%= t('scheduling.payments.pay_now') %> <%= format_price(@booking.event_type.price_cents, @booking.event_type.price_currency) %>
+              </button>
             </div>
+          </div>
+        </div>
 
           <% else %>
             <!-- No Payment Required -->

@@ -1,0 +1,255 @@
+<%= form_with model: [:admin, @event_type], local: true, class: "space-y-6" do |f| %>
+  <% if @event_type.errors.any? %>
+    <div class="p-4 bg-red-50 rounded-lg border border-red-200">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <svg class="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+          </svg>
+        </div>
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-red-800">
+            <%= pluralize(@event_type.errors.count, "error") %> prohibited this event type from being saved:
+          </h3>
+          <div class="mt-2 text-sm text-red-700">
+            <ul class="pl-5 list-disc">
+              <% @event_type.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Basic Information Section -->
+  <div class="bg-white rounded-lg shadow">
+    <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+      <h3 class="text-lg font-medium leading-6 text-gray-900"><%= t('scheduling.admin.event_types.form.basic_info_section') %></h3>
+    </div>
+    <div class="px-4 py-5 space-y-6 sm:p-6">
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div class="sm:col-span-2">
+          <%= f.label :title, t('scheduling.admin.event_types.form.title_label'), class: "block text-sm font-medium text-gray-700" %>
+          <%= f.text_field :title, required: true, class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500", placeholder: t('scheduling.admin.event_types.form.title_placeholder') %>
+          <p class="mt-1 text-sm text-gray-500">The name of this appointment type that clients will see</p>
+        </div>
+
+        <div class="sm:col-span-2">
+          <%= f.label :slug, t('scheduling.admin.event_types.form.slug_label'), class: "block text-sm font-medium text-gray-700" %>
+          <%= f.text_field :slug, required: true, class: "block mt-1 w-full px-3 py-2 font-mono text-sm rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500", placeholder: "e.g., 30min-consultation" %>
+          <p class="mt-1 text-sm text-gray-500"><%= t('scheduling.admin.event_types.form.slug_help') %></p>
+        </div>
+
+        <div class="sm:col-span-2">
+          <%= f.label :description, t('scheduling.admin.event_types.form.description_label'), class: "block text-sm font-medium text-gray-700" %>
+          <%= f.text_area :description, rows: 3, class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500", placeholder: t('scheduling.admin.event_types.form.description_placeholder') %>
+          <p class="mt-1 text-sm text-gray-500"><%= t('scheduling.admin.event_types.form.description_help') %></p>
+        </div>
+
+        <div>
+          <%= f.label :color, t('scheduling.admin.event_types.form.color_label'), class: "block text-sm font-medium text-gray-700" %>
+          <div class="flex mt-1">
+            <%= f.color_field :color, class: "block w-16 h-10 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+            <span class="flex items-center ml-3 text-sm text-gray-500"><%= t('scheduling.admin.event_types.form.color_help') %></span>
+          </div>
+        </div>
+
+        <div>
+          <%= f.label :active, t('scheduling.admin.event_types.show.status'), class: "block text-sm font-medium text-gray-700" %>
+          <div class="flex items-center mt-2">
+            <%= f.check_box :active, class: "w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500" %>
+            <%= f.label :active, t('scheduling.admin.event_types.form.active_label'), class: "ml-2 text-sm text-gray-700" %>
+          </div>
+          <p class="mt-1 text-xs text-gray-500"><%= t('scheduling.admin.event_types.form.active_help') %></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scheduling Settings Section -->
+  <div class="bg-white rounded-lg shadow">
+    <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+      <h3 class="text-lg font-medium leading-6 text-gray-900"><%= t('scheduling.admin.event_types.form.scheduling_section') %></h3>
+    </div>
+    <div class="px-4 py-5 space-y-6 sm:p-6">
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+        <div>
+          <%= f.label :duration_minutes, t('scheduling.admin.event_types.form.duration_label'), class: "block text-sm font-medium text-gray-700" %>
+          <%= f.number_field :duration_minutes, required: true, min: 1, class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+        </div>
+
+        <div>
+          <%= f.label :buffer_before_minutes, t('scheduling.admin.event_types.form.buffer_before_label'), class: "block text-sm font-medium text-gray-700" %>
+          <%= f.number_field :buffer_before_minutes, min: 0, class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+          <p class="mt-1 text-xs text-gray-500"><%= t('scheduling.admin.event_types.form.buffer_before_help') %></p>
+        </div>
+
+        <div>
+          <%= f.label :buffer_after_minutes, t('scheduling.admin.event_types.form.buffer_after_label'), class: "block text-sm font-medium text-gray-700" %>
+          <%= f.number_field :buffer_after_minutes, min: 0, class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+          <p class="mt-1 text-xs text-gray-500"><%= t('scheduling.admin.event_types.form.buffer_after_help') %></p>
+        </div>
+
+        <div>
+          <%= f.label :minimum_notice_hours, t('scheduling.admin.event_types.form.minimum_notice_label'), class: "block text-sm font-medium text-gray-700" %>
+          <%= f.number_field :minimum_notice_hours, min: 0, class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+          <p class="mt-1 text-xs text-gray-500"><%= t('scheduling.admin.event_types.form.minimum_notice_help') %></p>
+        </div>
+
+        <div>
+          <%= f.label :maximum_days_in_future, t('scheduling.admin.event_types.form.maximum_days_label'), class: "block text-sm font-medium text-gray-700" %>
+          <%= f.number_field :maximum_days_in_future, min: 1, class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+          <p class="mt-1 text-xs text-gray-500"><%= t('scheduling.admin.event_types.form.maximum_days_help') %></p>
+        </div>
+
+        <div>
+          <%= f.label :slots_per_time_slot, t('scheduling.admin.event_types.form.slots_per_time_slot_label'), class: "block text-sm font-medium text-gray-700" %>
+          <%= f.number_field :slots_per_time_slot, min: 1, class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+          <p class="mt-1 text-xs text-gray-500"><%= t('scheduling.admin.event_types.form.slots_per_time_slot_help') %></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Location Settings Section -->
+  <div class="bg-white rounded-lg shadow">
+    <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+      <h3 class="text-lg font-medium leading-6 text-gray-900"><%= t('scheduling.admin.event_types.form.location_section') %></h3>
+    </div>
+    <div class="px-4 py-5 space-y-6 sm:p-6">
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div>
+          <%= f.label :location_type, t('scheduling.admin.event_types.form.location_type_label'), class: "block text-sm font-medium text-gray-700" %>
+          <%= f.select :location_type,
+                      [
+                        [t('scheduling.admin.event_types.form.location_types.in_person'), 'in_person'],
+                        [t('scheduling.admin.event_types.form.location_types.video_call'), 'video'],
+                        [t('scheduling.admin.event_types.form.location_types.phone_call'), 'phone'],
+                        [t('scheduling.admin.event_types.form.location_types.custom'), 'custom']
+                      ],
+                      { include_blank: 'Select location type' },
+                      class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+        </div>
+
+        <div>
+          <%= f.label :location_details, t('scheduling.admin.event_types.form.location_details_label'), class: "block text-sm font-medium text-gray-700" %>
+          <%= f.text_field :location_details, class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500", placeholder: t('scheduling.admin.event_types.form.location_details_placeholder') %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment Settings Section -->
+  <div class="bg-white rounded-lg shadow">
+    <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+      <h3 class="text-lg font-medium leading-6 text-gray-900"><%= t('scheduling.admin.event_types.form.payment_section') %></h3>
+    </div>
+    <div class="px-4 py-5 space-y-6 sm:p-6">
+      <div>
+        <div class="flex items-center">
+          <%= f.check_box :requires_payment, class: "w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500", onchange: "togglePaymentFields(this.checked)" %>
+          <%= f.label :requires_payment, t('scheduling.admin.event_types.form.requires_payment_label'), class: "ml-2 text-sm font-medium text-gray-700" %>
+        </div>
+        <p class="mt-1 ml-6 text-xs text-gray-500"><%= t('scheduling.admin.event_types.form.requires_payment_help') %></p>
+      </div>
+
+      <div id="payment-fields" class="<%= @event_type.requires_payment ? '' : 'hidden' %> space-y-6">
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div>
+            <%= f.label :price_cents, t('scheduling.admin.event_types.form.price_label'), class: "block text-sm font-medium text-gray-700" %>
+            <%= f.number_field :price_cents, min: 0, class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500", placeholder: "5000" %>
+            <p class="mt-1 text-xs text-gray-500"><%= t('scheduling.admin.event_types.form.price_help') %></p>
+          </div>
+
+          <div>
+            <%= f.label :price_currency, t('scheduling.admin.event_types.form.currency_label'), class: "block text-sm font-medium text-gray-700" %>
+            <%= f.select :price_currency,
+                        [['PEN (Soles)', 'PEN'], ['USD (Dollars)', 'USD'], ['EUR (Euros)', 'EUR']],
+                        {},
+                        class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex items-center">
+            <%= f.check_box :payment_required_to_book, class: "w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500" %>
+            <%= f.label :payment_required_to_book, t('scheduling.admin.event_types.form.payment_required_label'), class: "ml-2 text-sm text-gray-700" %>
+          </div>
+          <p class="mt-1 ml-6 text-xs text-gray-500"><%= t('scheduling.admin.event_types.form.payment_required_help') %></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cancellation & Rescheduling Policies Section -->
+  <div class="bg-white rounded-lg shadow">
+    <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+      <h3 class="text-lg font-medium leading-6 text-gray-900"><%= t('scheduling.admin.event_types.form.policies_section') %></h3>
+    </div>
+    <div class="px-4 py-5 space-y-6 sm:p-6">
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <!-- Cancellation -->
+        <div>
+          <div class="flex items-center mb-3">
+            <%= f.check_box :allow_cancellation, class: "w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500", onchange: "toggleField(this, 'cancellation_hours')" %>
+            <%= f.label :allow_cancellation, t('scheduling.admin.event_types.form.allow_cancellation_label'), class: "ml-2 text-sm font-medium text-gray-700" %>
+          </div>
+          <div id="cancellation_hours" class="<%= @event_type.allow_cancellation ? '' : 'hidden' %>">
+            <%= f.label :cancellation_policy_hours, t('scheduling.admin.event_types.form.cancellation_hours_label'), class: "block text-sm font-medium text-gray-700" %>
+            <%= f.number_field :cancellation_policy_hours, min: 0, class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+            <p class="mt-1 text-xs text-gray-500"><%= t('scheduling.admin.event_types.form.cancellation_hours_help') %></p>
+          </div>
+        </div>
+
+        <!-- Rescheduling -->
+        <div>
+          <div class="flex items-center mb-3">
+            <%= f.check_box :allow_rescheduling, class: "w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500", onchange: "toggleField(this, 'rescheduling_hours')" %>
+            <%= f.label :allow_rescheduling, t('scheduling.admin.event_types.form.allow_rescheduling_label'), class: "ml-2 text-sm font-medium text-gray-700" %>
+          </div>
+          <div id="rescheduling_hours" class="<%= @event_type.allow_rescheduling ? '' : 'hidden' %>">
+            <%= f.label :rescheduling_policy_hours, t('scheduling.admin.event_types.form.rescheduling_hours_label'), class: "block text-sm font-medium text-gray-700" %>
+            <%= f.number_field :rescheduling_policy_hours, min: 0, class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+            <p class="mt-1 text-xs text-gray-500"><%= t('scheduling.admin.event_types.form.rescheduling_hours_help') %></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Actions -->
+  <div class="flex justify-end space-x-3">
+    <%= link_to t('scheduling.admin.event_types.form.cancel_button'), @event_type.persisted? ? admin_event_type_path(@event_type) : admin_event_types_path, class: "px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-md border border-gray-300 hover:bg-gray-50" %>
+    <%= f.submit t('scheduling.admin.event_types.form.submit_button'), class: "px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700" %>
+  </div>
+<% end %>
+
+<script>
+  function togglePaymentFields(checked) {
+    const fields = document.getElementById('payment-fields');
+    if (checked) {
+      fields.classList.remove('hidden');
+    } else {
+      fields.classList.add('hidden');
+    }
+  }
+
+  function toggleField(checkbox, fieldId) {
+    const field = document.getElementById(fieldId);
+    if (checkbox.checked) {
+      field.classList.remove('hidden');
+    } else {
+      field.classList.add('hidden');
+    }
+  }
+
+  // Initialize on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    const requiresPayment = document.querySelector('input[name="event_type[requires_payment]"]');
+    if (requiresPayment) {
+      togglePaymentFields(requiresPayment.checked);
+    }
+  });
+</script>

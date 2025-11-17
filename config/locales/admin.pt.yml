@@ -1,0 +1,21 @@
+pt:
+  scheduling:
+    admin:
+      bookings:
+        mark_as_paid:
+          title: "Marcar Reserva como Paga"
+          amount: "Valor"
+          amount_help: "Valor em centavos (ex., 5000 = R$ 50.00)"
+          payment_method: "Método de Pagamento"
+          payment_methods:
+            cash: "Dinheiro"
+            bank_transfer: "Transferência Bancária"
+            credit_card: "Cartão de Crédito"
+            other: "Outro"
+          transaction_reference: "Referência da Transação (opcional)"
+          transaction_placeholder: "ex., TRANS-12345"
+          payment_screenshot: "Captura de Pagamento (opcional)"
+          notes: "Notas (opcional)"
+          notes_placeholder: "Detalhes adicionais do pagamento..."
+          confirm_button: "Confirmar Pagamento"
+          cancel_button: "Cancelar"

@@ -144,7 +144,7 @@
           <h3><%= t('scheduling.bookings.show.your_answers') %></h3>
           <% @booking.booking_answers.includes(:booking_question).each do |answer| %>
             <div class="detail-row">
-              <div class="label"><%= answer.booking_question.question %></div>
+              <div class="label"><%= answer.booking_question.label %></div>
               <div class="value"><%= answer.answer %></div>
             </div>
           <% end %>

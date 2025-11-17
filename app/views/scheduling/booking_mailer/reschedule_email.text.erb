@@ -25,7 +25,7 @@
 <%= t('scheduling.bookings.show.your_answers') %>:
 --------------------------------------------------------------------------------
 <% @booking.booking_answers.includes(:booking_question).each do |answer| %>
-<%= answer.booking_question.question %>
+<%= answer.booking_question.label %>
 <%= answer.answer %>
 
 <% end %>

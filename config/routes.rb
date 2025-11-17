@@ -1,4 +1,28 @@
 Scheduling::Engine.routes.draw do
+  # Root path - redirect to admin dashboard
+  root to: 'admin/dashboard#index'
+
+  # Admin interface (requires authentication - implement in host app)
+  namespace :admin do
+    root to: 'dashboard#index'
+
+    resources :bookings do
+      member do
+        post :send_reminder
+        post :mark_as_paid
+        get :reschedule
+        post :process_reschedule
+        post :cancel
+      end
+    end
+
+    resources :event_types
+    resources :schedules do
+      resources :availabilities
+    end
+    resources :date_overrides
+  end
+
   # Calendar connections OAuth callbacks (must be at root level for OAuth providers)
   get '/calendar_connections/google_callback', to: 'calendar_connections#google_callback', as: :google_callback
   get '/calendar_connections/outlook_callback', to: 'calendar_connections#outlook_callback', as: :outlook_callback

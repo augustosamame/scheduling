@@ -1,0 +1,21 @@
+fr:
+  scheduling:
+    admin:
+      bookings:
+        mark_as_paid:
+          title: "Marquer la Réservation comme Payée"
+          amount: "Montant"
+          amount_help: "Montant en centimes (ex., 5000 = 50.00 €)"
+          payment_method: "Méthode de Paiement"
+          payment_methods:
+            cash: "Espèces"
+            bank_transfer: "Virement Bancaire"
+            credit_card: "Carte de Crédit"
+            other: "Autre"
+          transaction_reference: "Référence de Transaction (optionnel)"
+          transaction_placeholder: "ex., TRANS-12345"
+          payment_screenshot: "Capture de Paiement (optionnel)"
+          notes: "Notes (optionnel)"
+          notes_placeholder: "Détails supplémentaires du paiement..."
+          confirm_button: "Confirmer le Paiement"
+          cancel_button: "Annuler"

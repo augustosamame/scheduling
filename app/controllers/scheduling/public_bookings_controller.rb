@@ -49,6 +49,9 @@ module Scheduling
         unless payment_result[:success]
           @booking.errors.add(:base, payment_result[:error])
           @booking_questions = @event_type.booking_questions.ordered
+          # Preload associations for re-rendering the form
+          preload_availability_associations
+          @available_dates = calculate_available_dates
           render :new and return
         end
       end
@@ -57,6 +60,8 @@ module Scheduling
         redirect_to booking_confirmation_path(@booking.uid, locale: I18n.locale)
       else
         @booking_questions = @event_type.booking_questions.ordered
+        # Preload associations before recalculating available dates
+        preload_availability_associations
         @available_dates = calculate_available_dates
         render :new
       end

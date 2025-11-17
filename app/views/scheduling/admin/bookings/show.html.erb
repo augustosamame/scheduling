@@ -1,0 +1,397 @@
+<% content_for :title, t('scheduling.admin.bookings.show.title') %>
+
+<div class="mb-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="text-2xl font-bold text-gray-900"><%= t('scheduling.admin.bookings.show.title') %></h2>
+      <p class="mt-1 text-sm text-gray-500">Booking ID: <%= @booking.uid %></p>
+    </div>
+    <%= link_to "← #{t('scheduling.admin.bookings.show.back_to_bookings')}", admin_bookings_path, class: "px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-md border border-gray-300 hover:bg-gray-50" %>
+  </div>
+</div>
+
+<!-- Status and Payment Overview -->
+<div class="grid grid-cols-1 gap-5 mb-6 sm:grid-cols-2">
+  <!-- Status Card -->
+  <div class="overflow-hidden bg-white rounded-lg shadow">
+    <div class="p-5">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <svg class="w-6 h-6 <%= @booking.status == 'confirmed' ? 'text-green-400' : @booking.status == 'cancelled' ? 'text-red-400' : 'text-gray-400' %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+        <div class="flex-1 ml-5 w-0">
+          <dl>
+            <dt class="text-sm font-medium text-gray-500 truncate"><%= t('scheduling.admin.bookings.show.booking_status') %></dt>
+            <dd class="mt-1">
+              <span class="inline-flex px-3 py-1 text-sm font-semibold leading-5 rounded-full <%= @booking.status == 'confirmed' ? 'bg-green-100 text-green-800' : @booking.status == 'cancelled' ? 'bg-red-100 text-red-800' : @booking.status == 'completed' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800' %>">
+                <%= @booking.status.titleize %>
+              </span>
+            </dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment Status Card -->
+  <div class="overflow-hidden bg-white rounded-lg shadow">
+    <div class="p-5">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <svg class="w-6 h-6 <%= @booking.payment_status == 'paid' ? 'text-green-400' : @booking.payment_status == 'pending' ? 'text-yellow-400' : 'text-gray-400' %>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+          </svg>
+        </div>
+        <div class="flex-1 ml-5 w-0">
+          <dl>
+            <dt class="text-sm font-medium text-gray-500 truncate"><%= t('scheduling.admin.bookings.show.payment_status') %></dt>
+            <dd class="mt-1">
+              <span class="inline-flex px-3 py-1 text-sm font-semibold leading-5 rounded-full <%= @booking.payment_status == 'paid' ? 'bg-green-100 text-green-800' : @booking.payment_status == 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800' %>">
+                <%= @booking.payment_status.titleize.gsub('_', ' ') %>
+              </span>
+            </dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main Content -->
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+  <!-- Left Column - Booking Information -->
+  <div class="lg:col-span-2">
+    <!-- Appointment Details -->
+    <div class="mb-6 bg-white rounded-lg shadow">
+      <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+        <h3 class="text-lg font-medium leading-6 text-gray-900"><%= t('scheduling.admin.bookings.show.appointment_details') %></h3>
+      </div>
+      <div class="px-4 py-5 sm:p-6">
+        <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+          <div>
+            <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.bookings.show.event_type') %></dt>
+            <dd class="mt-1 text-sm text-gray-900"><%= @booking.event_type.title %></dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.bookings.show.duration') %></dt>
+            <dd class="mt-1 text-sm text-gray-900"><%= t('scheduling.admin.bookings.show.minutes', count: @booking.event_type.duration_minutes) %></dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.bookings.show.member') %></dt>
+            <dd class="mt-1 text-sm text-gray-900"><%= @booking.member.full_name %></dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.bookings.show.location_type') %></dt>
+            <dd class="mt-1 text-sm text-gray-900"><%= @booking.member.team.location.name %></dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.bookings.show.date') %></dt>
+            <dd class="mt-1 text-sm font-semibold text-gray-900"><%= @booking.start_time.strftime("%B %d, %Y") %></dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.bookings.show.time') %></dt>
+            <dd class="mt-1 text-sm font-semibold text-gray-900"><%= @booking.start_time.strftime("%I:%M %p") %> - <%= @booking.end_time.strftime("%I:%M %p") %></dd>
+          </div>
+          <% if @booking.event_type.location_type.present? %>
+          <div>
+            <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.event_types.show.location_type') %></dt>
+            <dd class="mt-1 text-sm text-gray-900"><%= @booking.event_type.location_type.titleize %></dd>
+          </div>
+          <% end %>
+          <% if @booking.event_type.location_details.present? %>
+          <div>
+            <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.event_types.show.location_details') %></dt>
+            <dd class="mt-1 text-sm text-gray-900"><%= @booking.event_type.location_details %></dd>
+          </div>
+          <% end %>
+        </dl>
+
+        <% if @booking.notes.present? %>
+        <div class="mt-6">
+          <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.bookings.show.notes') %></dt>
+          <dd class="mt-2 text-sm text-gray-900"><%= @booking.notes %></dd>
+        </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Client Information -->
+    <div class="mb-6 bg-white rounded-lg shadow">
+      <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+        <h3 class="text-lg font-medium leading-6 text-gray-900"><%= t('scheduling.admin.bookings.show.client_information') %></h3>
+      </div>
+      <div class="px-4 py-5 sm:p-6">
+        <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+          <div>
+            <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.bookings.show.client_name') %></dt>
+            <dd class="mt-1 text-sm font-semibold text-gray-900"><%= @booking.client.full_name %></dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.bookings.show.client_email') %></dt>
+            <dd class="mt-1 text-sm text-gray-900">
+              <a href="mailto:<%= @booking.client.email %>" class="text-blue-600 hover:text-blue-800"><%= @booking.client.email %></a>
+            </dd>
+          </div>
+          <% if @booking.client.phone.present? %>
+          <div>
+            <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.bookings.show.client_phone') %></dt>
+            <dd class="mt-1 text-sm text-gray-900">
+              <a href="tel:<%= @booking.client.phone %>" class="text-blue-600 hover:text-blue-800"><%= @booking.client.phone %></a>
+            </dd>
+          </div>
+          <% end %>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Timezone</dt>
+            <dd class="mt-1 text-sm text-gray-900"><%= @booking.client.timezone || @booking.timezone %></dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+
+    <!-- Booking Answers (if any) -->
+    <% if @booking_answers.any? %>
+    <div class="mb-6 bg-white rounded-lg shadow">
+      <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+        <h3 class="text-lg font-medium leading-6 text-gray-900"><%= t('scheduling.admin.bookings.show.custom_fields') %></h3>
+      </div>
+      <div class="px-4 py-5 sm:p-6">
+        <dl class="space-y-4">
+          <% @booking_answers.each do |answer| %>
+          <div>
+            <dt class="text-sm font-medium text-gray-500"><%= answer.booking_question.label %></dt>
+            <dd class="mt-1 text-sm text-gray-900"><%= answer.answer %></dd>
+          </div>
+          <% end %>
+        </dl>
+      </div>
+    </div>
+    <% end %>
+
+    <!-- Payment Information -->
+    <% if @booking.event_type.requires_payment %>
+    <div class="mb-6 bg-white rounded-lg shadow">
+      <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+        <h3 class="text-lg font-medium leading-6 text-gray-900">Payment Information</h3>
+      </div>
+      <div class="px-4 py-5 sm:p-6">
+        <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Amount</dt>
+            <dd class="mt-1 text-lg font-semibold text-gray-900">
+              <%= number_to_currency(@booking.event_type.price_cents / 100.0, unit: @booking.event_type.price_currency == 'PEN' ? 'S/. ' : '$', precision: 2) %>
+            </dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Payment Required</dt>
+            <dd class="mt-1 text-sm text-gray-900">
+              <%= @booking.event_type.payment_required_to_book ? 'Before booking' : 'Optional' %>
+            </dd>
+          </div>
+          <% if @booking.payment.present? %>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Payment Method</dt>
+            <dd class="mt-1 text-sm text-gray-900"><%= @booking.payment.payment_method.titleize %></dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Transaction ID</dt>
+            <dd class="mt-1 text-sm font-mono text-gray-900"><%= @booking.payment.external_transaction_id %></dd>
+          </div>
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Paid At</dt>
+            <dd class="mt-1 text-sm text-gray-900"><%= @booking.payment.paid_at&.strftime("%B %d, %Y %I:%M %p") %></dd>
+          </div>
+          <% if @booking.payment.metadata && @booking.payment.metadata['notes'].present? %>
+          <div class="sm:col-span-2">
+            <dt class="text-sm font-medium text-gray-500">Payment Notes</dt>
+            <dd class="mt-1 text-sm text-gray-900"><%= @booking.payment.metadata['notes'] %></dd>
+          </div>
+          <% end %>
+          <% end %>
+        </dl>
+      </div>
+    </div>
+    <% end %>
+  </div>
+
+  <!-- Right Column - Actions -->
+  <div class="lg:col-span-1">
+    <div class="bg-white rounded-lg shadow">
+      <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+        <h3 class="text-lg font-medium leading-6 text-gray-900"><%= t('scheduling.admin.bookings.show.actions') %></h3>
+      </div>
+      <div class="px-4 py-5 sm:p-6">
+        <div class="space-y-3">
+          <!-- Send Reminder -->
+          <% if @booking.status == 'confirmed' %>
+          <%= button_to send_reminder_admin_booking_path(@booking), method: :post, class: "w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700", data: { confirm: "Send reminder email to #{@booking.client.email}?" } do %>
+            <svg class="mr-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+            </svg>
+            <%= t('scheduling.admin.bookings.show.send_reminder') %>
+          <% end %>
+          <% end %>
+
+          <!-- Mark as Paid -->
+          <% if @booking.event_type.requires_payment && @booking.payment_status == 'pending' %>
+          <button type="button" onclick="document.getElementById('mark-as-paid-modal').classList.remove('hidden')" class="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700">
+            <svg class="mr-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <%= t('scheduling.admin.bookings.show.mark_as_paid') %>
+          </button>
+          <% end %>
+
+          <!-- Reschedule -->
+          <% if @booking.status == 'confirmed' %>
+          <%= link_to reschedule_admin_booking_path(@booking), class: "w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-md border border-gray-300 hover:bg-gray-50" do %>
+            <svg class="mr-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <%= t('scheduling.admin.bookings.show.reschedule_booking') %>
+          <% end %>
+          <% end %>
+
+          <!-- Cancel -->
+          <% if @booking.status == 'confirmed' %>
+          <button type="button" onclick="document.getElementById('cancel-modal').classList.remove('hidden')" class="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700">
+            <svg class="mr-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+            <%= t('scheduling.admin.bookings.show.cancel_booking') %>
+          </button>
+          <% end %>
+        </div>
+
+        <!-- Client Self-Service Links -->
+        <% if @booking.status == 'confirmed' %>
+        <div class="pt-6 mt-6 border-t border-gray-200">
+          <h4 class="mb-3 text-sm font-medium text-gray-900"><%= t('scheduling.admin.bookings.show.client_self_service') %></h4>
+          <div class="space-y-2 text-xs">
+            <div>
+              <label class="block mb-1 text-gray-500"><%= t('scheduling.admin.bookings.show.cancellation_url') %>:</label>
+              <input type="text" readonly value="<%= cancel_booking_url(@booking.cancellation_token) %>" class="block w-full px-2 py-1 text-xs bg-gray-50 rounded border border-gray-300" onclick="this.select()">
+            </div>
+            <div>
+              <label class="block mb-1 text-gray-500"><%= t('scheduling.admin.bookings.show.reschedule_url') %>:</label>
+              <input type="text" readonly value="<%= reschedule_booking_url(@booking.reschedule_token) %>" class="block w-full px-2 py-1 text-xs bg-gray-50 rounded border border-gray-300" onclick="this.select()">
+            </div>
+          </div>
+        </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Mark as Paid Modal -->
+<% if @booking.event_type.requires_payment && @booking.payment_status == 'pending' %>
+<div id="mark-as-paid-modal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <div class="flex items-end justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="document.getElementById('mark-as-paid-modal').classList.add('hidden')"></div>
+
+    <div class="relative z-10 inline-block overflow-hidden text-left align-bottom bg-white rounded-lg shadow-xl transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+      <%= form_with url: mark_as_paid_admin_booking_path(@booking), method: :post, multipart: true, local: true do |f| %>
+        <div class="px-4 pt-5 pb-4 bg-white sm:p-6 sm:pb-4">
+          <div class="sm:flex sm:items-start">
+            <div class="flex items-center justify-center flex-shrink-0 mx-auto w-12 h-12 bg-green-100 rounded-full sm:mx-0 sm:h-10 sm:w-10">
+              <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left flex-1">
+              <h3 class="text-lg font-medium leading-6 text-gray-900" id="modal-title">
+                <%= t('scheduling.admin.bookings.mark_as_paid.title') %>
+              </h3>
+              <div class="mt-4 space-y-4">
+                <div>
+                  <label class="block mb-2 text-sm font-medium text-gray-700"><%= t('scheduling.admin.bookings.mark_as_paid.amount') %></label>
+                  <div class="flex items-center px-3 py-2 bg-gray-50 rounded-md border border-gray-300">
+                    <span class="text-2xl font-bold text-gray-900"><%= format_price(@booking.event_type.price_cents, @booking.event_type.price_currency) %></span>
+                  </div>
+                  <%= f.hidden_field :amount_cents, value: @booking.event_type.price_cents %>
+                </div>
+
+                <div>
+                  <label class="block mb-2 text-sm font-medium text-gray-700"><%= t('scheduling.admin.bookings.mark_as_paid.payment_method') %></label>
+                  <%= f.select :payment_method, [
+                    [t('scheduling.admin.bookings.mark_as_paid.payment_methods.cash'), 'cash'],
+                    [t('scheduling.admin.bookings.mark_as_paid.payment_methods.bank_transfer'), 'bank_transfer'],
+                    [t('scheduling.admin.bookings.mark_as_paid.payment_methods.credit_card'), 'credit_card'],
+                    [t('scheduling.admin.bookings.mark_as_paid.payment_methods.other'), 'other']
+                  ], {}, class: "block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" %>
+                </div>
+
+                <div>
+                  <label class="block mb-2 text-sm font-medium text-gray-700"><%= t('scheduling.admin.bookings.mark_as_paid.transaction_reference') %></label>
+                  <%= f.text_field :transaction_reference, class: "block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500", placeholder: t('scheduling.admin.bookings.mark_as_paid.transaction_placeholder') %>
+                </div>
+
+                <div>
+                  <label class="block mb-2 text-sm font-medium text-gray-700"><%= t('scheduling.admin.bookings.mark_as_paid.payment_screenshot') %></label>
+                  <%= f.file_field :payment_screenshot, accept: "image/*", class: "block w-full px-3 py-2 text-sm text-gray-500 border border-gray-300 rounded-md file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100" %>
+                </div>
+
+                <div>
+                  <label class="block mb-2 text-sm font-medium text-gray-700"><%= t('scheduling.admin.bookings.mark_as_paid.notes') %></label>
+                  <%= f.text_area :payment_notes, rows: 3, class: "block w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500", placeholder: t('scheduling.admin.bookings.mark_as_paid.notes_placeholder') %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="px-4 py-3 bg-gray-50 sm:flex sm:flex-row-reverse sm:px-6">
+          <%= f.submit t('scheduling.admin.bookings.mark_as_paid.confirm_button'), class: "inline-flex justify-center px-4 py-2 w-full text-base font-medium text-white bg-green-600 rounded-md border border-transparent shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm" %>
+          <button type="button" onclick="document.getElementById('mark-as-paid-modal').classList.add('hidden')" class="inline-flex justify-center px-4 py-2 mt-3 w-full text-base font-medium text-gray-700 bg-white rounded-md border border-gray-300 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+            <%= t('scheduling.admin.bookings.mark_as_paid.cancel_button') %>
+          </button>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+<% end %>
+
+<!-- Cancel Booking Modal -->
+<% if @booking.status == 'confirmed' %>
+<div id="cancel-modal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <div class="flex items-end justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="document.getElementById('cancel-modal').classList.add('hidden')"></div>
+
+    <div class="relative z-10 inline-block overflow-hidden text-left align-bottom bg-white rounded-lg shadow-xl transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+      <%= form_with url: cancel_admin_booking_path(@booking), method: :post, local: true do |f| %>
+        <div class="px-4 pt-5 pb-4 bg-white sm:p-6 sm:pb-4">
+          <div class="sm:flex sm:items-start">
+            <div class="flex items-center justify-center flex-shrink-0 mx-auto w-12 h-12 bg-red-100 rounded-full sm:mx-0 sm:h-10 sm:w-10">
+              <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </div>
+            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left flex-1">
+              <h3 class="text-lg font-medium leading-6 text-gray-900" id="modal-title">
+                <%= t('scheduling.admin.bookings.cancel.title') %>
+              </h3>
+              <div class="mt-4">
+                <p class="mb-4 text-sm text-gray-500">
+                  <%= t('scheduling.admin.bookings.cancel.warning') %>
+                </p>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700"><%= t('scheduling.admin.bookings.cancel.reason_label') %></label>
+                  <%= f.text_area :reason, rows: 3, required: true, class: "block mt-1 w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500", placeholder: t('scheduling.admin.bookings.cancel.reason_placeholder') %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="px-4 py-3 bg-gray-50 sm:flex sm:flex-row-reverse sm:px-6">
+          <%= f.submit t('scheduling.admin.bookings.cancel.confirm_button'), class: "inline-flex justify-center px-4 py-2 w-full text-base font-medium text-white bg-red-600 rounded-md border border-transparent shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm" %>
+          <button type="button" onclick="document.getElementById('cancel-modal').classList.add('hidden')" class="inline-flex justify-center px-4 py-2 mt-3 w-full text-base font-medium text-gray-700 bg-white rounded-md border border-gray-300 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+            <%= t('scheduling.admin.bookings.cancel.cancel_button') %>
+          </button>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+<% end %>
