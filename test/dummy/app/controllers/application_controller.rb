@@ -1,6 +1,6 @@
 class ApplicationController < ActionController::Base
-  # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
-  allow_browser versions: :modern
+  # Browser restriction disabled for development/testing
+  # allow_browser versions: :modern
 
   # Simple authentication for testing (NOT for production!)
   # In production, use Devise, Sorcery, or another authentication gem

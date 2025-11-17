@@ -1,0 +1,103 @@
+<% content_for :title, @location.name %>
+
+<div class="mb-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="text-2xl font-bold text-gray-900"><%= @location.name %></h2>
+      <p class="mt-1 text-sm text-gray-500">
+        <%= @location.organization.name %>
+        <% if @location.active %>
+          <span class="inline-flex items-center px-2 py-0.5 ml-2 text-xs font-medium text-green-800 bg-green-100 rounded">
+            <%= t('scheduling.admin.locations.status.active') %>
+          </span>
+        <% end %>
+      </p>
+    </div>
+    <div class="flex gap-2">
+      <%= link_to t('scheduling.admin.locations.show.edit'), edit_admin_location_path(@location), class: "px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700" %>
+      <%= link_to "← #{t('scheduling.admin.locations.show.back_to_list')}", admin_locations_path, class: "px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-md border border-gray-300 hover:bg-gray-50" %>
+    </div>
+  </div>
+</div>
+
+<!-- Location Info -->
+<div class="mb-6 overflow-hidden bg-white rounded-lg shadow">
+  <div class="px-6 py-4 border-b border-gray-200">
+    <h3 class="text-lg font-medium text-gray-900"><%= t('scheduling.admin.locations.show.info_section') %></h3>
+  </div>
+  <div class="px-6 py-4">
+    <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+      <div>
+        <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.locations.show.name') %></dt>
+        <dd class="mt-1 text-sm text-gray-900"><%= @location.name %></dd>
+      </div>
+      <div>
+        <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.locations.show.slug') %></dt>
+        <dd class="mt-1 text-sm text-gray-900"><%= @location.slug %></dd>
+      </div>
+      <div>
+        <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.locations.show.timezone') %></dt>
+        <dd class="mt-1 text-sm text-gray-900"><%= @location.timezone %></dd>
+      </div>
+      <div>
+        <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.locations.show.organization') %></dt>
+        <dd class="mt-1 text-sm text-gray-900"><%= @location.organization.name %></dd>
+      </div>
+      <% if @location.full_address.present? %>
+        <div class="sm:col-span-2">
+          <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.locations.show.address') %></dt>
+          <dd class="mt-1 text-sm text-gray-900"><%= @location.full_address %></dd>
+        </div>
+      <% end %>
+    </dl>
+  </div>
+</div>
+
+<!-- Teams -->
+<div class="overflow-hidden bg-white rounded-lg shadow">
+  <div class="px-6 py-4 border-b border-gray-200">
+    <div class="flex items-center justify-between">
+      <h3 class="text-lg font-medium text-gray-900"><%= t('scheduling.admin.locations.show.teams') %></h3>
+      <%= link_to t('scheduling.admin.locations.show.view_all_teams'), admin_teams_path(location_id: @location.id), class: "text-sm text-blue-600 hover:text-blue-800" %>
+    </div>
+  </div>
+  <div class="px-6 py-4">
+    <% if @teams.any? %>
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <% @teams.each do |team| %>
+          <div class="p-3 bg-gray-50 rounded-lg" style="border-left: 3px solid <%= team.color %>;">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-sm font-medium text-gray-900"><%= team.name %></div>
+                <div class="text-sm text-gray-500"><%= team.members.count %> miembros</div>
+              </div>
+              <%= link_to t('scheduling.admin.locations.show.view'), admin_team_path(team), class: "text-sm text-blue-600 hover:text-blue-800" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-sm text-gray-500"><%= t('scheduling.admin.locations.show.no_teams') %></p>
+    <% end %>
+  </div>
+</div>
+
+<!-- Danger Zone -->
+<div class="mt-6 overflow-hidden bg-white border-2 border-red-200 rounded-lg shadow">
+  <div class="px-6 py-4 bg-red-50 border-b border-red-200">
+    <h3 class="text-lg font-medium text-red-900"><%= t('scheduling.admin.locations.show.danger_zone') %></h3>
+  </div>
+  <div class="px-6 py-4">
+    <div class="flex items-center justify-between">
+      <div>
+        <h4 class="text-sm font-medium text-gray-900"><%= t('scheduling.admin.locations.show.delete_location') %></h4>
+        <p class="mt-1 text-sm text-gray-500"><%= t('scheduling.admin.locations.show.delete_warning') %></p>
+      </div>
+      <%= button_to t('scheduling.admin.locations.show.delete_button'),
+          admin_location_path(@location),
+          method: :delete,
+          data: { confirm: t('scheduling.admin.locations.show.delete_confirmation') },
+          class: "px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700" %>
+    </div>
+  </div>
+</div>

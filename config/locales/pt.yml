@@ -95,7 +95,7 @@ pt:
         duration: "Duração"
         with: "Com"
         location: "Local"
-        confirmation_code: "Código de Confirmação"
+        view_map: "Ver no Google Maps"
         payment_information: "Informações de Pagamento"
         appointment_cost: "Custo da Consulta"
         payment_confirmed: "Pagamento Confirmado"
@@ -171,6 +171,7 @@ pt:
       in_person: "Presencial"
       video_call: "Videochamada"
       phone_call: "Chamada Telefônica"
+      phone: "Chamada Telefônica"
 
     # Calendar
     calendar:

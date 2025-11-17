@@ -2,9 +2,16 @@ en:
   scheduling:
     admin:
       nav:
+        appointments: "Appointments"
+        configuration: "Configuration"
         dashboard: "Dashboard"
         bookings: "Bookings"
+        members: "Members"
+        teams: "Teams"
+        locations: "Locations"
         event_types: "Event Types"
+        schedules: "Schedules"
+        date_overrides: "Exceptions"
 
       dashboard:
         title: "Admin Dashboard"
@@ -79,6 +86,18 @@ en:
           answer: "Answer"
           no_custom_fields: "No custom fields for this booking"
 
+          payment_information: "Payment Information"
+          amount: "Amount"
+          payment_required: "Payment Required"
+          before_booking: "Before booking"
+          optional: "Optional"
+          payment_method: "Payment Method"
+          transaction_id: "Transaction ID"
+          paid_at: "Paid At"
+          payment_notes: "Payment Notes"
+          payment_screenshot: "Payment Screenshot"
+          download: "Download"
+
           mark_as_paid: "Mark as Paid"
           send_reminder: "Send Reminder"
           cancel_booking: "Cancel Booking"
@@ -91,6 +110,20 @@ en:
           open: "Open"
 
           back_to_bookings: "Back to Bookings"
+
+        statuses:
+          confirmed: "Confirmed"
+          cancelled: "Cancelled"
+          rescheduled: "Rescheduled"
+          completed: "Completed"
+          no_show: "No Show"
+
+        payment_statuses:
+          not_required: "Not Required"
+          pending: "Pending"
+          paid: "Paid"
+          failed: "Failed"
+          refunded: "Refunded"
 
         mark_as_paid:
           title: "Mark Booking as Paid"
@@ -147,6 +180,15 @@ en:
           create_first: "Create your first event type to start accepting bookings."
           view_details: "View Details"
           edit: "Edit"
+
+        new:
+          page_title: "New Event Type"
+          subtitle: "Set up a new appointment type for your schedule"
+          back_to_list: "Back to Event Types"
+
+        edit:
+          page_title: "Edit Event Type"
+          back_to_event_type: "Back to Event Type"
 
         show:
           title: "Event Type Details"
@@ -331,3 +373,449 @@ en:
 
           submit_button: "Save Event Type"
           cancel_button: "Cancel"
+
+        create:
+          success: "Event type created successfully"
+
+        update:
+          success: "Event type updated successfully"
+
+        destroy:
+          success: "Event type deleted successfully"
+          error: "Error deleting event type: %{error}"
+
+      schedules:
+        index:
+          title: "Schedules"
+          subtitle: "Manage your team members' availability schedules"
+          create_new: "Create Schedule"
+          no_schedules: "No schedules found"
+          create_first: "Create your first schedule to define when your team members are available."
+
+        table:
+          name: "Name"
+          member: "Team Member"
+          timezone: "Timezone"
+          availability_days: "Available Days"
+          availability_count: "%{count} slots"
+          default: "Default"
+          default_schedule: "Default"
+          no_availability: "No availability"
+          actions: "Actions"
+          view: "View"
+          edit: "Edit"
+
+        show:
+          title: "Schedule Details"
+          edit: "Edit Schedule"
+          back_to_list: "Back to Schedules"
+          default_schedule: "Default Schedule"
+          weekly_availability: "Weekly Availability"
+          recurring_hours: "Recurring hours by day of week"
+          unavailable: "Unavailable"
+          no_availability: "No availability configured"
+          settings: "Settings"
+          schedule_name: "Schedule Name"
+          timezone: "Timezone"
+          member: "Team Member"
+          yes: "Yes"
+          no: "No"
+          created_at: "Created"
+          updated_at: "Updated"
+          danger_zone: "Danger Zone"
+          delete_schedule: "Delete Schedule"
+          delete_warning: "Once deleted, this schedule cannot be recovered."
+          delete_button: "Delete Schedule"
+          delete_confirmation: "Are you sure you want to delete this schedule? This action cannot be undone."
+
+        new:
+          page_title: "New Schedule"
+          subtitle: "Set up a new availability schedule"
+          back_to_list: "Back to Schedules"
+
+        edit:
+          page_title: "Edit Schedule"
+          back_to_schedule: "Back to Schedule"
+
+        form:
+          errors_found: "%{count} errors prevented this schedule from being saved"
+          basic_info_section: "Basic Information"
+          basic_info_help: "General schedule details"
+          name_label: "Name"
+          name_placeholder: "e.g., Weekday Schedule"
+          name_help: "A descriptive name for this schedule"
+          timezone_label: "Timezone"
+          timezone_help: "Timezone for this schedule"
+          is_default_label: "Set as default schedule"
+          is_default_help: "The default schedule is used when no specific schedules are assigned"
+          availability_section: "Weekly Availability"
+          availability_help: "Define available hours for each day of the week"
+          start_time: "Start Time"
+          end_time: "End Time"
+          remove: "Remove"
+          cancel_button: "Cancel"
+          submit_button: "Save Schedule"
+
+        create:
+          success: "Schedule created successfully"
+
+        update:
+          success: "Schedule updated successfully"
+
+        destroy:
+          success: "Schedule deleted successfully"
+          error: "Error deleting schedule: %{error}"
+
+      date_overrides:
+        index:
+          title: "Date Exceptions"
+          subtitle: "Manage holidays, special days and exceptional hours"
+          create_new: "Create Exception"
+          no_overrides: "No exceptions found"
+          create_first: "Create your first exception to define holidays or special hours."
+
+        filters:
+          from_date: "From"
+          to_date: "To"
+          type: "Type"
+          all: "All"
+          unavailable: "Unavailable Days"
+          special_hours: "Special Hours"
+          filter_button: "Filter"
+
+        table:
+          date: "Date"
+          member: "Team Member"
+          type: "Type"
+          hours: "Hours"
+          reason: "Reason"
+          actions: "Actions"
+          unavailable: "Unavailable"
+          special_hours: "Special Hours"
+          edit: "Edit"
+          delete: "Delete"
+          delete_confirmation: "Are you sure you want to delete this exception?"
+
+        new:
+          page_title: "New Date Exception"
+          subtitle: "Define a special day or holiday"
+          back_to_list: "Back to Exceptions"
+
+        edit:
+          page_title: "Edit Date Exception"
+          back_to_list: "Back to Exceptions"
+
+        form:
+          errors_found: "%{count} errors prevented this exception from being saved"
+          basic_info_section: "Basic Information"
+          basic_info_help: "Date exception details"
+          date_label: "Date"
+          date_help: "Select the date for this exception"
+          reason_label: "Reason"
+          reason_placeholder: "e.g., Christmas, Half day, Extended hours"
+          reason_help: "Describe the reason for this exception"
+          override_type_section: "Exception Type"
+          override_type_help: "Select whether this day is completely unavailable or has special hours"
+          unavailable_label: "Unavailable Day (Holiday)"
+          unavailable_help: "Team member will not be available at all on this day"
+          special_hours_label: "Special Hours"
+          special_hours_help: "Team member will be available at different hours than usual"
+          special_hours_section: "Configure Special Hours"
+          start_time: "Start Time"
+          end_time: "End Time"
+          cancel_button: "Cancel"
+          submit_button: "Save Exception"
+
+        create:
+          success: "Exception created successfully"
+
+        update:
+          success: "Exception updated successfully"
+
+        destroy:
+          success: "Exception deleted successfully"
+          error: "Error deleting exception: %{error}"
+
+      members:
+        index:
+          title: "Team Members"
+          subtitle: "Manage your professionals and their system access"
+          create_new: "Add Member"
+          no_members: "No members found"
+          create_first: "Add your first team member to start accepting bookings."
+
+        filters:
+          location: "Location"
+          team: "Team"
+          role: "Role"
+          all_roles: "All roles"
+          status: "Status"
+          all_statuses: "All"
+          active: "Active"
+          inactive: "Inactive"
+          filter_button: "Filter"
+
+        table:
+          member: "Member"
+          team: "Team"
+          role: "Role"
+          status: "Status"
+          bookings: "Settings"
+          actions: "Actions"
+          view: "View"
+          edit: "Edit"
+
+        roles:
+          admin: "Administrator"
+          manager: "Manager"
+          member: "Member"
+
+        status:
+          active: "Active"
+          inactive: "Inactive"
+          accepting: "Accepting bookings"
+
+        show:
+          edit: "Edit Member"
+          back_to_list: "Back to Members"
+          info_section: "Member Information"
+          email: "Email"
+          booking_slug: "Booking URL"
+          role: "Role"
+          team: "Team"
+          location: "Location"
+          organization: "Organization"
+          schedules: "Schedules"
+          view_all_schedules: "View all"
+          no_schedules: "No schedules configured"
+          event_types: "Event Types"
+          view_all_event_types: "View all"
+          no_event_types: "No event types configured"
+          upcoming_bookings: "Upcoming Bookings"
+          view_all_bookings: "View all"
+          no_bookings: "No upcoming bookings"
+          view: "View"
+          danger_zone: "Danger Zone"
+          delete_member: "Delete Member"
+          delete_warning: "This will delete all associated data (schedules, event types, bookings)."
+          delete_button: "Delete Member"
+          delete_confirmation: "Are you sure? This action cannot be undone."
+
+        new:
+          page_title: "New Member"
+          subtitle: "Add a new professional to the team"
+          back_to_list: "Back to Members"
+
+        edit:
+          page_title: "Edit Member"
+          back_to_member: "Back to Member"
+
+        form:
+          errors_found: "%{count} errors prevented saving"
+          user_section: "User Selection"
+          user_help: "Select the user who will be a team member"
+          user_label: "User"
+          select_user: "Select a user..."
+          user_description: "The user provides name, email and professional profile"
+          team_label: "Team"
+          select_team: "Select a team..."
+          team_description: "The team determines location and organization"
+          settings_section: "Member Settings"
+          settings_help: "Define role and permissions"
+          role_label: "Role"
+          role_description: "Admin: full access, Manager: manages location, Member: own data only"
+          booking_slug_label: "Booking URL"
+          booking_slug_placeholder: "e.g., dr-maria-rodriguez"
+          booking_slug_description: "Unique URL for bookings (auto-generated)"
+          active_label: "Active member"
+          active_description: "Inactive members cannot log in"
+          accepts_bookings_label: "Accepts new bookings"
+          accepts_bookings_description: "Allow clients to book appointments with this member"
+          cancel_button: "Cancel"
+          submit_button: "Save Member"
+
+        create:
+          success: "Member created successfully"
+
+        update:
+          success: "Member updated successfully"
+
+        destroy:
+          success: "Member deleted successfully"
+          error: "Error deleting member: %{error}"
+
+      teams:
+        index:
+          title: "Teams"
+          subtitle: "Organize your professionals into teams"
+          create_new: "Create Team"
+          no_teams: "No teams found"
+          create_first: "Create your first team to organize your professionals."
+
+        filters:
+          location: "Location"
+          status: "Status"
+          all: "All"
+          active: "Active"
+          inactive: "Inactive"
+          filter_button: "Filter"
+
+        table:
+          view: "View"
+          edit: "Edit"
+
+        members_count: "members"
+
+        status:
+          active: "Active"
+
+        show:
+          edit: "Edit Team"
+          back_to_list: "Back to Teams"
+          info_section: "Team Information"
+          name: "Name"
+          slug: "Identifier"
+          location: "Location"
+          color: "Color"
+          description: "Description"
+          members: "Team Members"
+          view_all_members: "View all"
+          no_members: "No members in this team"
+          view: "View"
+          danger_zone: "Danger Zone"
+          delete_team: "Delete Team"
+          delete_warning: "This will delete all associated members."
+          delete_button: "Delete Team"
+          delete_confirmation: "Are you sure? This action cannot be undone."
+
+        new:
+          page_title: "New Team"
+          subtitle: "Create a team to organize professionals"
+          back_to_list: "Back to Teams"
+
+        edit:
+          page_title: "Edit Team"
+          back_to_team: "Back to Team"
+
+        form:
+          errors_found: "%{count} errors prevented saving"
+          basic_info: "Basic Information"
+          name_label: "Team Name"
+          location_label: "Location"
+          select_location: "Select a location..."
+          slug_label: "Identifier (slug)"
+          slug_placeholder: "e.g., pediatrics-team"
+          slug_help: "URL-friendly identifier (auto-generated)"
+          color_label: "Team Color"
+          color_help: "Color to visually identify the team"
+          description_label: "Description"
+          active_label: "Active team"
+          active_help: "Inactive teams don't appear in bookings"
+          cancel_button: "Cancel"
+          submit_button: "Save Team"
+
+        create:
+          success: "Team created successfully"
+
+        update:
+          success: "Team updated successfully"
+
+        destroy:
+          success: "Team deleted successfully"
+          error: "Error deleting team: %{error}"
+
+      locations:
+        index:
+          title: "Locations"
+          subtitle: "Manage your organization's physical locations"
+          create_new: "Create Location"
+          no_locations: "No locations found"
+          create_first: "Create your first location to organize teams."
+
+        teams_count: "teams"
+        members_count: "members"
+
+        table:
+          view: "View"
+          edit: "Edit"
+
+        status:
+          active: "Active"
+
+        show:
+          edit: "Edit Location"
+          back_to_list: "Back to Locations"
+          info_section: "Location Information"
+          name: "Name"
+          slug: "Identifier"
+          timezone: "Timezone"
+          organization: "Organization"
+          address: "Address"
+          teams: "Teams"
+          view_all_teams: "View all"
+          no_teams: "No teams at this location"
+          view: "View"
+          danger_zone: "Danger Zone"
+          delete_location: "Delete Location"
+          delete_warning: "This will delete all associated teams and members."
+          delete_button: "Delete Location"
+          delete_confirmation: "Are you sure? This action cannot be undone."
+
+        new:
+          page_title: "New Location"
+          subtitle: "Add a new physical location"
+          back_to_list: "Back to Locations"
+
+        edit:
+          page_title: "Edit Location"
+          back_to_location: "Back to Location"
+
+        form:
+          errors_found: "%{count} errors prevented saving"
+          basic_info: "Basic Information"
+          name_label: "Location Name"
+          organization_label: "Organization"
+          select_organization: "Select an organization..."
+          slug_label: "Identifier (slug)"
+          slug_placeholder: "e.g., main-office"
+          timezone_label: "Timezone"
+          active_label: "Active location"
+          address_section: "Address"
+          address_label: "Address"
+          city_label: "City"
+          state_label: "State/Province"
+          postal_code_label: "Postal Code"
+          country_label: "Country"
+          cancel_button: "Cancel"
+          submit_button: "Save Location"
+
+        create:
+          success: "Location created successfully"
+
+        update:
+          success: "Location updated successfully"
+
+        destroy:
+          success: "Location deleted successfully"
+          error: "Error deleting location: %{error}"
+
+      errors:
+        unauthorized: "You don't have permission to perform this action"
+
+    days:
+      short:
+        0: "Sun"
+        1: "Mon"
+        2: "Tue"
+        3: "Wed"
+        4: "Thu"
+        5: "Fri"
+        6: "Sat"
+      full:
+        0: "Sunday"
+        1: "Monday"
+        2: "Tuesday"
+        3: "Wednesday"
+        4: "Thursday"
+        5: "Friday"
+        6: "Saturday"

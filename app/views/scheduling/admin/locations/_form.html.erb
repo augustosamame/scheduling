@@ -1,0 +1,121 @@
+<%= form_with model: [:admin, @location], local: true, class: "space-y-6" do |f| %>
+  <% if @location.errors.any? %>
+    <div class="p-4 bg-red-50 border-l-4 border-red-400">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <svg class="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-red-800">
+            <%= t('scheduling.admin.locations.form.errors_found', count: @location.errors.count) %>
+          </h3>
+          <div class="mt-2 text-sm text-red-700">
+            <ul class="pl-5 list-disc">
+              <% @location.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="bg-white rounded-lg shadow">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h3 class="text-lg font-medium text-gray-900"><%= t('scheduling.admin.locations.form.basic_info') %></h3>
+    </div>
+    <div class="px-6 py-4 space-y-4">
+      <div>
+        <%= f.label :name, t('scheduling.admin.locations.form.name_label'), class: "block text-sm font-medium text-gray-700" %>
+        <%= f.text_field :name,
+            class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+      </div>
+
+      <div>
+        <%= f.label :organization_id, t('scheduling.admin.locations.form.organization_label'), class: "block text-sm font-medium text-gray-700" %>
+        <%= f.select :organization_id,
+            options_for_select(@organizations.map { |o| [o.name, o.id] }, @location.organization_id),
+            { include_blank: t('scheduling.admin.locations.form.select_organization') },
+            class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <%= f.label :slug, t('scheduling.admin.locations.form.slug_label'), class: "block text-sm font-medium text-gray-700" %>
+          <%= f.text_field :slug,
+              placeholder: t('scheduling.admin.locations.form.slug_placeholder'),
+              class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+        </div>
+
+        <div>
+          <%= f.label :timezone, t('scheduling.admin.locations.form.timezone_label'), class: "block text-sm font-medium text-gray-700" %>
+          <%= f.time_zone_select :timezone,
+              ActiveSupport::TimeZone.all,
+              { default: 'Lima' },
+              class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+        </div>
+      </div>
+
+      <div class="flex items-start">
+        <div class="flex items-center h-5">
+          <%= f.check_box :active, class: "w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" %>
+        </div>
+        <div class="ml-3">
+          <%= f.label :active, t('scheduling.admin.locations.form.active_label'), class: "text-sm font-medium text-gray-700" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-lg shadow">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h3 class="text-lg font-medium text-gray-900"><%= t('scheduling.admin.locations.form.address_section') %></h3>
+    </div>
+    <div class="px-6 py-4 space-y-4">
+      <div>
+        <%= f.label :address, t('scheduling.admin.locations.form.address_label'), class: "block text-sm font-medium text-gray-700" %>
+        <%= f.text_field :address,
+            class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <%= f.label :city, t('scheduling.admin.locations.form.city_label'), class: "block text-sm font-medium text-gray-700" %>
+          <%= f.text_field :city,
+              class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+        </div>
+
+        <div>
+          <%= f.label :state, t('scheduling.admin.locations.form.state_label'), class: "block text-sm font-medium text-gray-700" %>
+          <%= f.text_field :state,
+              class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <%= f.label :postal_code, t('scheduling.admin.locations.form.postal_code_label'), class: "block text-sm font-medium text-gray-700" %>
+          <%= f.text_field :postal_code,
+              class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+        </div>
+
+        <div>
+          <%= f.label :country, t('scheduling.admin.locations.form.country_label'), class: "block text-sm font-medium text-gray-700" %>
+          <%= f.text_field :country,
+              class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex items-center justify-end gap-3">
+    <%= link_to t('scheduling.admin.locations.form.cancel_button'),
+        @location.persisted? ? admin_location_path(@location) : admin_locations_path,
+        class: "px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-md border border-gray-300 hover:bg-gray-50" %>
+    <%= f.submit t('scheduling.admin.locations.form.submit_button'),
+        class: "px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700" %>
+  </div>
+<% end %>

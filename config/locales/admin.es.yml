@@ -2,9 +2,16 @@ es:
   scheduling:
     admin:
       nav:
-        dashboard: "Panel"
+        appointments: "Citas"
+        configuration: "Configuración"
+        dashboard: "Tablero"
         bookings: "Citas"
+        members: "Miembros"
+        teams: "Equipos"
+        locations: "Ubicaciones"
         event_types: "Tipos de Evento"
+        schedules: "Horarios"
+        date_overrides: "Excepciones"
 
       dashboard:
         title: "Panel de Administración"
@@ -79,6 +86,18 @@ es:
           answer: "Respuesta"
           no_custom_fields: "No hay campos personalizados para esta cita"
 
+          payment_information: "Información de Pago"
+          amount: "Monto"
+          payment_required: "Pago Requerido"
+          before_booking: "Antes de reservar"
+          optional: "Opcional"
+          payment_method: "Método de Pago"
+          transaction_id: "ID de Transacción"
+          paid_at: "Pagado el"
+          payment_notes: "Notas de Pago"
+          payment_screenshot: "Captura de Pago"
+          download: "Descargar"
+
           mark_as_paid: "Marcar como Pagada"
           send_reminder: "Enviar Recordatorio"
           cancel_booking: "Cancelar Cita"
@@ -91,6 +110,20 @@ es:
           open: "Abrir"
 
           back_to_bookings: "Volver a Citas"
+
+        statuses:
+          confirmed: "Confirmada"
+          cancelled: "Cancelada"
+          rescheduled: "Reprogramada"
+          completed: "Completada"
+          no_show: "No asistió"
+
+        payment_statuses:
+          not_required: "No requerido"
+          pending: "Pendiente"
+          paid: "Pagada"
+          failed: "Fallida"
+          refunded: "Reembolsada"
 
         mark_as_paid:
           title: "Marcar Cita como Pagada"
@@ -147,6 +180,15 @@ es:
           create_first: "Crea tu primer tipo de evento para comenzar a recibir citas."
           view_details: "Ver Detalles"
           edit: "Editar"
+
+        new:
+          page_title: "Nuevo Tipo de Evento"
+          subtitle: "Configura un nuevo tipo de cita para tu agenda"
+          back_to_list: "Volver a Tipos de Evento"
+
+        edit:
+          page_title: "Editar Tipo de Evento"
+          back_to_event_type: "Volver al Tipo de Evento"
 
         show:
           title: "Detalles del Tipo de Evento"
@@ -331,3 +373,449 @@ es:
 
           submit_button: "Guardar Tipo de Evento"
           cancel_button: "Cancelar"
+
+        create:
+          success: "Tipo de evento creado exitosamente"
+
+        update:
+          success: "Tipo de evento actualizado exitosamente"
+
+        destroy:
+          success: "Tipo de evento eliminado exitosamente"
+          error: "Error al eliminar el tipo de evento: %{error}"
+
+      schedules:
+        index:
+          title: "Horarios"
+          subtitle: "Administra los horarios de disponibilidad de tus profesionales"
+          create_new: "Crear Horario"
+          no_schedules: "No se encontraron horarios"
+          create_first: "Crea tu primer horario para definir cuando tus profesionales están disponibles."
+
+        table:
+          name: "Nombre"
+          member: "Profesional"
+          timezone: "Zona Horaria"
+          availability_days: "Días Disponibles"
+          availability_count: "%{count} horarios"
+          default: "Predeterminado"
+          default_schedule: "Predeterminado"
+          no_availability: "Sin disponibilidad"
+          actions: "Acciones"
+          view: "Ver"
+          edit: "Editar"
+
+        show:
+          title: "Detalles del Horario"
+          edit: "Editar Horario"
+          back_to_list: "Volver a Horarios"
+          default_schedule: "Horario Predeterminado"
+          weekly_availability: "Disponibilidad Semanal"
+          recurring_hours: "Horarios recurrentes por día de la semana"
+          unavailable: "No disponible"
+          no_availability: "No hay horarios configurados"
+          settings: "Configuración"
+          schedule_name: "Nombre del Horario"
+          timezone: "Zona Horaria"
+          member: "Profesional"
+          yes: "Sí"
+          no: "No"
+          created_at: "Creado"
+          updated_at: "Actualizado"
+          danger_zone: "Zona de Peligro"
+          delete_schedule: "Eliminar Horario"
+          delete_warning: "Una vez eliminado, este horario no se puede recuperar."
+          delete_button: "Eliminar Horario"
+          delete_confirmation: "¿Estás seguro de que deseas eliminar este horario? Esta acción no se puede deshacer."
+
+        new:
+          page_title: "Nuevo Horario"
+          subtitle: "Configura un nuevo horario de disponibilidad"
+          back_to_list: "Volver a Horarios"
+
+        edit:
+          page_title: "Editar Horario"
+          back_to_schedule: "Volver al Horario"
+
+        form:
+          errors_found: "%{count} errores impidieron guardar este horario"
+          basic_info_section: "Información Básica"
+          basic_info_help: "Detalles generales del horario"
+          name_label: "Nombre"
+          name_placeholder: "ej., Horario de Semana"
+          name_help: "Un nombre descriptivo para este horario"
+          timezone_label: "Zona Horaria"
+          timezone_help: "Zona horaria para este horario"
+          is_default_label: "Establecer como horario predeterminado"
+          is_default_help: "El horario predeterminado se usa cuando no hay horarios específicos asignados"
+          availability_section: "Disponibilidad Semanal"
+          availability_help: "Define los horarios disponibles para cada día de la semana"
+          start_time: "Hora de Inicio"
+          end_time: "Hora de Fin"
+          remove: "Eliminar"
+          cancel_button: "Cancelar"
+          submit_button: "Guardar Horario"
+
+        create:
+          success: "Horario creado exitosamente"
+
+        update:
+          success: "Horario actualizado exitosamente"
+
+        destroy:
+          success: "Horario eliminado exitosamente"
+          error: "Error al eliminar el horario: %{error}"
+
+      date_overrides:
+        index:
+          title: "Excepciones de Fecha"
+          subtitle: "Administra días especiales, feriados y horarios excepcionales"
+          create_new: "Crear Excepción"
+          no_overrides: "No se encontraron excepciones"
+          create_first: "Crea tu primera excepción para definir feriados u horarios especiales."
+
+        filters:
+          from_date: "Desde"
+          to_date: "Hasta"
+          type: "Tipo"
+          all: "Todas"
+          unavailable: "Días No Disponibles"
+          special_hours: "Horarios Especiales"
+          filter_button: "Filtrar"
+
+        table:
+          date: "Fecha"
+          member: "Profesional"
+          type: "Tipo"
+          hours: "Horarios"
+          reason: "Motivo"
+          actions: "Acciones"
+          unavailable: "No Disponible"
+          special_hours: "Horario Especial"
+          edit: "Editar"
+          delete: "Eliminar"
+          delete_confirmation: "¿Estás seguro de que deseas eliminar esta excepción?"
+
+        new:
+          page_title: "Nueva Excepción de Fecha"
+          subtitle: "Define un día especial o feriado"
+          back_to_list: "Volver a Excepciones"
+
+        edit:
+          page_title: "Editar Excepción de Fecha"
+          back_to_list: "Volver a Excepciones"
+
+        form:
+          errors_found: "%{count} errores impidieron guardar esta excepción"
+          basic_info_section: "Información Básica"
+          basic_info_help: "Detalles de la excepción de fecha"
+          date_label: "Fecha"
+          date_help: "Selecciona la fecha de la excepción"
+          reason_label: "Motivo"
+          reason_placeholder: "ej., Navidad, Medio día, Horario extendido"
+          reason_help: "Describe el motivo de esta excepción"
+          override_type_section: "Tipo de Excepción"
+          override_type_help: "Selecciona si este día es completamente no disponible o tiene horarios especiales"
+          unavailable_label: "Día No Disponible (Feriado)"
+          unavailable_help: "El profesional no estará disponible en absoluto este día"
+          special_hours_label: "Horarios Especiales"
+          special_hours_help: "El profesional estará disponible en horarios diferentes a los habituales"
+          special_hours_section: "Configurar Horarios Especiales"
+          start_time: "Hora de Inicio"
+          end_time: "Hora de Fin"
+          cancel_button: "Cancelar"
+          submit_button: "Guardar Excepción"
+
+        create:
+          success: "Excepción creada exitosamente"
+
+        update:
+          success: "Excepción actualizada exitosamente"
+
+        destroy:
+          success: "Excepción eliminada exitosamente"
+          error: "Error al eliminar la excepción: %{error}"
+
+      members:
+        index:
+          title: "Miembros del Equipo"
+          subtitle: "Administra los profesionales y su acceso al sistema"
+          create_new: "Agregar Miembro"
+          no_members: "No se encontraron miembros"
+          create_first: "Agrega tu primer miembro del equipo para comenzar a aceptar reservas."
+
+        filters:
+          location: "Ubicación"
+          team: "Equipo"
+          role: "Rol"
+          all_roles: "Todos los roles"
+          status: "Estado"
+          all_statuses: "Todos"
+          active: "Activos"
+          inactive: "Inactivos"
+          filter_button: "Filtrar"
+
+        table:
+          member: "Miembro"
+          team: "Equipo"
+          role: "Rol"
+          status: "Estado"
+          bookings: "Configuración"
+          actions: "Acciones"
+          view: "Ver"
+          edit: "Editar"
+
+        roles:
+          admin: "Administrador"
+          manager: "Gerente"
+          member: "Miembro"
+
+        status:
+          active: "Activo"
+          inactive: "Inactivo"
+          accepting: "Acepta citas"
+
+        show:
+          edit: "Editar Miembro"
+          back_to_list: "Volver a Miembros"
+          info_section: "Información del Miembro"
+          email: "Email"
+          booking_slug: "URL de Reserva"
+          role: "Rol"
+          team: "Equipo"
+          location: "Ubicación"
+          organization: "Organización"
+          schedules: "Horarios"
+          view_all_schedules: "Ver todos"
+          no_schedules: "No hay horarios configurados"
+          event_types: "Tipos de Evento"
+          view_all_event_types: "Ver todos"
+          no_event_types: "No hay tipos de evento configurados"
+          upcoming_bookings: "Próximas Citas"
+          view_all_bookings: "Ver todas"
+          no_bookings: "No hay citas próximas"
+          view: "Ver"
+          danger_zone: "Zona de Peligro"
+          delete_member: "Eliminar Miembro"
+          delete_warning: "Esto eliminará todos los datos asociados (horarios, tipos de evento, citas)."
+          delete_button: "Eliminar Miembro"
+          delete_confirmation: "¿Estás seguro? Esta acción no se puede deshacer."
+
+        new:
+          page_title: "Nuevo Miembro"
+          subtitle: "Agrega un nuevo profesional al equipo"
+          back_to_list: "Volver a Miembros"
+
+        edit:
+          page_title: "Editar Miembro"
+          back_to_member: "Volver al Miembro"
+
+        form:
+          errors_found: "%{count} errores impidieron guardar"
+          user_section: "Selección de Usuario"
+          user_help: "Selecciona el usuario que será miembro del equipo"
+          user_label: "Usuario"
+          select_user: "Selecciona un usuario..."
+          user_description: "El usuario proporciona nombre, email y perfil profesional"
+          team_label: "Equipo"
+          select_team: "Selecciona un equipo..."
+          team_description: "El equipo determina la ubicación y organización"
+          settings_section: "Configuración del Miembro"
+          settings_help: "Define el rol y permisos"
+          role_label: "Rol"
+          role_description: "Admin: acceso total, Gerente: gestiona ubicación, Miembro: solo sus datos"
+          booking_slug_label: "URL de Reserva"
+          booking_slug_placeholder: "ej., dr-maria-rodriguez"
+          booking_slug_description: "URL única para las reservas (generada automáticamente)"
+          active_label: "Miembro activo"
+          active_description: "Los miembros inactivos no pueden iniciar sesión"
+          accepts_bookings_label: "Acepta nuevas reservas"
+          accepts_bookings_description: "Permite que los clientes reserven citas con este miembro"
+          cancel_button: "Cancelar"
+          submit_button: "Guardar Miembro"
+
+        create:
+          success: "Miembro creado exitosamente"
+
+        update:
+          success: "Miembro actualizado exitosamente"
+
+        destroy:
+          success: "Miembro eliminado exitosamente"
+          error: "Error al eliminar miembro: %{error}"
+
+      teams:
+        index:
+          title: "Equipos"
+          subtitle: "Organiza a tus profesionales en equipos"
+          create_new: "Crear Equipo"
+          no_teams: "No se encontraron equipos"
+          create_first: "Crea tu primer equipo para organizar a tus profesionales."
+
+        filters:
+          location: "Ubicación"
+          status: "Estado"
+          all: "Todos"
+          active: "Activos"
+          inactive: "Inactivos"
+          filter_button: "Filtrar"
+
+        table:
+          view: "Ver"
+          edit: "Editar"
+
+        members_count: "miembros"
+
+        status:
+          active: "Activo"
+
+        show:
+          edit: "Editar Equipo"
+          back_to_list: "Volver a Equipos"
+          info_section: "Información del Equipo"
+          name: "Nombre"
+          slug: "Identificador"
+          location: "Ubicación"
+          color: "Color"
+          description: "Descripción"
+          members: "Miembros del Equipo"
+          view_all_members: "Ver todos"
+          no_members: "No hay miembros en este equipo"
+          view: "Ver"
+          danger_zone: "Zona de Peligro"
+          delete_team: "Eliminar Equipo"
+          delete_warning: "Esto eliminará todos los miembros asociados."
+          delete_button: "Eliminar Equipo"
+          delete_confirmation: "¿Estás seguro? Esta acción no se puede deshacer."
+
+        new:
+          page_title: "Nuevo Equipo"
+          subtitle: "Crea un equipo para organizar profesionales"
+          back_to_list: "Volver a Equipos"
+
+        edit:
+          page_title: "Editar Equipo"
+          back_to_team: "Volver al Equipo"
+
+        form:
+          errors_found: "%{count} errores impidieron guardar"
+          basic_info: "Información Básica"
+          name_label: "Nombre del Equipo"
+          location_label: "Ubicación"
+          select_location: "Selecciona una ubicación..."
+          slug_label: "Identificador (slug)"
+          slug_placeholder: "ej., equipo-pediatria"
+          slug_help: "URL-friendly identifier (generado automáticamente)"
+          color_label: "Color del Equipo"
+          color_help: "Color para identificar visualmente el equipo"
+          description_label: "Descripción"
+          active_label: "Equipo activo"
+          active_help: "Los equipos inactivos no aparecen en reservas"
+          cancel_button: "Cancelar"
+          submit_button: "Guardar Equipo"
+
+        create:
+          success: "Equipo creado exitosamente"
+
+        update:
+          success: "Equipo actualizado exitosamente"
+
+        destroy:
+          success: "Equipo eliminado exitosamente"
+          error: "Error al eliminar equipo: %{error}"
+
+      locations:
+        index:
+          title: "Ubicaciones"
+          subtitle: "Administra las ubicaciones físicas de tu organización"
+          create_new: "Crear Ubicación"
+          no_locations: "No se encontraron ubicaciones"
+          create_first: "Crea tu primera ubicación para organizar equipos."
+
+        teams_count: "equipos"
+        members_count: "miembros"
+
+        table:
+          view: "Ver"
+          edit: "Editar"
+
+        status:
+          active: "Activa"
+
+        show:
+          edit: "Editar Ubicación"
+          back_to_list: "Volver a Ubicaciones"
+          info_section: "Información de la Ubicación"
+          name: "Nombre"
+          slug: "Identificador"
+          timezone: "Zona Horaria"
+          organization: "Organización"
+          address: "Dirección"
+          teams: "Equipos"
+          view_all_teams: "Ver todos"
+          no_teams: "No hay equipos en esta ubicación"
+          view: "Ver"
+          danger_zone: "Zona de Peligro"
+          delete_location: "Eliminar Ubicación"
+          delete_warning: "Esto eliminará todos los equipos y miembros asociados."
+          delete_button: "Eliminar Ubicación"
+          delete_confirmation: "¿Estás seguro? Esta acción no se puede deshacer."
+
+        new:
+          page_title: "Nueva Ubicación"
+          subtitle: "Agrega una nueva ubicación física"
+          back_to_list: "Volver a Ubicaciones"
+
+        edit:
+          page_title: "Editar Ubicación"
+          back_to_location: "Volver a la Ubicación"
+
+        form:
+          errors_found: "%{count} errores impidieron guardar"
+          basic_info: "Información Básica"
+          name_label: "Nombre de la Ubicación"
+          organization_label: "Organización"
+          select_organization: "Selecciona una organización..."
+          slug_label: "Identificador (slug)"
+          slug_placeholder: "ej., sede-principal"
+          timezone_label: "Zona Horaria"
+          active_label: "Ubicación activa"
+          address_section: "Dirección"
+          address_label: "Dirección"
+          city_label: "Ciudad"
+          state_label: "Estado/Provincia"
+          postal_code_label: "Código Postal"
+          country_label: "País"
+          cancel_button: "Cancelar"
+          submit_button: "Guardar Ubicación"
+
+        create:
+          success: "Ubicación creada exitosamente"
+
+        update:
+          success: "Ubicación actualizada exitosamente"
+
+        destroy:
+          success: "Ubicación eliminada exitosamente"
+          error: "Error al eliminar ubicación: %{error}"
+
+      errors:
+        unauthorized: "No tienes permisos para realizar esta acción"
+
+    days:
+      short:
+        0: "Dom"
+        1: "Lun"
+        2: "Mar"
+        3: "Mié"
+        4: "Jue"
+        5: "Vie"
+        6: "Sáb"
+      full:
+        0: "Domingo"
+        1: "Lunes"
+        2: "Martes"
+        3: "Miércoles"
+        4: "Jueves"
+        5: "Viernes"
+        6: "Sábado"

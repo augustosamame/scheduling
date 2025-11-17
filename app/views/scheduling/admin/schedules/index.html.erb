@@ -1,0 +1,117 @@
+<% content_for :title, t('scheduling.admin.schedules.index.title') %>
+
+<div class="mb-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="text-2xl font-bold text-gray-900"><%= t('scheduling.admin.schedules.index.title') %></h2>
+      <p class="mt-1 text-sm text-gray-500"><%= t('scheduling.admin.schedules.index.subtitle') %></p>
+    </div>
+    <%= link_to new_admin_schedule_path, class: "px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700" do %>
+      <svg class="inline-block w-4 h-4 mr-1 -ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+      </svg>
+      <%= t('scheduling.admin.schedules.index.create_new') %>
+    <% end %>
+  </div>
+</div>
+
+<% if @schedules.any? %>
+  <div class="overflow-hidden bg-white rounded-lg shadow">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+            <%= t('scheduling.admin.schedules.table.name') %>
+          </th>
+          <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+            <%= t('scheduling.admin.schedules.table.member') %>
+          </th>
+          <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+            <%= t('scheduling.admin.schedules.table.timezone') %>
+          </th>
+          <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+            <%= t('scheduling.admin.schedules.table.availability_days') %>
+          </th>
+          <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+            <%= t('scheduling.admin.schedules.table.default') %>
+          </th>
+          <th class="px-6 py-3 text-xs font-medium tracking-wider text-right text-gray-500 uppercase">
+            <%= t('scheduling.admin.schedules.table.actions') %>
+          </th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <% @schedules.each do |schedule| %>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex items-center">
+                <div>
+                  <div class="text-sm font-medium text-gray-900"><%= schedule.name %></div>
+                  <div class="text-sm text-gray-500">
+                    <%= t('scheduling.admin.schedules.table.availability_count', count: schedule.availabilities.count) %>
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-900"><%= schedule.member.full_name %></div>
+              <div class="text-sm text-gray-500"><%= schedule.member.email %></div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-900"><%= schedule.timezone %></div>
+            </td>
+            <td class="px-6 py-4">
+              <div class="flex flex-wrap gap-1">
+                <% unique_days = schedule.availabilities.pluck(:day_of_week).uniq.sort %>
+                <% if unique_days.any? %>
+                  <% unique_days.each do |day| %>
+                    <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium text-blue-800 bg-blue-100 rounded">
+                      <%= t("scheduling.days.short.#{day}") %>
+                    </span>
+                  <% end %>
+                <% else %>
+                  <span class="text-sm text-gray-500"><%= t('scheduling.admin.schedules.table.no_availability') %></span>
+                <% end %>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <% if schedule.is_default %>
+                <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-green-800 bg-green-100 rounded-full">
+                  <%= t('scheduling.admin.schedules.table.default_schedule') %>
+                </span>
+              <% else %>
+                <span class="text-sm text-gray-400">-</span>
+              <% end %>
+            </td>
+            <td class="px-6 py-4 text-sm font-medium text-right whitespace-nowrap">
+              <%= link_to t('scheduling.admin.schedules.table.view'), admin_schedule_path(schedule), class: "text-blue-600 hover:text-blue-900 mr-3" %>
+              <%= link_to t('scheduling.admin.schedules.table.edit'), edit_admin_schedule_path(schedule), class: "text-gray-600 hover:text-gray-900" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <% if @schedules.respond_to?(:total_pages) && @schedules.total_pages > 1 %>
+    <div class="mt-4">
+      <%= paginate @schedules %>
+    </div>
+  <% end %>
+<% else %>
+  <div class="py-12 text-center bg-white rounded-lg shadow">
+    <svg class="w-12 h-12 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+    </svg>
+    <h3 class="mt-2 text-sm font-medium text-gray-900"><%= t('scheduling.admin.schedules.index.no_schedules') %></h3>
+    <p class="mt-1 text-sm text-gray-500"><%= t('scheduling.admin.schedules.index.create_first') %></p>
+    <div class="mt-6">
+      <%= link_to new_admin_schedule_path, class: "inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700" do %>
+        <svg class="w-5 h-5 mr-2 -ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
+        <%= t('scheduling.admin.schedules.index.create_new') %>
+      <% end %>
+    </div>
+  </div>
+<% end %>

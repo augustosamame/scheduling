@@ -1,0 +1,170 @@
+<% content_for :title, t('scheduling.admin.members.index.title') %>
+
+<div class="mb-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="text-2xl font-bold text-gray-900"><%= t('scheduling.admin.members.index.title') %></h2>
+      <p class="mt-1 text-sm text-gray-500"><%= t('scheduling.admin.members.index.subtitle') %></p>
+    </div>
+    <%= link_to new_admin_member_path, class: "px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700" do %>
+      <svg class="inline-block w-4 h-4 mr-1 -ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+      </svg>
+      <%= t('scheduling.admin.members.index.create_new') %>
+    <% end %>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="p-4 mb-6 bg-white rounded-lg shadow">
+  <%= form_with url: admin_members_path, method: :get, local: true, class: "space-y-4" do |f| %>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-5">
+      <div>
+        <%= label_tag :location_id, t('scheduling.admin.members.filters.location'), class: "block text-sm font-medium text-gray-700" %>
+        <%= select_tag :location_id,
+            options_for_select([['Todas', '']] + @locations.map { |l| [l.name, l.id] }, params[:location_id]),
+            class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+      </div>
+      <div>
+        <%= label_tag :team_id, t('scheduling.admin.members.filters.team'), class: "block text-sm font-medium text-gray-700" %>
+        <%= select_tag :team_id,
+            options_for_select([['Todos', '']] + @teams.map { |t| [t.name, t.id] }, params[:team_id]),
+            class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+      </div>
+      <div>
+        <%= label_tag :role, t('scheduling.admin.members.filters.role'), class: "block text-sm font-medium text-gray-700" %>
+        <%= select_tag :role,
+            options_for_select([
+              [t('scheduling.admin.members.filters.all_roles'), 'all'],
+              [t('scheduling.admin.members.roles.admin'), 'admin'],
+              [t('scheduling.admin.members.roles.manager'), 'manager'],
+              [t('scheduling.admin.members.roles.member'), 'member']
+            ], params[:role] || 'all'),
+            class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+      </div>
+      <div>
+        <%= label_tag :status, t('scheduling.admin.members.filters.status'), class: "block text-sm font-medium text-gray-700" %>
+        <%= select_tag :status,
+            options_for_select([
+              [t('scheduling.admin.members.filters.all_statuses'), ''],
+              [t('scheduling.admin.members.filters.active'), 'active'],
+              [t('scheduling.admin.members.filters.inactive'), 'inactive']
+            ], params[:status]),
+            class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+      </div>
+      <div class="flex items-end">
+        <%= submit_tag t('scheduling.admin.members.filters.filter_button'), class: "w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700" %>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<% if @members.any? %>
+  <div class="overflow-hidden bg-white rounded-lg shadow">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+            <%= t('scheduling.admin.members.table.member') %>
+          </th>
+          <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+            <%= t('scheduling.admin.members.table.team') %>
+          </th>
+          <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+            <%= t('scheduling.admin.members.table.role') %>
+          </th>
+          <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+            <%= t('scheduling.admin.members.table.status') %>
+          </th>
+          <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+            <%= t('scheduling.admin.members.table.bookings') %>
+          </th>
+          <th class="px-6 py-3 text-xs font-medium tracking-wider text-right text-gray-500 uppercase">
+            <%= t('scheduling.admin.members.table.actions') %>
+          </th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <% @members.each do |member| %>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4">
+              <div class="flex items-center">
+                <div>
+                  <div class="text-sm font-medium text-gray-900"><%= member.full_name %></div>
+                  <div class="text-sm text-gray-500"><%= member.email %></div>
+                  <div class="text-xs text-gray-400"><%= member.booking_slug %></div>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-900"><%= member.team.name %></div>
+              <div class="text-sm text-gray-500"><%= member.location.name %></div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <% case member.role %>
+              <% when 'admin' %>
+                <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-purple-800 bg-purple-100 rounded-full">
+                  <%= t('scheduling.admin.members.roles.admin') %>
+                </span>
+              <% when 'manager' %>
+                <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-blue-800 bg-blue-100 rounded-full">
+                  <%= t('scheduling.admin.members.roles.manager') %>
+                </span>
+              <% else %>
+                <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-gray-800 bg-gray-100 rounded-full">
+                  <%= t('scheduling.admin.members.roles.member') %>
+                </span>
+              <% end %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <% if member.active %>
+                <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-green-800 bg-green-100 rounded-full">
+                  <%= t('scheduling.admin.members.status.active') %>
+                </span>
+              <% else %>
+                <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-red-800 bg-red-100 rounded-full">
+                  <%= t('scheduling.admin.members.status.inactive') %>
+                </span>
+              <% end %>
+              <% if member.accepts_bookings %>
+                <span class="inline-flex items-center px-2.5 py-0.5 ml-1 text-xs font-medium text-blue-800 bg-blue-100 rounded-full">
+                  <%= t('scheduling.admin.members.status.accepting') %>
+                </span>
+              <% end %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-900"><%= member.event_types.count %> tipos</div>
+              <div class="text-sm text-gray-500"><%= member.schedules.count %> horarios</div>
+            </td>
+            <td class="px-6 py-4 text-sm font-medium text-right whitespace-nowrap">
+              <%= link_to t('scheduling.admin.members.table.view'), admin_member_path(member), class: "text-blue-600 hover:text-blue-900 mr-3" %>
+              <%= link_to t('scheduling.admin.members.table.edit'), edit_admin_member_path(member), class: "text-gray-600 hover:text-gray-900" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <% if @members.respond_to?(:total_pages) && @members.total_pages > 1 %>
+    <div class="mt-4">
+      <%= paginate @members %>
+    </div>
+  <% end %>
+<% else %>
+  <div class="py-12 text-center bg-white rounded-lg shadow">
+    <svg class="w-12 h-12 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+    </svg>
+    <h3 class="mt-2 text-sm font-medium text-gray-900"><%= t('scheduling.admin.members.index.no_members') %></h3>
+    <p class="mt-1 text-sm text-gray-500"><%= t('scheduling.admin.members.index.create_first') %></p>
+    <div class="mt-6">
+      <%= link_to new_admin_member_path, class: "inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700" do %>
+        <svg class="w-5 h-5 mr-2 -ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
+        <%= t('scheduling.admin.members.index.create_new') %>
+      <% end %>
+    </div>
+  </div>
+<% end %>

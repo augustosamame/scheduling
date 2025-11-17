@@ -14,6 +14,7 @@ module Scheduling
                   :send_reminder_emails,
                   :reminder_hours_before,
                   :enable_sms_notifications,
+                  :enable_whatsapp_notifications,
                   :enable_google_calendar,
                   :enable_outlook_calendar,
                   # Calendar OAuth credentials
@@ -26,6 +27,11 @@ module Scheduling
                   :stripe_secret_key,
                   :culqi_public_key,
                   :culqi_secret_key,
+                  # Twilio credentials
+                  :twilio_account_sid,
+                  :twilio_auth_token,
+                  :twilio_phone_number,
+                  :twilio_whatsapp_number,
                   :mailer_from,
                   # Organization defaults
                   :organization_name,
@@ -63,6 +69,7 @@ module Scheduling
       @send_reminder_emails = true
       @reminder_hours_before = 24
       @enable_sms_notifications = false
+      @enable_whatsapp_notifications = false
       @enable_google_calendar = true
       @enable_outlook_calendar = true
 
@@ -77,6 +84,12 @@ module Scheduling
       @stripe_secret_key = nil
       @culqi_public_key = nil
       @culqi_secret_key = nil
+
+      # Twilio credentials (fallbacks to ENV variables if not set)
+      @twilio_account_sid = nil
+      @twilio_auth_token = nil
+      @twilio_phone_number = nil
+      @twilio_whatsapp_number = nil
 
       @mailer_from = 'noreply@example.com'
 

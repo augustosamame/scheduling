@@ -1,0 +1,71 @@
+<% content_for :title, t('scheduling.admin.locations.index.title') %>
+
+<div class="mb-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="text-2xl font-bold text-gray-900"><%= t('scheduling.admin.locations.index.title') %></h2>
+      <p class="mt-1 text-sm text-gray-500"><%= t('scheduling.admin.locations.index.subtitle') %></p>
+    </div>
+    <%= link_to new_admin_location_path, class: "px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700" do %>
+      <svg class="inline-block w-4 h-4 mr-1 -ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+      </svg>
+      <%= t('scheduling.admin.locations.index.create_new') %>
+    <% end %>
+  </div>
+</div>
+
+<% if @locations.any? %>
+  <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <% @locations.each do |location| %>
+      <div class="overflow-hidden bg-white rounded-lg shadow hover:shadow-md transition-shadow">
+        <div class="px-6 py-4">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-lg font-medium text-gray-900"><%= location.name %></h3>
+            <% if location.active %>
+              <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium text-green-800 bg-green-100 rounded">
+                <%= t('scheduling.admin.locations.status.active') %>
+              </span>
+            <% end %>
+          </div>
+          <p class="text-sm text-gray-500"><%= location.organization.name %></p>
+          <% if location.city.present? %>
+            <p class="mt-1 text-sm text-gray-500"><%= [location.city, location.country].compact.join(', ') %></p>
+          <% end %>
+          <div class="mt-4 grid grid-cols-2 gap-2 text-sm text-gray-600">
+            <div><%= location.teams.count %> <%= t('scheduling.admin.locations.teams_count') %></div>
+            <div><%= location.members.count %> <%= t('scheduling.admin.locations.members_count') %></div>
+          </div>
+          <div class="flex gap-2 mt-4">
+            <%= link_to t('scheduling.admin.locations.table.view'), admin_location_path(location), class: "text-sm text-blue-600 hover:text-blue-800" %>
+            <span class="text-gray-300">|</span>
+            <%= link_to t('scheduling.admin.locations.table.edit'), edit_admin_location_path(location), class: "text-sm text-gray-600 hover:text-gray-800" %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <% if @locations.respond_to?(:total_pages) && @locations.total_pages > 1 %>
+    <div class="mt-4">
+      <%= paginate @locations %>
+    </div>
+  <% end %>
+<% else %>
+  <div class="py-12 text-center bg-white rounded-lg shadow">
+    <svg class="w-12 h-12 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+    </svg>
+    <h3 class="mt-2 text-sm font-medium text-gray-900"><%= t('scheduling.admin.locations.index.no_locations') %></h3>
+    <p class="mt-1 text-sm text-gray-500"><%= t('scheduling.admin.locations.index.create_first') %></p>
+    <div class="mt-6">
+      <%= link_to new_admin_location_path, class: "inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700" do %>
+        <svg class="w-5 h-5 mr-2 -ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
+        <%= t('scheduling.admin.locations.index.create_new') %>
+      <% end %>
+    </div>
+  </div>
+<% end %>

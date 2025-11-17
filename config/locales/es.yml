@@ -58,7 +58,8 @@ es:
     formats:
       default: "%A, %d de %B de %Y %H:%M:%S %z"
       short: "%d de %b %H:%M"
-      long: "%d de %B de %Y %H:%M"
+      long: "%A, %d de %B de %Y"
+      time: "%I:%M %p"
     am: "am"
     pm: "pm"
 
@@ -95,7 +96,7 @@ es:
         duration: "Duración"
         with: "Con"
         location: "Ubicación"
-        confirmation_code: "Código de Confirmación"
+        view_map: "Ver en Google Maps"
         payment_information: "Información de Pago"
         appointment_cost: "Costo de la Cita"
         payment_confirmed: "Pago Confirmado"
@@ -171,6 +172,7 @@ es:
       in_person: "Presencial"
       video_call: "Videollamada"
       phone_call: "Llamada Telefónica"
+      phone: "Llamada Telefónica"
 
     # Calendar
     calendar:
@@ -265,3 +267,10 @@ es:
         booking: "%A, %d de %B a las %H:%M"
         short_date: "%d/%m/%Y"
         short_time: "%H:%M"
+
+  notifications:
+    sms:
+      confirmation: "¡Hola %{client_name}! Tu cita con %{member_name} para %{event_type} está confirmada para el %{date} a las %{time}. Ubicación: %{location}. Cancelar: %{cancel_url}"
+      cancellation: "Hola %{client_name}, tu cita con %{member_name} para %{event_type} ha sido cancelada."
+      reschedule: "Hola %{client_name}, tu cita con %{member_name} ha sido reprogramada para el %{date} a las %{time}."
+      reminder: "Recordatorio: Tu cita con %{member_name} para %{event_type} es el %{date} a las %{time}. Ubicación: %{location}"

@@ -30,9 +30,19 @@ class CreateSchedulingEventTypes < ActiveRecord::Migration[8.0]
 
       t.jsonb :metadata, default: {}
 
+      t.string :location_address
+      t.string :location_address_line_2
+      t.string :location_city
+      t.string :location_state
+      t.string :location_postal_code
+      t.string :location_country
+      t.decimal :location_latitude, precision: 10, scale: 6
+      t.decimal :location_longitude, precision: 10, scale: 6
+      t.text :location_instructions
+
       t.timestamps
 
-      t.index [:member_id, :slug], unique: true
+      t.index [ :member_id, :slug ], unique: true
       t.index :active
     end
   end

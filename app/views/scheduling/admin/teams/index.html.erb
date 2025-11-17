@@ -1,0 +1,93 @@
+<% content_for :title, t('scheduling.admin.teams.index.title') %>
+
+<div class="mb-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="text-2xl font-bold text-gray-900"><%= t('scheduling.admin.teams.index.title') %></h2>
+      <p class="mt-1 text-sm text-gray-500"><%= t('scheduling.admin.teams.index.subtitle') %></p>
+    </div>
+    <%= link_to new_admin_team_path, class: "px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700" do %>
+      <svg class="inline-block w-4 h-4 mr-1 -ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+      </svg>
+      <%= t('scheduling.admin.teams.index.create_new') %>
+    <% end %>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="p-4 mb-6 bg-white rounded-lg shadow">
+  <%= form_with url: admin_teams_path, method: :get, local: true, class: "space-y-4" do |f| %>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div>
+        <%= label_tag :location_id, t('scheduling.admin.teams.filters.location'), class: "block text-sm font-medium text-gray-700" %>
+        <%= select_tag :location_id,
+            options_for_select([['Todas', '']] + @locations.map { |l| [l.name, l.id] }, params[:location_id]),
+            class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+      </div>
+      <div>
+        <%= label_tag :status, t('scheduling.admin.teams.filters.status'), class: "block text-sm font-medium text-gray-700" %>
+        <%= select_tag :status,
+            options_for_select([
+              [t('scheduling.admin.teams.filters.all'), ''],
+              [t('scheduling.admin.teams.filters.active'), 'active'],
+              [t('scheduling.admin.teams.filters.inactive'), 'inactive']
+            ], params[:status]),
+            class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+      </div>
+      <div class="flex items-end">
+        <%= submit_tag t('scheduling.admin.teams.filters.filter_button'), class: "w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700" %>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<% if @teams.any? %>
+  <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <% @teams.each do |team| %>
+      <div class="overflow-hidden bg-white rounded-lg shadow hover:shadow-md transition-shadow">
+        <div class="px-6 py-4" style="border-left: 4px solid <%= team.color %>;">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-lg font-medium text-gray-900"><%= team.name %></h3>
+            <% if team.active %>
+              <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium text-green-800 bg-green-100 rounded">
+                <%= t('scheduling.admin.teams.status.active') %>
+              </span>
+            <% end %>
+          </div>
+          <p class="text-sm text-gray-500"><%= team.location.name %></p>
+          <div class="mt-4 text-sm text-gray-600">
+            <%= team.members.count %> <%= t('scheduling.admin.teams.members_count') %>
+          </div>
+          <div class="flex gap-2 mt-4">
+            <%= link_to t('scheduling.admin.teams.table.view'), admin_team_path(team), class: "text-sm text-blue-600 hover:text-blue-800" %>
+            <span class="text-gray-300">|</span>
+            <%= link_to t('scheduling.admin.teams.table.edit'), edit_admin_team_path(team), class: "text-sm text-gray-600 hover:text-gray-800" %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <% if @teams.respond_to?(:total_pages) && @teams.total_pages > 1 %>
+    <div class="mt-4">
+      <%= paginate @teams %>
+    </div>
+  <% end %>
+<% else %>
+  <div class="py-12 text-center bg-white rounded-lg shadow">
+    <svg class="w-12 h-12 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+    </svg>
+    <h3 class="mt-2 text-sm font-medium text-gray-900"><%= t('scheduling.admin.teams.index.no_teams') %></h3>
+    <p class="mt-1 text-sm text-gray-500"><%= t('scheduling.admin.teams.index.create_first') %></p>
+    <div class="mt-6">
+      <%= link_to new_admin_team_path, class: "inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700" do %>
+        <svg class="w-5 h-5 mr-2 -ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
+        <%= t('scheduling.admin.teams.index.create_new') %>
+      <% end %>
+    </div>
+  </div>
+<% end %>

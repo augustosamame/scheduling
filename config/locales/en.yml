@@ -58,7 +58,8 @@ en:
     formats:
       default: "%a, %d %b %Y %H:%M:%S %z"
       short: "%d %b %H:%M"
-      long: "%B %d, %Y %H:%M"
+      long: "%A, %B %d, %Y"
+      time: "%I:%M %p"
     am: "am"
     pm: "pm"
 
@@ -95,7 +96,7 @@ en:
         duration: "Duration"
         with: "With"
         location: "Location"
-        confirmation_code: "Confirmation Code"
+        view_map: "View on Google Maps"
         payment_information: "Payment Information"
         appointment_cost: "Appointment Cost"
         payment_confirmed: "Payment Confirmed"
@@ -171,6 +172,7 @@ en:
       in_person: "In Person"
       video_call: "Video Call"
       phone_call: "Phone Call"
+      phone: "Phone Call"
 
     # Calendar
     calendar:
@@ -265,3 +267,10 @@ en:
         booking: "%A, %B %d at %I:%M %p"
         short_date: "%m/%d/%Y"
         short_time: "%I:%M %p"
+
+  notifications:
+    sms:
+      confirmation: "Hello %{client_name}! Your appointment with %{member_name} for %{event_type} is confirmed for %{date} at %{time}. Location: %{location}. Cancel: %{cancel_url}"
+      cancellation: "Hello %{client_name}, your appointment with %{member_name} for %{event_type} has been cancelled."
+      reschedule: "Hello %{client_name}, your appointment with %{member_name} has been rescheduled to %{date} at %{time}."
+      reminder: "Reminder: Your appointment with %{member_name} for %{event_type} is on %{date} at %{time}. Location: %{location}"

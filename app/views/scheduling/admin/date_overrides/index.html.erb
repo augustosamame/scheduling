@@ -1,0 +1,152 @@
+<% content_for :title, t('scheduling.admin.date_overrides.index.title') %>
+
+<div class="mb-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="text-2xl font-bold text-gray-900"><%= t('scheduling.admin.date_overrides.index.title') %></h2>
+      <p class="mt-1 text-sm text-gray-500"><%= t('scheduling.admin.date_overrides.index.subtitle') %></p>
+    </div>
+    <%= link_to new_admin_date_override_path, class: "px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700" do %>
+      <svg class="inline-block w-4 h-4 mr-1 -ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+      </svg>
+      <%= t('scheduling.admin.date_overrides.index.create_new') %>
+    <% end %>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="p-4 mb-6 bg-white rounded-lg shadow">
+  <%= form_with url: admin_date_overrides_path, method: :get, local: true, class: "space-y-4" do |f| %>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-4">
+      <div>
+        <%= label_tag :date_from, t('scheduling.admin.date_overrides.filters.from_date'), class: "block text-sm font-medium text-gray-700" %>
+        <%= text_field_tag :date_from, params[:date_from], type: :date, class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+      </div>
+      <div>
+        <%= label_tag :date_to, t('scheduling.admin.date_overrides.filters.to_date'), class: "block text-sm font-medium text-gray-700" %>
+        <%= text_field_tag :date_to, params[:date_to], type: :date, class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+      </div>
+      <div>
+        <%= label_tag :override_type, t('scheduling.admin.date_overrides.filters.type'), class: "block text-sm font-medium text-gray-700" %>
+        <%= select_tag :override_type,
+            options_for_select(
+              [
+                [t('scheduling.admin.date_overrides.filters.all'), ''],
+                [t('scheduling.admin.date_overrides.filters.unavailable'), 'unavailable'],
+                [t('scheduling.admin.date_overrides.filters.special_hours'), 'available']
+              ],
+              params[:override_type]
+            ),
+            class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+      </div>
+      <div class="flex items-end">
+        <%= submit_tag t('scheduling.admin.date_overrides.filters.filter_button'), class: "w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700" %>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<% if @date_overrides.any? %>
+  <div class="overflow-hidden bg-white rounded-lg shadow">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+            <%= t('scheduling.admin.date_overrides.table.date') %>
+          </th>
+          <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+            <%= t('scheduling.admin.date_overrides.table.member') %>
+          </th>
+          <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+            <%= t('scheduling.admin.date_overrides.table.type') %>
+          </th>
+          <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+            <%= t('scheduling.admin.date_overrides.table.hours') %>
+          </th>
+          <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+            <%= t('scheduling.admin.date_overrides.table.reason') %>
+          </th>
+          <th class="px-6 py-3 text-xs font-medium tracking-wider text-right text-gray-500 uppercase">
+            <%= t('scheduling.admin.date_overrides.table.actions') %>
+          </th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <% @date_overrides.each do |override| %>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex items-center">
+                <div>
+                  <div class="text-sm font-medium text-gray-900">
+                    <%= l(override.date, format: :long) %>
+                  </div>
+                  <div class="text-xs text-gray-500">
+                    <%= t("date.day_names")[override.date.wday] %>
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-900"><%= override.member.full_name %></div>
+              <div class="text-sm text-gray-500"><%= override.member.email %></div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <% if override.unavailable %>
+                <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-red-800 bg-red-100 rounded-full">
+                  <%= t('scheduling.admin.date_overrides.table.unavailable') %>
+                </span>
+              <% else %>
+                <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-medium text-green-800 bg-green-100 rounded-full">
+                  <%= t('scheduling.admin.date_overrides.table.special_hours') %>
+                </span>
+              <% end %>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <% if override.unavailable %>
+                <span class="text-sm text-gray-500">-</span>
+              <% else %>
+                <span class="text-sm text-gray-900">
+                  <%= override.start_time %> - <%= override.end_time %>
+                </span>
+              <% end %>
+            </td>
+            <td class="px-6 py-4">
+              <div class="text-sm text-gray-900"><%= override.reason %></div>
+            </td>
+            <td class="px-6 py-4 text-sm font-medium text-right whitespace-nowrap">
+              <%= link_to t('scheduling.admin.date_overrides.table.edit'), edit_admin_date_override_path(override), class: "text-blue-600 hover:text-blue-900 mr-3" %>
+              <%= button_to t('scheduling.admin.date_overrides.table.delete'),
+                  admin_date_override_path(override),
+                  method: :delete,
+                  data: { confirm: t('scheduling.admin.date_overrides.table.delete_confirmation') },
+                  class: "text-red-600 hover:text-red-900" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <% if @date_overrides.respond_to?(:total_pages) && @date_overrides.total_pages > 1 %>
+    <div class="mt-4">
+      <%= paginate @date_overrides %>
+    </div>
+  <% end %>
+<% else %>
+  <div class="py-12 text-center bg-white rounded-lg shadow">
+    <svg class="w-12 h-12 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+    </svg>
+    <h3 class="mt-2 text-sm font-medium text-gray-900"><%= t('scheduling.admin.date_overrides.index.no_overrides') %></h3>
+    <p class="mt-1 text-sm text-gray-500"><%= t('scheduling.admin.date_overrides.index.create_first') %></p>
+    <div class="mt-6">
+      <%= link_to new_admin_date_override_path, class: "inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700" do %>
+        <svg class="w-5 h-5 mr-2 -ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
+        <%= t('scheduling.admin.date_overrides.index.create_new') %>
+      <% end %>
+    </div>
+  </div>
+<% end %>

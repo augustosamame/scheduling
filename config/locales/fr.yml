@@ -95,7 +95,7 @@ fr:
         duration: "Durée"
         with: "Avec"
         location: "Lieu"
-        confirmation_code: "Code de Confirmation"
+        view_map: "Voir sur Google Maps"
         payment_information: "Informations de Paiement"
         appointment_cost: "Coût du Rendez-vous"
         payment_confirmed: "Paiement Confirmé"
@@ -171,6 +171,7 @@ fr:
       in_person: "En Personne"
       video_call: "Appel Vidéo"
       phone_call: "Appel Téléphonique"
+      phone: "Appel Téléphonique"
 
     # Calendar
     calendar:

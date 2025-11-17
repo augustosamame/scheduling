@@ -1,8 +1,8 @@
 module Scheduling
   module Admin
     class EventTypesController < BaseController
-      before_action :set_event_type, only: [:show, :edit, :update, :destroy]
-      before_action :authorize_manage_event_type, only: [:edit, :update, :destroy]
+      before_action :set_event_type, only: [ :show, :edit, :update, :destroy ]
+      before_action :authorize_manage_event_type, only: [ :edit, :update, :destroy ]
 
       def index
         @event_types = scope_event_types
@@ -30,9 +30,9 @@ module Scheduling
         @event_type = @current_member.event_types.build(event_type_params)
 
         if @event_type.save
-          redirect_to admin_event_type_path(@event_type), notice: "Event type created successfully"
+          redirect_to admin_event_type_path(@event_type), notice: t("scheduling.admin.event_types.create.success")
         else
-          render :new
+          render :new, status: :unprocessable_entity
         end
       end
 
@@ -42,23 +42,28 @@ module Scheduling
 
       def update
         if @event_type.update(event_type_params)
-          redirect_to admin_event_type_path(@event_type), notice: "Event type updated successfully"
+          redirect_to admin_event_type_path(@event_type), notice: t("scheduling.admin.event_types.update.success")
         else
-          render :edit
+          render :edit, status: :unprocessable_entity
         end
       end
 
       def destroy
         @event_type.destroy
-        redirect_to admin_event_types_path, notice: "Event type deleted successfully"
+        redirect_to admin_event_types_path, notice: t("scheduling.admin.event_types.destroy.success")
       rescue StandardError => e
-        redirect_to admin_event_types_path, alert: "Error deleting event type: #{e.message}"
+        redirect_to admin_event_types_path, alert: t("scheduling.admin.event_types.destroy.error", error: e.message)
       end
 
       private
 
       def set_event_type
-        @event_type = scope_event_types.find_by!(slug: params[:id])
+        # Support both integer IDs and slugs
+        @event_type = if params[:id].to_i.to_s == params[:id]
+                        scope_event_types.find(params[:id])
+        else
+                        scope_event_types.find_by!(slug: params[:id])
+        end
       end
 
       def authorize_manage_event_type
@@ -76,7 +81,15 @@ module Scheduling
           :minimum_notice_hours,
           :maximum_days_in_future,
           :location_type,
-          :location_details,
+          :location_address,
+          :location_address_line_2,
+          :location_city,
+          :location_state,
+          :location_postal_code,
+          :location_country,
+          :location_latitude,
+          :location_longitude,
+          :location_instructions,
           :color,
           :active,
           :requires_payment,

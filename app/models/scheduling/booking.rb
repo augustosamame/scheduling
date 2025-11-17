@@ -13,20 +13,24 @@ module Scheduling
     STATUSES = %w[confirmed cancelled rescheduled completed no_show].freeze
     PAYMENT_STATUSES = %w[not_required pending paid failed refunded].freeze
 
+    attr_accessor :skip_validations_for_admin
+
     validates :status, inclusion: { in: STATUSES }
     validates :payment_status, inclusion: { in: PAYMENT_STATUSES }
     validates :start_time, :end_time, :timezone, presence: true
-    validate :within_available_hours, unless: :being_marked_as_rescheduled?
-    validate :no_conflicts, unless: :being_marked_as_rescheduled?
-    validate :meets_minimum_notice, unless: :being_marked_as_rescheduled?
-    validate :within_maximum_days, unless: :being_marked_as_rescheduled?
-    validate :payment_completed_if_required
-    validate :all_required_questions_answered
+    validate :within_available_hours, unless: :skip_time_validations?
+    validate :no_conflicts, unless: :skip_time_validations?
+    validate :meets_minimum_notice, unless: :skip_time_validations?
+    validate :within_maximum_days, unless: :skip_time_validations?
+    validate :payment_completed_if_required, on: :create
+    validate :all_required_questions_answered, unless: :skip_answer_validations?
 
     before_validation :set_end_time, on: :create
     before_create :generate_tokens
     before_create :set_payment_status
     after_create :send_confirmation_email, if: -> { status == 'confirmed' }
+    after_create :send_confirmation_sms, if: -> { status == 'confirmed' }
+    after_create :send_confirmation_whatsapp, if: -> { status == 'confirmed' }
     after_create :add_to_external_calendar, if: -> { status == 'confirmed' }
 
     scope :upcoming, -> { where('start_time > ?', Time.current) }
@@ -80,12 +84,16 @@ module Scheduling
 
         process_refund if payment&.completed?
         send_cancellation_email
+        send_cancellation_sms
+        send_cancellation_whatsapp
         remove_from_external_calendar
       end
     end
 
-    def reschedule_to!(new_start_time, reason: nil, initiated_by: 'client')
-      raise 'Cannot reschedule this booking' unless can_reschedule?
+    def reschedule_to!(new_start_time, reason: nil, initiated_by: 'client', skip_policy_check: false)
+      unless skip_policy_check || can_reschedule?
+        raise 'Cannot reschedule this booking'
+      end
 
       new_end_time = new_start_time + event_type.duration_minutes.minutes
 
@@ -114,6 +122,9 @@ module Scheduling
           reschedule_token: nil
         )
 
+        # If admin is rescheduling, skip time validations
+        new_booking.skip_validations_for_admin = skip_policy_check
+
         # Transfer payment if exists
         if payment&.completed?
           new_booking.build_payment(
@@ -140,6 +151,8 @@ module Scheduling
         update!(status: 'rescheduled')
 
         send_reschedule_email(new_booking)
+        send_reschedule_sms
+        send_reschedule_whatsapp
         update_external_calendar(new_booking)
 
         new_booking
@@ -201,6 +214,20 @@ module Scheduling
       status_changed? && status == 'rescheduled' && !start_time_changed? && !end_time_changed?
     end
 
+    def skip_time_validations?
+      # Skip time validations if:
+      # 1. Admin explicitly requested to skip validations, OR
+      # 2. We're marking as rescheduled, OR
+      # 3. We're updating an existing booking but not changing the time
+      skip_validations_for_admin || being_marked_as_rescheduled? || (persisted? && !start_time_changed? && !end_time_changed?)
+    end
+
+    def skip_answer_validations?
+      # Skip answer validations if we're just updating payment or status
+      # (answers are only required when creating or changing times)
+      persisted? && !start_time_changed? && !end_time_changed?
+    end
+
     def no_conflicts
       conflicting = member.bookings
                          .confirmed
@@ -259,6 +286,38 @@ module Scheduling
 
     def send_reschedule_email(new_booking)
       BookingRescheduleJob.perform_later(id, new_booking.id)
+    end
+
+    def send_confirmation_sms
+      BookingSmsJob.perform_later(id, :confirmation) if client.phone.present?
+    end
+
+    def send_confirmation_whatsapp
+      BookingWhatsappJob.perform_later(id, :confirmation) if client.phone.present?
+    end
+
+    def send_cancellation_sms
+      BookingSmsJob.perform_later(id, :cancellation) if client.phone.present?
+    end
+
+    def send_cancellation_whatsapp
+      BookingWhatsappJob.perform_later(id, :cancellation) if client.phone.present?
+    end
+
+    def send_reschedule_sms
+      BookingSmsJob.perform_later(id, :reschedule) if client.phone.present?
+    end
+
+    def send_reschedule_whatsapp
+      BookingWhatsappJob.perform_later(id, :reschedule) if client.phone.present?
+    end
+
+    def send_reminder_sms
+      BookingSmsJob.perform_later(id, :reminder) if client.phone.present?
+    end
+
+    def send_reminder_whatsapp
+      BookingWhatsappJob.perform_later(id, :reminder) if client.phone.present?
     end
 
     def add_to_external_calendar

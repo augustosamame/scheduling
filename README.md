@@ -12,7 +12,9 @@ A comprehensive, production-ready Rails 8 engine for multi-tenant appointment sc
 ✅ **Client Self-Service** - Cancel and reschedule with policy enforcement
 ✅ **Multi-Language** - ES, EN, PT, FR with browser detection
 ✅ **Calendar Sync** - Google Calendar and Outlook integration
-✅ **Background Jobs** - Email notifications, calendar sync, payment processing
+✅ **SMS & WhatsApp Notifications** - Twilio integration with multi-language support
+✅ **Payment Screenshot Uploads** - ActiveStorage integration for payment proof
+✅ **Background Jobs** - Email notifications, calendar sync, payment processing, SMS/WhatsApp
 
 ## 🚀 Quick Start
 
@@ -25,19 +27,40 @@ See `TEST_ENGINE.md` for a complete testing guide with the included dummy app.
 Add the gem to your Rails application's `Gemfile`:
 
 ```ruby
-# If using from a git repository
+# Option 1: From Git Repository (Recommended)
 gem 'scheduling', git: 'https://github.com/augustosamame/scheduling.git'
 
-# Or if installed locally for development
+# Option 2: From Git Repository with Specific Version
+gem 'scheduling', git: 'https://github.com/augustosamame/scheduling.git', tag: 'v0.2.0'
+
+# Option 3: From Git Repository with Specific Branch
+gem 'scheduling', git: 'https://github.com/augustosamame/scheduling.git', branch: 'main'
+
+# Option 4: From Local Path (for development/testing)
 gem 'scheduling', path: '../scheduling'
 
-# Or from RubyGems (when published)
-# gem 'scheduling', '~> 1.0'
+# Option 5: From RubyGems (when published)
+# gem 'scheduling', '~> 0.2.0'
 ```
 
-Then run:
+**Installation:**
+
 ```bash
 bundle install
+```
+
+**Note:** If installing from git for the first time, you may need to specify bundler to use HTTPS:
+
+```bash
+bundle config set --local git.allow_insecure true  # Only if needed
+bundle install
+```
+
+**Verify Installation:**
+
+```bash
+bundle info scheduling
+# Should show: scheduling (0.2.0) from git repository
 ```
 
 ### Step 2: Ensure User Model Has Required Attributes
@@ -73,7 +96,47 @@ class User < ApplicationRecord
 end
 ```
 
-### Step 3: Install Migrations
+### Step 3: Set Up ActiveStorage
+
+The engine uses ActiveStorage to store payment screenshots. Ensure it's configured:
+
+```bash
+# For Rails 7+ (if ActiveStorage not already installed)
+bin/rails active_storage:install
+bin/rails db:migrate
+
+# For Rails 8+ (if the command above doesn't work)
+# See IMPLEMENT_IN_PROJECT.md for manual migration code
+```
+
+**Configure storage** in `config/storage.yml`:
+
+```yaml
+# Development/Test
+local:
+  service: Disk
+  root: <%= Rails.root.join("storage") %>
+
+# Production (example with S3)
+amazon:
+  service: S3
+  access_key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
+  secret_access_key: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+  region: us-east-1
+  bucket: your-bucket-name
+```
+
+**Set the service** in your environment configs:
+
+```ruby
+# config/environments/development.rb
+config.active_storage.service = :local
+
+# config/environments/production.rb
+config.active_storage.service = :amazon
+```
+
+### Step 4: Install Migrations
 
 Copy the engine's migrations to your host app:
 
@@ -90,7 +153,7 @@ This will create 7 tables:
 - `scheduling_payments`
 - `scheduling_calendar_connections`
 
-### Step 4: Mount the Engine
+### Step 5: Mount the Engine
 
 Add to your `config/routes.rb`:
 
@@ -103,11 +166,48 @@ Rails.application.routes.draw do
 end
 ```
 
-The engine will be available at:
-- `http://localhost:3000/scheduling/:org_slug/:member_slug` - Member's booking page
-- `http://localhost:3000/scheduling/:org_slug/:member_slug/:event_slug/book` - New booking
+**Understanding the URL Structure:**
 
-### Step 5: Create Initializer (**Required**)
+The engine will be available at these URLs (assuming you configured `organization_slug: 'clinica'`):
+
+- `http://localhost:3000/scheduling/clinica` - Organization landing page (all bookable members)
+- `http://localhost:3000/scheduling/clinica/:member_slug` - Member's booking page (all event types)
+- `http://localhost:3000/scheduling/clinica/:member_slug/:event_slug/book` - New booking form
+
+**Where does `:org_slug` come from?**
+
+The organization slug comes from the **database**, not directly from the URL:
+
+1. You configure it in `config/initializers/scheduling.rb`:
+   ```ruby
+   config.organization_slug = 'clinica'  # This creates the Organization record
+   config.organization_name = 'Clinica'
+   ```
+
+2. When the first User is created, the engine automatically creates an `Organization` record:
+   ```ruby
+   # This happens automatically via MemberSyncService
+   Organization.find_or_create_by!(slug: 'clinica') do |org|
+     org.name = 'Clinica'
+   end
+   ```
+
+3. The Organization's `slug` field is then used in URLs
+
+**Example:**
+```ruby
+# After configuration and creating a user
+org = Scheduling::Organization.first
+# => #<Scheduling::Organization slug: "clinica", name: "Clinica">
+
+member = Scheduling::Member.first
+# => #<Scheduling::Member booking_slug: "dr-carlos-mendoza">
+
+# Your booking URL will be:
+# http://localhost:3000/scheduling/clinica/dr-carlos-mendoza
+```
+
+### Step 6: Create Initializer (**Required**)
 
 Create `config/initializers/scheduling.rb`:
 
@@ -171,19 +271,69 @@ The engine automatically creates `Scheduling::Member` records when Users are cre
 
 **No manual setup script needed!** The engine handles everything automatically via callbacks.
 
-### Step 6: Add Optional Payment Gems
+### Step 7: Configure Environment Variables (Required)
+
+**IMPORTANT:** Environment variables are set in your **host application**, not in the engine.
+
+Create `.env` file in your host app root:
+
+```bash
+# .env (in your Rails app root)
+
+# Application (Required)
+APP_URL=http://localhost:3000
+
+# Payment - Stripe (Optional)
+STRIPE_SECRET_KEY=sk_test_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+STRIPE_PUBLISHABLE_KEY=pk_test_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# Payment - Culqi/Peru (Optional)
+CULQI_SECRET_KEY=sk_test_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+CULQI_PUBLIC_KEY=pk_test_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# Calendar - Google (Optional)
+GOOGLE_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=GOCSPX-xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# Calendar - Microsoft/Outlook (Optional)
+MICROSOFT_CLIENT_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+MICROSOFT_CLIENT_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+**Add dotenv gem:**
+```ruby
+# Gemfile
+gem 'dotenv-rails', groups: [:development, :test]
+```
+
+**Add to .gitignore:**
+```
+.env
+.env.local
+```
+
+**Complete ENV Variables Reference:**
+
+| Variable | Required? | Purpose |
+|----------|-----------|---------|
+| `APP_URL` | **Yes** | Base URL for booking confirmation links |
+| `STRIPE_SECRET_KEY` | Only if using Stripe | Stripe API secret key |
+| `STRIPE_PUBLISHABLE_KEY` | Only if using Stripe | Stripe public key |
+| `CULQI_SECRET_KEY` | Only if using Culqi | Culqi API secret (Peru) |
+| `CULQI_PUBLIC_KEY` | Only if using Culqi | Culqi public key (Peru) |
+| `GOOGLE_CLIENT_ID` | Only if using Google Calendar | OAuth client ID |
+| `GOOGLE_CLIENT_SECRET` | Only if using Google Calendar | OAuth client secret |
+| `MICROSOFT_CLIENT_ID` | Only if using Outlook | Azure AD app ID |
+| `MICROSOFT_CLIENT_SECRET` | Only if using Outlook | Azure AD secret |
+
+See `IMPLEMENT_IN_PROJECT.md` for detailed instructions on getting API keys.
+
+### Step 8: Add Optional Payment Gems
 
 **For Stripe payments:**
 ```ruby
 # Gemfile
 gem 'stripe', '~> 10.0'
-```
-
-Set environment variables:
-```bash
-# .env or config/credentials.yml
-STRIPE_API_KEY=sk_test_...
-STRIPE_PUBLISHABLE_KEY=pk_test_...
 ```
 
 **For Culqi payments (Peru):**
@@ -192,15 +342,31 @@ STRIPE_PUBLISHABLE_KEY=pk_test_...
 gem 'culqi-ruby'  # or use HTTP client directly
 ```
 
-Set environment variables:
-```bash
-CULQI_PUBLIC_KEY=pk_test_...
-CULQI_SECRET_KEY=sk_test_...
+**For SMS/WhatsApp notifications (Twilio):**
+```ruby
+# Gemfile
+gem 'twilio-ruby', '~> 6.0'
 ```
 
-### Step 7: Create Your First User - Members Auto-Created!
+Set environment variables:
+```bash
+TWILIO_ACCOUNT_SID=ACxxxxx...
+TWILIO_AUTH_TOKEN=xxxxx...
+TWILIO_PHONE_NUMBER=+1234567890
+TWILIO_WHATSAPP_NUMBER=+14155238886
+```
 
-**That's it!** When you create a User, the engine automatically creates the corresponding `Scheduling::Member`:
+Enable in configuration:
+```ruby
+config.enable_sms_notifications = true
+config.enable_whatsapp_notifications = true
+```
+
+See `TWILIO_IMPLEMENTATION.md` for complete setup guide.
+
+### Step 9: Sync Users to Create Members
+
+**For New Users:** When you create a User, the engine automatically creates the corresponding `Scheduling::Member`:
 
 ```ruby
 # Just create a user as normal
@@ -217,12 +383,25 @@ member = Scheduling::Member.find_by(user: user)
 # => #<Scheduling::Member booking_slug: "dr-carlos-mendoza", ...>
 ```
 
-The engine automatically:
+**For Existing Users:** If you're installing this gem in an app with existing users, run the sync task:
+
+```bash
+# Sync all existing users without Members
+rails scheduling:sync_existing_users
+
+# Or sync a specific user
+rails scheduling:sync_user[user@example.com]
+
+# Check statistics
+rails scheduling:stats
+```
+
+**What the sync does automatically:**
 - ✅ Creates organization (if doesn't exist)
 - ✅ Creates location (from user.location or default)
 - ✅ Creates team (from user.team or default)
 - ✅ Creates member record
-- ✅ Syncs on user updates
+- ✅ Syncs on user updates (future changes)
 
 **Optional: Manual Setup for Advanced Cases**
 
@@ -315,7 +494,7 @@ puts "✅ Setup complete!"
 puts "Visit: http://localhost:3000/scheduling/my-clinic/#{member.booking_slug}"
 ```
 
-### Step 8: Create Schedules and Event Types
+### Step 10: Create Schedules and Event Types
 
 Members are created automatically, but you still need to set up their availability:
 
@@ -350,7 +529,7 @@ event_type = member.event_types.create!(
 )
 ```
 
-### Step 9: Test the Integration
+### Step 11: Test the Integration
 
 Start your Rails server:
 ```bash
@@ -504,6 +683,7 @@ rails console
 - User model with: `first_name`, `last_name`, `email`, `title`, `bio`
 - PostgreSQL database
 - Rails 8.0+
+- **ActiveStorage configured** (for payment screenshot uploads)
 
 **Optional Dependencies:**
 - `stripe` gem for Stripe payments

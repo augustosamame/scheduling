@@ -1,12 +1,13 @@
 module Scheduling
   class Payment < ApplicationRecord
     belongs_to :booking
+    has_one_attached :payment_screenshot
 
     monetize :amount_cents, with_currency: :amount_currency if defined?(MoneyRails)
 
     validates :amount_cents, :amount_currency, presence: true
     validates :status, inclusion: { in: %w[pending completed failed refunded] }
-    validates :payment_provider, inclusion: { in: %w[stripe culqi] }, allow_nil: true
+    validates :payment_provider, inclusion: { in: %w[stripe culqi manual] }, allow_nil: true
 
     scope :completed, -> { where(status: 'completed') }
     scope :pending, -> { where(status: 'pending') }

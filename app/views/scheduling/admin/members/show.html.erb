@@ -1,0 +1,162 @@
+<% content_for :title, @member.full_name %>
+
+<div class="mb-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="text-2xl font-bold text-gray-900"><%= @member.full_name %></h2>
+      <p class="mt-1 text-sm text-gray-500">
+        <%= @member.team.name %> • <%= @member.location.name %>
+        <% if @member.active %>
+          <span class="inline-flex items-center px-2 py-0.5 ml-2 text-xs font-medium text-green-800 bg-green-100 rounded">
+            <%= t('scheduling.admin.members.status.active') %>
+          </span>
+        <% end %>
+        <% if @member.accepts_bookings %>
+          <span class="inline-flex items-center px-2 py-0.5 ml-1 text-xs font-medium text-blue-800 bg-blue-100 rounded">
+            <%= t('scheduling.admin.members.status.accepting') %>
+          </span>
+        <% end %>
+      </p>
+    </div>
+    <div class="flex gap-2">
+      <%= link_to t('scheduling.admin.members.show.edit'), edit_admin_member_path(@member), class: "px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700" %>
+      <%= link_to "← #{t('scheduling.admin.members.show.back_to_list')}", admin_members_path, class: "px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-md border border-gray-300 hover:bg-gray-50" %>
+    </div>
+  </div>
+</div>
+
+<!-- Member Info -->
+<div class="mb-6 overflow-hidden bg-white rounded-lg shadow">
+  <div class="px-6 py-4 border-b border-gray-200">
+    <h3 class="text-lg font-medium text-gray-900"><%= t('scheduling.admin.members.show.info_section') %></h3>
+  </div>
+  <div class="px-6 py-4">
+    <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+      <div>
+        <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.members.show.email') %></dt>
+        <dd class="mt-1 text-sm text-gray-900"><%= @member.email %></dd>
+      </div>
+      <div>
+        <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.members.show.booking_slug') %></dt>
+        <dd class="mt-1 text-sm text-gray-900"><%= @member.booking_slug %></dd>
+      </div>
+      <div>
+        <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.members.show.role') %></dt>
+        <dd class="mt-1 text-sm text-gray-900"><%= t("scheduling.admin.members.roles.#{@member.role}") %></dd>
+      </div>
+      <div>
+        <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.members.show.team') %></dt>
+        <dd class="mt-1 text-sm text-gray-900"><%= @member.team.name %></dd>
+      </div>
+      <div>
+        <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.members.show.location') %></dt>
+        <dd class="mt-1 text-sm text-gray-900"><%= @member.location.name %></dd>
+      </div>
+      <div>
+        <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.members.show.organization') %></dt>
+        <dd class="mt-1 text-sm text-gray-900"><%= @member.organization.name %></dd>
+      </div>
+    </dl>
+  </div>
+</div>
+
+<!-- Schedules -->
+<div class="mb-6 overflow-hidden bg-white rounded-lg shadow">
+  <div class="px-6 py-4 border-b border-gray-200">
+    <div class="flex items-center justify-between">
+      <h3 class="text-lg font-medium text-gray-900"><%= t('scheduling.admin.members.show.schedules') %></h3>
+      <%= link_to t('scheduling.admin.members.show.view_all_schedules'), admin_schedules_path(member_id: @member.id), class: "text-sm text-blue-600 hover:text-blue-800" %>
+    </div>
+  </div>
+  <div class="px-6 py-4">
+    <% if @schedules.any? %>
+      <div class="space-y-2">
+        <% @schedules.each do |schedule| %>
+          <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div>
+              <div class="text-sm font-medium text-gray-900"><%= schedule.name %></div>
+              <div class="text-sm text-gray-500"><%= schedule.timezone %></div>
+            </div>
+            <%= link_to t('scheduling.admin.members.show.view'), admin_schedule_path(schedule), class: "text-sm text-blue-600 hover:text-blue-800" %>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-sm text-gray-500"><%= t('scheduling.admin.members.show.no_schedules') %></p>
+    <% end %>
+  </div>
+</div>
+
+<!-- Event Types -->
+<div class="mb-6 overflow-hidden bg-white rounded-lg shadow">
+  <div class="px-6 py-4 border-b border-gray-200">
+    <div class="flex items-center justify-between">
+      <h3 class="text-lg font-medium text-gray-900"><%= t('scheduling.admin.members.show.event_types') %></h3>
+      <%= link_to t('scheduling.admin.members.show.view_all_event_types'), admin_event_types_path, class: "text-sm text-blue-600 hover:text-blue-800" %>
+    </div>
+  </div>
+  <div class="px-6 py-4">
+    <% if @event_types.any? %>
+      <div class="space-y-2">
+        <% @event_types.each do |event_type| %>
+          <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div>
+              <div class="text-sm font-medium text-gray-900"><%= event_type.title %></div>
+              <div class="text-sm text-gray-500"><%= event_type.duration_minutes %> min</div>
+            </div>
+            <%= link_to t('scheduling.admin.members.show.view'), admin_event_type_path(event_type), class: "text-sm text-blue-600 hover:text-blue-800" %>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-sm text-gray-500"><%= t('scheduling.admin.members.show.no_event_types') %></p>
+    <% end %>
+  </div>
+</div>
+
+<!-- Upcoming Bookings -->
+<div class="overflow-hidden bg-white rounded-lg shadow">
+  <div class="px-6 py-4 border-b border-gray-200">
+    <div class="flex items-center justify-between">
+      <h3 class="text-lg font-medium text-gray-900"><%= t('scheduling.admin.members.show.upcoming_bookings') %></h3>
+      <%= link_to t('scheduling.admin.members.show.view_all_bookings'), admin_bookings_path(member_id: @member.id), class: "text-sm text-blue-600 hover:text-blue-800" %>
+    </div>
+  </div>
+  <div class="px-6 py-4">
+    <% if @upcoming_bookings.any? %>
+      <div class="space-y-2">
+        <% @upcoming_bookings.each do |booking| %>
+          <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div>
+              <div class="text-sm font-medium text-gray-900"><%= booking.client.full_name %></div>
+              <div class="text-sm text-gray-500"><%= l(booking.start_time, format: :long) %></div>
+            </div>
+            <%= link_to t('scheduling.admin.members.show.view'), admin_booking_path(booking), class: "text-sm text-blue-600 hover:text-blue-800" %>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-sm text-gray-500"><%= t('scheduling.admin.members.show.no_bookings') %></p>
+    <% end %>
+  </div>
+</div>
+
+<!-- Danger Zone -->
+<div class="mt-6 overflow-hidden bg-white border-2 border-red-200 rounded-lg shadow">
+  <div class="px-6 py-4 bg-red-50 border-b border-red-200">
+    <h3 class="text-lg font-medium text-red-900"><%= t('scheduling.admin.members.show.danger_zone') %></h3>
+  </div>
+  <div class="px-6 py-4">
+    <div class="flex items-center justify-between">
+      <div>
+        <h4 class="text-sm font-medium text-gray-900"><%= t('scheduling.admin.members.show.delete_member') %></h4>
+        <p class="mt-1 text-sm text-gray-500"><%= t('scheduling.admin.members.show.delete_warning') %></p>
+      </div>
+      <%= button_to t('scheduling.admin.members.show.delete_button'),
+          admin_member_path(@member),
+          method: :delete,
+          data: { confirm: t('scheduling.admin.members.show.delete_confirmation') },
+          class: "px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700" %>
+    </div>
+  </div>
+</div>

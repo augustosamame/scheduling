@@ -119,23 +119,75 @@
       <h3 class="text-lg font-medium leading-6 text-gray-900"><%= t('scheduling.admin.event_types.form.location_section') %></h3>
     </div>
     <div class="px-4 py-5 space-y-6 sm:p-6">
-      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-        <div>
-          <%= f.label :location_type, t('scheduling.admin.event_types.form.location_type_label'), class: "block text-sm font-medium text-gray-700" %>
-          <%= f.select :location_type,
-                      [
-                        [t('scheduling.admin.event_types.form.location_types.in_person'), 'in_person'],
-                        [t('scheduling.admin.event_types.form.location_types.video_call'), 'video'],
-                        [t('scheduling.admin.event_types.form.location_types.phone_call'), 'phone'],
-                        [t('scheduling.admin.event_types.form.location_types.custom'), 'custom']
-                      ],
-                      { include_blank: 'Select location type' },
-                      class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+      <div>
+        <%= f.label :location_type, t('scheduling.admin.event_types.form.location_type_label'), class: "block text-sm font-medium text-gray-700" %>
+        <%= f.select :location_type,
+                    [
+                      [t('scheduling.admin.event_types.form.location_types.in_person'), 'in_person'],
+                      [t('scheduling.admin.event_types.form.location_types.video_call'), 'video'],
+                      [t('scheduling.admin.event_types.form.location_types.phone_call'), 'phone']
+                    ],
+                    { include_blank: 'Select location type' },
+                    class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500",
+                    onchange: "toggleLocationFields(this.value)" %>
+      </div>
+
+      <!-- In-Person Address Fields -->
+      <div id="in-person-fields" class="<%= @event_type.location_type == 'in_person' ? '' : 'hidden' %> space-y-4 p-4 bg-gray-50 rounded-lg">
+        <p class="text-sm font-medium text-gray-700">Address Details</p>
+        
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div class="sm:col-span-2">
+            <%= f.label :location_address, "Street Address *", class: "block text-sm font-medium text-gray-700" %>
+            <%= f.text_field :location_address, class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500", placeholder: "123 Main Street" %>
+          </div>
+
+          <div class="sm:col-span-2">
+            <%= f.label :location_address_line_2, "Apartment, Suite, etc.", class: "block text-sm font-medium text-gray-700" %>
+            <%= f.text_field :location_address_line_2, class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500", placeholder: "Suite 200" %>
+          </div>
+
+          <div>
+            <%= f.label :location_city, "City", class: "block text-sm font-medium text-gray-700" %>
+            <%= f.text_field :location_city, class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500", placeholder: "Lima" %>
+          </div>
+
+          <div>
+            <%= f.label :location_state, "State/Province", class: "block text-sm font-medium text-gray-700" %>
+            <%= f.text_field :location_state, class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500", placeholder: "Lima" %>
+          </div>
+
+          <div>
+            <%= f.label :location_postal_code, "Postal Code", class: "block text-sm font-medium text-gray-700" %>
+            <%= f.text_field :location_postal_code, class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500", placeholder: "15001" %>
+          </div>
+
+          <div>
+            <%= f.label :location_country, "Country", class: "block text-sm font-medium text-gray-700" %>
+            <%= f.text_field :location_country, class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500", placeholder: "Peru" %>
+          </div>
         </div>
 
-        <div>
-          <%= f.label :location_details, t('scheduling.admin.event_types.form.location_details_label'), class: "block text-sm font-medium text-gray-700" %>
-          <%= f.text_field :location_details, class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500", placeholder: t('scheduling.admin.event_types.form.location_details_placeholder') %>
+        <div class="pt-4 border-t">
+          <p class="mb-2 text-sm font-medium text-gray-700">GPS Coordinates (Optional)</p>
+          <p class="mb-3 text-xs text-gray-500">Add coordinates to enable Google Maps integration</p>
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <%= f.label :location_latitude, "Latitude", class: "block text-sm font-medium text-gray-700" %>
+              <%= f.number_field :location_latitude, step: 0.000001, class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500", placeholder: "-12.046374" %>
+            </div>
+
+            <div>
+              <%= f.label :location_longitude, "Longitude", class: "block text-sm font-medium text-gray-700" %>
+              <%= f.number_field :location_longitude, step: 0.000001, class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500", placeholder: "-77.042793" %>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t">
+          <%= f.label :location_instructions, "Location Instructions (Optional)", class: "block text-sm font-medium text-gray-700" %>
+          <%= f.text_area :location_instructions, rows: 3, class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500", placeholder: "Parking available in the building garage. Use the north entrance." %>
+          <p class="mt-1 text-xs text-gray-500">Additional instructions for finding the location (parking, entrance, etc.)</p>
         </div>
       </div>
     </div>
@@ -245,11 +297,25 @@
     }
   }
 
+  function toggleLocationFields(locationType) {
+    const inPersonFields = document.getElementById('in-person-fields');
+    if (locationType === 'in_person') {
+      inPersonFields.classList.remove('hidden');
+    } else {
+      inPersonFields.classList.add('hidden');
+    }
+  }
+
   // Initialize on page load
   document.addEventListener('DOMContentLoaded', function() {
     const requiresPayment = document.querySelector('input[name="event_type[requires_payment]"]');
     if (requiresPayment) {
       togglePaymentFields(requiresPayment.checked);
+    }
+
+    const locationType = document.querySelector('select[name="event_type[location_type]"]');
+    if (locationType) {
+      toggleLocationFields(locationType.value);
     }
   });
 </script>

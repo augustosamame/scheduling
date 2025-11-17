@@ -1,0 +1,13 @@
+<% content_for :title, t('scheduling.admin.schedules.edit.page_title') %>
+
+<div class="mb-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="text-2xl font-bold text-gray-900"><%= t('scheduling.admin.schedules.edit.page_title') %></h2>
+      <p class="mt-1 text-sm text-gray-500"><%= @schedule.name %></p>
+    </div>
+    <%= link_to "← #{t('scheduling.admin.schedules.edit.back_to_schedule')}", admin_schedule_path(@schedule), class: "px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-md border border-gray-300 hover:bg-gray-50" %>
+  </div>
+</div>
+
+<%= render 'form' %>

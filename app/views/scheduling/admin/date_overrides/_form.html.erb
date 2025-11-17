@@ -1,0 +1,140 @@
+<%= form_with model: [:admin, @date_override], local: true, class: "space-y-6", data: { controller: "scheduling--date-override-form" } do |f| %>
+  <% if @date_override.errors.any? %>
+    <div class="p-4 bg-red-50 border-l-4 border-red-400">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <svg class="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-red-800">
+            <%= t('scheduling.admin.date_overrides.form.errors_found', count: @date_override.errors.count) %>
+          </h3>
+          <div class="mt-2 text-sm text-red-700">
+            <ul class="pl-5 list-disc">
+              <% @date_override.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Basic Information -->
+  <div class="bg-white rounded-lg shadow">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h3 class="text-lg font-medium text-gray-900"><%= t('scheduling.admin.date_overrides.form.basic_info_section') %></h3>
+      <p class="mt-1 text-sm text-gray-500"><%= t('scheduling.admin.date_overrides.form.basic_info_help') %></p>
+    </div>
+    <div class="px-6 py-4 space-y-4">
+      <div>
+        <%= f.label :date, t('scheduling.admin.date_overrides.form.date_label'), class: "block text-sm font-medium text-gray-700" %>
+        <%= f.date_field :date,
+            class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+        <p class="mt-1 text-sm text-gray-500"><%= t('scheduling.admin.date_overrides.form.date_help') %></p>
+      </div>
+
+      <div>
+        <%= f.label :reason, t('scheduling.admin.date_overrides.form.reason_label'), class: "block text-sm font-medium text-gray-700" %>
+        <%= f.text_field :reason,
+            placeholder: t('scheduling.admin.date_overrides.form.reason_placeholder'),
+            class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+        <p class="mt-1 text-sm text-gray-500"><%= t('scheduling.admin.date_overrides.form.reason_help') %></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Override Type -->
+  <div class="bg-white rounded-lg shadow">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h3 class="text-lg font-medium text-gray-900"><%= t('scheduling.admin.date_overrides.form.override_type_section') %></h3>
+      <p class="mt-1 text-sm text-gray-500"><%= t('scheduling.admin.date_overrides.form.override_type_help') %></p>
+    </div>
+    <div class="px-6 py-4 space-y-4">
+      <!-- Radio buttons for override type -->
+      <div class="space-y-3">
+        <div class="flex items-start">
+          <div class="flex items-center h-5">
+            <%= f.radio_button :unavailable, true,
+                id: "unavailable_true",
+                data: { action: "change->scheduling--date-override-form#toggleTimeFields" },
+                class: "w-4 h-4 text-red-600 border-gray-300 focus:ring-red-500" %>
+          </div>
+          <div class="ml-3">
+            <%= f.label :unavailable, t('scheduling.admin.date_overrides.form.unavailable_label'), for: "unavailable_true", class: "text-sm font-medium text-gray-900" %>
+            <p class="text-sm text-gray-500"><%= t('scheduling.admin.date_overrides.form.unavailable_help') %></p>
+          </div>
+        </div>
+
+        <div class="flex items-start">
+          <div class="flex items-center h-5">
+            <%= f.radio_button :unavailable, false,
+                id: "unavailable_false",
+                data: { action: "change->scheduling--date-override-form#toggleTimeFields" },
+                class: "w-4 h-4 text-green-600 border-gray-300 focus:ring-green-500" %>
+          </div>
+          <div class="ml-3">
+            <%= f.label :unavailable, t('scheduling.admin.date_overrides.form.special_hours_label'), for: "unavailable_false", class: "text-sm font-medium text-gray-900" %>
+            <p class="text-sm text-gray-500"><%= t('scheduling.admin.date_overrides.form.special_hours_help') %></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Time fields (shown only for special hours) -->
+      <div data-scheduling--date-override-form-target="timeFields" class="<%= 'hidden' if @date_override.unavailable %>">
+        <div class="p-4 mt-4 bg-green-50 border border-green-200 rounded-lg">
+          <h4 class="mb-3 text-sm font-medium text-green-900"><%= t('scheduling.admin.date_overrides.form.special_hours_section') %></h4>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <%= f.label :start_time, t('scheduling.admin.date_overrides.form.start_time'), class: "block text-sm font-medium text-gray-700" %>
+              <%= f.time_field :start_time,
+                  value: @date_override.start_time || '09:00',
+                  class: "block mt-1 w-full px-3 py-2 text-sm rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" %>
+            </div>
+            <div>
+              <%= f.label :end_time, t('scheduling.admin.date_overrides.form.end_time'), class: "block text-sm font-medium text-gray-700" %>
+              <%= f.time_field :end_time,
+                  value: @date_override.end_time || '17:00',
+                  class: "block mt-1 w-full px-3 py-2 text-sm rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Actions -->
+  <div class="flex items-center justify-end gap-3">
+    <%= link_to t('scheduling.admin.date_overrides.form.cancel_button'),
+        admin_date_overrides_path,
+        class: "px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-md border border-gray-300 hover:bg-gray-50" %>
+    <%= f.submit t('scheduling.admin.date_overrides.form.submit_button'),
+        class: "px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700" %>
+  </div>
+<% end %>
+
+<!-- Inline Stimulus Controller for Form -->
+<script type="module">
+  import { Controller } from "https://cdn.jsdelivr.net/npm/@hotwired/stimulus@3.2.2/+esm"
+
+  class DateOverrideFormController extends Controller {
+    static targets = ["timeFields"]
+
+    toggleTimeFields(event) {
+      const isUnavailable = event.target.value === "true"
+      if (isUnavailable) {
+        this.timeFieldsTarget.classList.add('hidden')
+      } else {
+        this.timeFieldsTarget.classList.remove('hidden')
+      }
+    }
+  }
+
+  if (!window.Stimulus.modules.has("scheduling--date-override-form")) {
+    window.Stimulus.register("scheduling--date-override-form", DateOverrideFormController)
+    window.Stimulus.modules.set("scheduling--date-override-form", true)
+  }
+</script>

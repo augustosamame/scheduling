@@ -1,0 +1,123 @@
+<%= form_with model: [:admin, @schedule], local: true, class: "space-y-6" do |f| %>
+  <% if @schedule.errors.any? %>
+    <div class="p-4 bg-red-50 border-l-4 border-red-400">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <svg class="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-red-800">
+            <%= t('scheduling.admin.schedules.form.errors_found', count: @schedule.errors.count) %>
+          </h3>
+          <div class="mt-2 text-sm text-red-700">
+            <ul class="pl-5 list-disc">
+              <% @schedule.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Basic Information -->
+  <div class="bg-white rounded-lg shadow">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h3 class="text-lg font-medium text-gray-900"><%= t('scheduling.admin.schedules.form.basic_info_section') %></h3>
+      <p class="mt-1 text-sm text-gray-500"><%= t('scheduling.admin.schedules.form.basic_info_help') %></p>
+    </div>
+    <div class="px-6 py-4 space-y-4">
+      <div>
+        <%= f.label :name, t('scheduling.admin.schedules.form.name_label'), class: "block text-sm font-medium text-gray-700" %>
+        <%= f.text_field :name,
+            placeholder: t('scheduling.admin.schedules.form.name_placeholder'),
+            class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+        <p class="mt-1 text-sm text-gray-500"><%= t('scheduling.admin.schedules.form.name_help') %></p>
+      </div>
+
+      <div>
+        <%= f.label :timezone, t('scheduling.admin.schedules.form.timezone_label'), class: "block text-sm font-medium text-gray-700" %>
+        <%= f.time_zone_select :timezone,
+            ActiveSupport::TimeZone.all,
+            { default: 'Lima' },
+            class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+        <p class="mt-1 text-sm text-gray-500"><%= t('scheduling.admin.schedules.form.timezone_help') %></p>
+      </div>
+
+      <div>
+        <div class="flex items-center">
+          <%= f.check_box :is_default, class: "w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" %>
+          <%= f.label :is_default, t('scheduling.admin.schedules.form.is_default_label'), class: "ml-2 text-sm font-medium text-gray-700" %>
+        </div>
+        <p class="mt-1 ml-6 text-sm text-gray-500"><%= t('scheduling.admin.schedules.form.is_default_help') %></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Weekly Availability -->
+  <div class="bg-white rounded-lg shadow">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h3 class="text-lg font-medium text-gray-900"><%= t('scheduling.admin.schedules.form.availability_section') %></h3>
+      <p class="mt-1 text-sm text-gray-500"><%= t('scheduling.admin.schedules.form.availability_help') %></p>
+    </div>
+    <div class="px-6 py-6">
+      <% (0..6).each do |day_of_week| %>
+        <% slots_for_day = @schedule.availabilities.select { |a| a.day_of_week == day_of_week } %>
+
+        <% if slots_for_day.any? %>
+          <div class="mb-6" data-day="<%= day_of_week %>">
+            <div class="flex items-center justify-between mb-3">
+              <h4 class="text-sm font-semibold text-gray-900"><%= t("scheduling.days.full.#{day_of_week}") %></h4>
+            </div>
+
+            <div class="space-y-2 day-slots">
+              <%= f.fields_for :availabilities, slots_for_day do |slot_form| %>
+                <div class="flex items-center gap-2">
+                  <%= slot_form.hidden_field :day_of_week, value: day_of_week %>
+
+                  <div class="flex-1">
+                    <div class="grid grid-cols-2 gap-2">
+                      <div>
+                        <label class="block text-xs font-medium text-gray-700"><%= t('scheduling.admin.schedules.form.start_time') %></label>
+                        <%= slot_form.time_field :start_time,
+                            value: slot_form.object.start_time || '09:00',
+                            class: "block mt-1 w-full px-3 py-2 text-sm rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+                      </div>
+                      <div>
+                        <label class="block text-xs font-medium text-gray-700"><%= t('scheduling.admin.schedules.form.end_time') %></label>
+                        <%= slot_form.time_field :end_time,
+                            value: slot_form.object.end_time || '17:00',
+                            class: "block mt-1 w-full px-3 py-2 text-sm rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+                      </div>
+                    </div>
+                  </div>
+
+                  <% if slot_form.object.persisted? %>
+                    <div class="flex items-center h-full pt-6">
+                      <label class="flex items-center text-sm text-red-600 cursor-pointer hover:text-red-800">
+                        <%= slot_form.check_box :_destroy, class: "w-4 h-4 mr-1" %>
+                        <%= t('scheduling.admin.schedules.form.remove') %>
+                      </label>
+                    </div>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Form Actions -->
+  <div class="flex items-center justify-end gap-3">
+    <%= link_to t('scheduling.admin.schedules.form.cancel_button'),
+        @schedule.persisted? ? admin_schedule_path(@schedule) : admin_schedules_path,
+        class: "px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-md border border-gray-300 hover:bg-gray-50" %>
+    <%= f.submit t('scheduling.admin.schedules.form.submit_button'),
+        class: "px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700" %>
+  </div>
+<% end %>

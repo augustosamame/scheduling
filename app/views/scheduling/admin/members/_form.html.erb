@@ -1,0 +1,116 @@
+<%= form_with model: [:admin, @member], local: true, class: "space-y-6" do |f| %>
+  <% if @member.errors.any? %>
+    <div class="p-4 bg-red-50 border-l-4 border-red-400">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <svg class="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+          </svg>
+        </div>
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-red-800">
+            <%= t('scheduling.admin.members.form.errors_found', count: @member.errors.count) %>
+          </h3>
+          <div class="mt-2 text-sm text-red-700">
+            <ul class="pl-5 list-disc">
+              <% @member.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- User Selection -->
+  <div class="bg-white rounded-lg shadow">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h3 class="text-lg font-medium text-gray-900"><%= t('scheduling.admin.members.form.user_section') %></h3>
+      <p class="mt-1 text-sm text-gray-500"><%= t('scheduling.admin.members.form.user_help') %></p>
+    </div>
+    <div class="px-6 py-4 space-y-4">
+      <div>
+        <%= f.label :user_id, t('scheduling.admin.members.form.user_label'), class: "block text-sm font-medium text-gray-700" %>
+        <%= f.select :user_id,
+            options_for_select(@users.map { |u| ["#{u.first_name} #{u.last_name} (#{u.email})", u.id] }, @member.user_id),
+            { include_blank: t('scheduling.admin.members.form.select_user') },
+            class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+        <p class="mt-1 text-sm text-gray-500"><%= t('scheduling.admin.members.form.user_description') %></p>
+      </div>
+
+      <div>
+        <%= f.label :team_id, t('scheduling.admin.members.form.team_label'), class: "block text-sm font-medium text-gray-700" %>
+        <%= f.select :team_id,
+            grouped_options_for_select(
+              @teams.group_by(&:location).map { |loc, teams| [loc.name, teams.map { |t| [t.name, t.id] }] },
+              @member.team_id
+            ),
+            { include_blank: t('scheduling.admin.members.form.select_team') },
+            class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+        <p class="mt-1 text-sm text-gray-500"><%= t('scheduling.admin.members.form.team_description') %></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Member Settings -->
+  <div class="bg-white rounded-lg shadow">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h3 class="text-lg font-medium text-gray-900"><%= t('scheduling.admin.members.form.settings_section') %></h3>
+      <p class="mt-1 text-sm text-gray-500"><%= t('scheduling.admin.members.form.settings_help') %></p>
+    </div>
+    <div class="px-6 py-4 space-y-4">
+      <div>
+        <%= f.label :role, t('scheduling.admin.members.form.role_label'), class: "block text-sm font-medium text-gray-700" %>
+        <%= f.select :role,
+            options_for_select([
+              [t('scheduling.admin.members.roles.member'), 'member'],
+              [t('scheduling.admin.members.roles.manager'), 'manager'],
+              [t('scheduling.admin.members.roles.admin'), 'admin']
+            ], @member.role),
+            {},
+            class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+        <p class="mt-1 text-sm text-gray-500"><%= t('scheduling.admin.members.form.role_description') %></p>
+      </div>
+
+      <div>
+        <%= f.label :booking_slug, t('scheduling.admin.members.form.booking_slug_label'), class: "block text-sm font-medium text-gray-700" %>
+        <%= f.text_field :booking_slug,
+            placeholder: t('scheduling.admin.members.form.booking_slug_placeholder'),
+            class: "block mt-1 w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+        <p class="mt-1 text-sm text-gray-500"><%= t('scheduling.admin.members.form.booking_slug_description') %></p>
+      </div>
+
+      <div class="space-y-3">
+        <div class="flex items-start">
+          <div class="flex items-center h-5">
+            <%= f.check_box :active, class: "w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" %>
+          </div>
+          <div class="ml-3">
+            <%= f.label :active, t('scheduling.admin.members.form.active_label'), class: "text-sm font-medium text-gray-700" %>
+            <p class="text-sm text-gray-500"><%= t('scheduling.admin.members.form.active_description') %></p>
+          </div>
+        </div>
+
+        <div class="flex items-start">
+          <div class="flex items-center h-5">
+            <%= f.check_box :accepts_bookings, class: "w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" %>
+          </div>
+          <div class="ml-3">
+            <%= f.label :accepts_bookings, t('scheduling.admin.members.form.accepts_bookings_label'), class: "text-sm font-medium text-gray-700" %>
+            <p class="text-sm text-gray-500"><%= t('scheduling.admin.members.form.accepts_bookings_description') %></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Actions -->
+  <div class="flex items-center justify-end gap-3">
+    <%= link_to t('scheduling.admin.members.form.cancel_button'),
+        @member.persisted? ? admin_member_path(@member) : admin_members_path,
+        class: "px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-md border border-gray-300 hover:bg-gray-50" %>
+    <%= f.submit t('scheduling.admin.members.form.submit_button'),
+        class: "px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700" %>
+  </div>
+<% end %>

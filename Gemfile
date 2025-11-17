@@ -5,7 +5,7 @@ gemspec
 
 gem "puma"
 
-gem "pg"
+gem "pg", "~> 1.1"
 
 gem "propshaft"
 

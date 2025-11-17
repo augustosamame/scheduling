@@ -34,26 +34,29 @@ module Scheduling
       def process_reschedule
         new_start_time = DateTime.parse(params[:new_start_time])
 
-        if @booking.can_reschedule?
-          new_booking = @booking.reschedule_to!(
-            new_start_time,
-            reason: params[:reason],
-            initiated_by: "staff"
-          )
+        # Admin can reschedule even if policy doesn't allow it
+        new_booking = @booking.reschedule_to!(
+          new_start_time,
+          reason: params[:reason],
+          initiated_by: "member",
+          skip_policy_check: true
+        )
 
-          redirect_to admin_booking_path(new_booking), notice: "Booking rescheduled successfully"
-        else
-          redirect_to admin_booking_path(@booking), alert: "Cannot reschedule this booking"
-        end
+        redirect_to admin_booking_path(new_booking), notice: t('scheduling.admin.bookings.reschedule.success')
+      rescue ActiveRecord::RecordInvalid => e
+        Rails.logger.error "Reschedule validation error: #{e.record.errors.full_messages.join(', ')}"
+        redirect_to reschedule_admin_booking_path(@booking), alert: "Validation error: #{e.record.errors.full_messages.join(', ')}"
       rescue StandardError => e
-        redirect_to admin_booking_path(@booking), alert: "Error rescheduling booking: #{e.message}"
+        Rails.logger.error "Reschedule error: #{e.message}"
+        Rails.logger.error e.backtrace.join("\n")
+        redirect_to reschedule_admin_booking_path(@booking), alert: "Error: #{e.message}"
       end
 
       def cancel
         if @booking.status == 'confirmed'
           @booking.cancel!(
             reason: params[:reason],
-            initiated_by: "staff"
+            initiated_by: "member"
           )
 
           redirect_to admin_booking_path(@booking), notice: "Booking cancelled successfully"
@@ -92,14 +95,9 @@ module Scheduling
             }.compact
           )
 
-          # Handle payment screenshot upload
+          # Attach payment screenshot if provided
           if params[:payment_screenshot].present?
-            # Store screenshot information in metadata
-            # In production, you'd upload to S3 or similar
-            payment.metadata = (payment.metadata || {}).merge(
-              screenshot_uploaded: true,
-              screenshot_filename: params[:payment_screenshot].original_filename
-            )
+            payment.payment_screenshot.attach(params[:payment_screenshot])
           end
 
           payment.save!
@@ -150,16 +148,43 @@ module Scheduling
       def calculate_available_dates
         start_date = Date.current
         end_date = start_date + @booking.event_type.maximum_days_in_future.days
+        timezone = @booking.member.team.location.timezone
 
-        checker = AvailabilityChecker.new(@booking.member, @booking.event_type)
-        available_dates = []
+        # Preload all data to avoid N+1 queries
+        preloaded_data = preload_availability_data(start_date, end_date)
 
-        (start_date..end_date).each do |date|
-          slots = checker.available_slots(date..date, @booking.member.team.location.timezone)
-          available_dates << date if slots.any?
-        end
+        # Get all slots for the entire range with preloaded data
+        checker = AvailabilityChecker.new(
+          @booking.member,
+          @booking.event_type,
+          preloaded_bookings: preloaded_data[:bookings],
+          preloaded_date_overrides: preloaded_data[:date_overrides],
+          preloaded_availabilities: preloaded_data[:availabilities],
+          preloaded_calendar_connections: preloaded_data[:calendar_connections]
+        )
+        all_slots = checker.available_slots(start_date..end_date, timezone)
 
-        available_dates
+        # Group slots by date and return unique dates
+        all_slots.map { |slot| slot[:start_time].to_date }.uniq.sort
+      end
+
+      def preload_availability_data(start_date, end_date)
+        timezone = @booking.member.team.location.timezone
+        start_time = start_date.in_time_zone(timezone).beginning_of_day
+        end_time = end_date.in_time_zone(timezone).end_of_day
+
+        # Preload all data and return as hash
+        {
+          date_overrides: @booking.member.date_overrides
+            .where('date >= ? AND date <= ?', start_date, end_date)
+            .to_a,
+          availabilities: @booking.member.default_schedule&.availabilities&.to_a || [],
+          bookings: @booking.member.bookings
+            .where(status: 'confirmed')
+            .where('start_time >= ? AND end_time <= ?', start_time, end_time)
+            .to_a,
+          calendar_connections: @booking.member.calendar_connections.to_a
+        }
       end
     end
   end

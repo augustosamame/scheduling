@@ -14,6 +14,34 @@
 
       window.Stimulus = Application.start()
 
+      // Dropdown Controller
+      class DropdownController extends Controller {
+        static targets = ["menu"]
+
+        connect() {
+          this.isOpen = false
+        }
+
+        toggle(event) {
+          event.preventDefault()
+          this.isOpen = !this.isOpen
+
+          if (this.isOpen) {
+            this.menuTarget.classList.remove('hidden')
+          } else {
+            this.menuTarget.classList.add('hidden')
+          }
+        }
+
+        hide(event) {
+          // Hide when clicking outside
+          if (!this.element.contains(event.target)) {
+            this.isOpen = false
+            this.menuTarget.classList.add('hidden')
+          }
+        }
+      }
+
       // Date Filters Controller
       class DateFiltersController extends Controller {
         static targets = ["fromDate", "toDate", "form"]
@@ -120,9 +148,10 @@
         }
       }
 
-      // Register the controller
+      // Register the controllers
+      Stimulus.register("dropdown", DropdownController)
       Stimulus.register("scheduling--date-filters", DateFiltersController)
-      console.log("✅ Stimulus loaded and DateFilters controller registered!")
+      console.log("✅ Stimulus loaded and controllers registered!")
     </script>
 
     <%= yield :head %>
@@ -139,9 +168,42 @@
               <h1 class="text-xl font-bold text-gray-900">📅 Scheduling Admin</h1>
             </div>
 
-            <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-              <%= link_to t('scheduling.admin.nav.dashboard'), admin_root_path, class: "inline-flex items-center px-1 pt-1 text-sm font-medium #{current_page?(admin_root_path) ? 'border-b-2 border-blue-500 text-gray-900' : 'text-gray-500 hover:text-gray-700'}" %>
-              <%= link_to t('scheduling.admin.nav.event_types'), admin_event_types_path, class: "inline-flex items-center px-1 pt-1 text-sm font-medium #{current_page?(admin_event_types_path) ? 'border-b-2 border-blue-500 text-gray-900' : 'text-gray-500 hover:text-gray-700'}" %>
+            <div class="hidden sm:ml-6 sm:flex sm:items-center sm:space-x-8">
+              <!-- Citas Menu -->
+              <div class="relative" data-controller="dropdown" data-action="click@window->dropdown#hide">
+                <button data-action="click->dropdown#toggle" class="inline-flex items-center px-3 py-2 text-base font-semibold text-gray-700 hover:text-gray-900 focus:outline-none">
+                  <%= t('scheduling.admin.nav.appointments') %>
+                  <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                  </svg>
+                </button>
+                <div data-dropdown-target="menu" class="hidden absolute left-0 z-10 mt-2 w-56 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5">
+                  <div class="py-1" role="menu">
+                    <%= link_to t('scheduling.admin.nav.dashboard'), admin_root_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100", role: "menuitem" %>
+                    <%= link_to t('scheduling.admin.nav.bookings'), admin_bookings_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100", role: "menuitem" %>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Configuración Menu -->
+              <div class="relative" data-controller="dropdown" data-action="click@window->dropdown#hide">
+                <button data-action="click->dropdown#toggle" class="inline-flex items-center px-3 py-2 text-base font-semibold text-gray-700 hover:text-gray-900 focus:outline-none">
+                  <%= t('scheduling.admin.nav.configuration') %>
+                  <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                  </svg>
+                </button>
+                <div data-dropdown-target="menu" class="hidden absolute left-0 z-10 mt-2 w-56 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5">
+                  <div class="py-1" role="menu">
+                    <%= link_to t('scheduling.admin.nav.locations'), admin_locations_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100", role: "menuitem" %>
+                    <%= link_to t('scheduling.admin.nav.teams'), admin_teams_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100", role: "menuitem" %>
+                    <%= link_to t('scheduling.admin.nav.members'), admin_members_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100", role: "menuitem" %>
+                    <%= link_to t('scheduling.admin.nav.event_types'), admin_event_types_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100", role: "menuitem" %>
+                    <%= link_to t('scheduling.admin.nav.schedules'), admin_schedules_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100", role: "menuitem" %>
+                    <%= link_to t('scheduling.admin.nav.date_overrides'), admin_date_overrides_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100", role: "menuitem" %>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 

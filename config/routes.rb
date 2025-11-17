@@ -21,6 +21,9 @@ Scheduling::Engine.routes.draw do
       resources :availabilities
     end
     resources :date_overrides
+    resources :members
+    resources :teams
+    resources :locations
   end
 
   # Calendar connections OAuth callbacks (must be at root level for OAuth providers)

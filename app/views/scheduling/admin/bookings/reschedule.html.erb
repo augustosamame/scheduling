@@ -1,5 +1,134 @@
 <% content_for :title, t('scheduling.admin.bookings.reschedule.title') %>
 
+<% content_for :head do %>
+  <script src="https://unpkg.com/@hotwired/stimulus/dist/stimulus.umd.js"></script>
+  <script>
+    (() => {
+      const application = Stimulus.Application.start()
+
+      application.register("reschedule", class extends Stimulus.Controller {
+        static targets = ["selectedDate", "timeSlots", "timeSlotsColumn", "calendarGrid", "startTimeField", "submitBtn"]
+
+        connect() {
+          this.selectedDateTime = null
+        }
+
+        async selectDate(event) {
+          const dateButton = event.currentTarget
+          const date = dateButton.dataset.date
+
+          // Update UI - mark selected date
+          this.element.querySelectorAll('[data-date]').forEach(btn => {
+            const span = btn.querySelector('span')
+            if (span) {
+              span.classList.remove('bg-blue-600', 'text-white')
+              span.classList.add('bg-blue-50')
+            }
+          })
+
+          const selectedSpan = dateButton.querySelector('span')
+          if (selectedSpan) {
+            selectedSpan.classList.remove('bg-blue-50')
+            selectedSpan.classList.add('bg-blue-600', 'text-white')
+          }
+
+          // Update selected date display
+          if (this.hasSelectedDateTarget) {
+            this.selectedDateTarget.textContent = this.formatDate(date)
+          }
+
+          // Fetch available time slots
+          await this.fetchTimeSlots(date)
+        }
+
+        async fetchTimeSlots(date) {
+          try {
+            const url = `/book/<%= @booking.member.organization.slug %>/<%= @booking.member.booking_slug %>/<%= @booking.event_type.slug %>/availability?date=${date}`
+
+            const response = await fetch(url, {
+              headers: { 'Accept': 'application/json' }
+            })
+
+            if (!response.ok) throw new Error('Failed to fetch')
+
+            const data = await response.json()
+            this.renderTimeSlots(data, date)
+          } catch (error) {
+            console.error('Error:', error)
+            if (this.hasTimeSlotsTarget) {
+              this.timeSlotsTarget.innerHTML = '<div class="p-4 text-sm text-red-600">Error al cargar horarios</div>'
+            }
+          }
+        }
+
+        renderTimeSlots(slots, date) {
+          if (!this.hasTimeSlotsTarget) return
+
+          // Switch grid to 2 columns and show time slots column
+          if (this.hasCalendarGridTarget) {
+            this.calendarGridTarget.classList.remove('grid-cols-1')
+            this.calendarGridTarget.classList.add('lg:grid-cols-2')
+          }
+          if (this.hasTimeSlotsColumnTarget) {
+            this.timeSlotsColumnTarget.classList.remove('hidden')
+          }
+
+          if (slots.length === 0) {
+            this.timeSlotsTarget.innerHTML = '<div class="p-4 text-sm text-center text-gray-500"><%= t('scheduling.admin.bookings.reschedule.no_slots') %></div>'
+            this.timeSlotsTarget.classList.remove('hidden')
+            return
+          }
+
+          const html = slots.map(slot => {
+            return `
+              <button type="button"
+                      data-action="click->reschedule#selectTime"
+                      data-time="${slot.start_time}"
+                      class="px-4 py-3 font-medium text-center text-blue-600 rounded-md border border-blue-200 transition-colors time-slot hover:border-blue-500 hover:bg-blue-50">
+                ${slot.display_time}
+              </button>
+            `
+          }).join('')
+
+          this.timeSlotsTarget.innerHTML = html
+          this.timeSlotsTarget.classList.remove('hidden')
+        }
+
+        selectTime(event) {
+          const button = event.currentTarget
+          const time = button.dataset.time
+
+          // Reset all time slots
+          this.element.querySelectorAll('.time-slot').forEach(slot => {
+            slot.classList.remove('bg-blue-600', 'text-white', 'border-blue-600')
+            slot.classList.add('text-blue-600', 'border-blue-200')
+          })
+
+          // Mark selected
+          button.classList.remove('text-blue-600', 'border-blue-200')
+          button.classList.add('bg-blue-600', 'text-white', 'border-blue-600')
+
+          // Store selected time and enable submit
+          this.selectedDateTime = time
+          if (this.hasStartTimeFieldTarget) {
+            this.startTimeFieldTarget.value = time
+          }
+          if (this.hasSubmitBtnTarget) {
+            this.submitBtnTarget.disabled = false
+          }
+        }
+
+        formatDate(dateString) {
+          const date = new Date(dateString + 'T12:00:00')
+          const days = <%= raw (I18n.locale == :es ? ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'] : ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']).to_json %>
+          const months = <%= raw (I18n.locale == :es ? ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'] : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']).to_json %>
+          return `${days[date.getDay()]}, ${date.getDate()} de ${months[date.getMonth()]}`
+        }
+      })
+    })()
+  </script>
+<% end %>
+
 <div class="mb-6">
   <div class="flex items-center justify-between">
     <div>
@@ -10,15 +139,15 @@
   </div>
 </div>
 
-<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-5" data-controller="reschedule">
   <!-- Left Column - Current Booking Info -->
-  <div class="lg:col-span-1">
-    <div class="bg-white rounded-lg shadow">
-      <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
-        <h3 class="text-lg font-medium leading-6 text-gray-900"><%= t('scheduling.admin.bookings.reschedule.current_booking') %></h3>
-      </div>
-      <div class="px-4 py-5 sm:p-6">
-        <dl class="space-y-4">
+  <div class="lg:col-span-2">
+    <div class="sticky top-6">
+      <div class="bg-white rounded-lg shadow">
+        <div class="px-4 py-5 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900"><%= t('scheduling.admin.bookings.reschedule.current_booking') %></h3>
+        </div>
+        <div class="px-4 py-5 space-y-3">
           <div>
             <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.dashboard.table.client') %></dt>
             <dd class="mt-1 text-sm font-semibold text-gray-900"><%= @booking.client.full_name %></dd>
@@ -29,189 +158,96 @@
           </div>
           <div>
             <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.bookings.show.duration') %></dt>
-            <dd class="mt-1 text-sm text-gray-900"><%= t('scheduling.admin.bookings.show.minutes', count: @booking.event_type.duration_minutes) %></dd>
+            <dd class="mt-1 text-sm text-gray-900"><%= @booking.event_type.duration_minutes %> minutos</dd>
+          </div>
+          <div class="pt-3 border-t">
+            <dt class="text-sm font-medium text-gray-500">Fecha Actual</dt>
+            <dd class="mt-1 text-sm font-semibold text-red-600"><%= l(@booking.start_time.in_time_zone(@booking.timezone), format: :long) %></dd>
           </div>
           <div>
-            <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.bookings.show.date') %></dt>
-            <dd class="mt-1 text-sm font-semibold text-red-600"><%= @booking.start_time.strftime("%B %d, %Y") %></dd>
+            <dt class="text-sm font-medium text-gray-500">Hora Actual</dt>
+            <dd class="mt-1 text-sm font-semibold text-red-600"><%= l(@booking.start_time.in_time_zone(@booking.timezone), format: :time) %></dd>
           </div>
-          <div>
-            <dt class="text-sm font-medium text-gray-500"><%= t('scheduling.admin.bookings.reschedule.current_time') %></dt>
-            <dd class="mt-1 text-sm font-semibold text-red-600"><%= @booking.start_time.strftime("%I:%M %p") %></dd>
-          </div>
-        </dl>
-      </div>
-    </div>
-
-    <!-- Important Notes -->
-    <div class="p-4 mt-6 bg-yellow-50 rounded-lg border border-yellow-200">
-      <div class="flex">
-        <div class="flex-shrink-0">
-          <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-          </svg>
         </div>
-        <div class="ml-3">
-          <h3 class="text-sm font-medium text-yellow-800">Important</h3>
-          <div class="mt-2 text-sm text-yellow-700">
-            <ul class="pl-5 space-y-1 list-disc">
-              <li>The client will be notified via email</li>
-              <li>A new booking will be created</li>
-              <li>The current booking will be marked as rescheduled</li>
-              <% if @booking.payment.present? %>
-              <li>Payment will be transferred to the new booking</li>
-              <% end %>
-            </ul>
+      </div>
+
+      <!-- Important Notes -->
+      <div class="p-4 mt-4 bg-yellow-50 rounded-lg border border-yellow-200">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+            </svg>
+          </div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-yellow-800">Important</h3>
+            <div class="mt-2 text-xs text-yellow-700">
+              <ul class="pl-4 space-y-1 list-disc">
+                <li>The client will be notified via email</li>
+                <li>A new booking will be created</li>
+                <li>The current booking will be marked as rescheduled</li>
+                <% if @booking.payment.present? %>
+                <li>Payment will be transferred to the new booking</li>
+                <% end %>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Right Column - Reschedule Form -->
-  <div class="lg:col-span-2">
-    <div class="bg-white rounded-lg shadow">
-      <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
-        <h3 class="text-lg font-medium leading-6 text-gray-900"><%= t('scheduling.admin.bookings.reschedule.select_date') %> & <%= t('scheduling.admin.bookings.reschedule.select_time') %></h3>
+  <!-- Right Column - Calendar & Time Selection -->
+  <div class="lg:col-span-3">
+    <div class="p-6 bg-white rounded-lg shadow">
+      <h3 class="mb-4 text-lg font-semibold text-gray-900">
+        <%= t('scheduling.admin.bookings.reschedule.select_date') %> & <%= t('scheduling.admin.bookings.reschedule.select_time') %>
+      </h3>
+
+      <div data-reschedule-target="calendarGrid" class="grid grid-cols-1 gap-6">
+        <!-- Calendar -->
+        <div class="w-full" style="max-width: 310px;">
+          <%= render partial: 'scheduling/public_bookings/calendar', locals: {
+            available_dates: @available_dates,
+            controller_name: 'reschedule'
+          } %>
+        </div>
+
+        <!-- Time Slots -->
+        <div class="hidden flex-1" data-reschedule-target="timeSlotsColumn">
+          <div class="mb-3">
+            <p class="text-sm font-semibold text-gray-900" data-reschedule-target="selectedDate"></p>
+          </div>
+
+          <div data-reschedule-target="timeSlots" class="hidden overflow-y-auto pr-2 space-y-2 max-h-96">
+            <!-- Time slots will be loaded here via Stimulus -->
+          </div>
+        </div>
       </div>
-      <div class="px-4 py-5 sm:p-6">
-        <%= form_with url: process_reschedule_admin_booking_path(@booking), method: :post, local: true, id: "reschedule-form" do |f| %>
-          <!-- Date Selection -->
-          <div class="mb-6">
-            <label class="block mb-2 text-sm font-medium text-gray-700">Available Dates</label>
-            <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-              <% @available_dates.each_with_index do |date, index| %>
-                <div>
-                  <input type="radio"
-                         id="date_<%= index %>"
-                         name="selected_date"
-                         value="<%= date.strftime('%Y-%m-%d') %>"
-                         class="hidden peer"
-                         data-date="<%= date.strftime('%Y-%m-%d') %>"
-                         onchange="loadTimeSlots(this.value)">
-                  <label for="date_<%= index %>"
-                         class="flex flex-col items-center justify-center p-3 text-gray-500 bg-white rounded-lg border border-gray-200 cursor-pointer peer-checked:border-blue-600 peer-checked:bg-blue-50 peer-checked:text-blue-600 hover:bg-gray-50">
-                    <span class="text-xs font-medium"><%= date.strftime('%a') %></span>
-                    <span class="text-lg font-bold"><%= date.strftime('%d') %></span>
-                    <span class="text-xs"><%= date.strftime('%b') %></span>
-                  </label>
-                </div>
-              <% end %>
-            </div>
-          </div>
 
-          <!-- Time Slot Selection (will be populated via JavaScript) -->
-          <div id="time-slots-container" class="hidden mb-6">
-            <label class="block mb-2 text-sm font-medium text-gray-700">Available Time Slots</label>
-            <div id="time-slots" class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-              <!-- Time slots will be loaded here -->
-            </div>
-          </div>
+      <!-- Form -->
+      <%= form_with url: process_reschedule_admin_booking_path(@booking), method: :post, local: true, class: "mt-6 pt-6 border-t" do |f| %>
+        <%= f.hidden_field :new_start_time, data: { reschedule_target: "startTimeField" } %>
 
-          <!-- Hidden field for selected datetime -->
-          <%= f.hidden_field :new_start_time, id: "new_start_time" %>
+        <!-- Reason -->
+        <div class="mb-4">
+          <label class="block mb-2 text-sm font-medium text-gray-700"><%= t('scheduling.admin.bookings.reschedule.reason_label') %></label>
+          <%= f.text_area :reason,
+                         rows: 3,
+                         required: true,
+                         class: "block w-full px-3 py-2 text-sm rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500",
+                         placeholder: t('scheduling.admin.bookings.reschedule.reason_placeholder') %>
+        </div>
 
-          <!-- Reason -->
-          <div class="mb-6">
-            <label class="block mb-2 text-sm font-medium text-gray-700"><%= t('scheduling.admin.bookings.reschedule.reason_label') %></label>
-            <%= f.text_area :reason,
-                           rows: 3,
-                           required: true,
-                           class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500",
-                           placeholder: t('scheduling.admin.bookings.reschedule.reason_placeholder') %>
-          </div>
-
-          <!-- Submit Button -->
-          <div class="flex justify-end space-x-3">
-            <%= link_to t('scheduling.admin.bookings.reschedule.cancel_button'), admin_booking_path(@booking), class: "px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-md border border-gray-300 hover:bg-gray-50" %>
-            <%= f.submit t('scheduling.admin.bookings.reschedule.confirm_button'),
-                        id: "submit-btn",
-                        disabled: true,
-                        class: "px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed" %>
-          </div>
-        <% end %>
-      </div>
+        <!-- Submit Button -->
+        <div class="flex justify-end space-x-3">
+          <%= link_to t('scheduling.admin.bookings.reschedule.cancel_button'), admin_booking_path(@booking), class: "px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-md border border-gray-300 hover:bg-gray-50" %>
+          <%= f.submit t('scheduling.admin.bookings.reschedule.confirm_button'),
+                      data: { reschedule_target: "submitBtn" },
+                      disabled: true,
+                      class: "px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed" %>
+        </div>
+      <% end %>
     </div>
   </div>
 </div>
-
-<!-- JavaScript for dynamic time slot loading -->
-<script>
-  let selectedDate = null;
-  let selectedTime = null;
-
-  function loadTimeSlots(date) {
-    selectedDate = date;
-    selectedTime = null;
-
-    // Show loading state
-    const container = document.getElementById('time-slots-container');
-    const slotsDiv = document.getElementById('time-slots');
-    container.classList.remove('hidden');
-    slotsDiv.innerHTML = '<div class="col-span-full text-center py-4 text-gray-500"><%= t('scheduling.admin.bookings.reschedule.loading_slots') %></div>';
-
-    // Fetch available time slots for this date
-    const url = `/book/<%= @booking.member.organization.slug %>/<%= @booking.member.booking_slug %>/<%= @booking.event_type.slug %>/availability?date=${date}`;
-
-    fetch(url)
-      .then(response => response.json())
-      .then(data => {
-        if (data.slots && data.slots.length > 0) {
-          renderTimeSlots(data.slots);
-        } else {
-          slotsDiv.innerHTML = '<div class="col-span-full text-center py-4 text-gray-500"><%= t('scheduling.admin.bookings.reschedule.no_slots') %></div>';
-        }
-      })
-      .catch(error => {
-        console.error('Error loading slots:', error);
-        slotsDiv.innerHTML = '<div class="col-span-full text-center py-4 text-red-500">Error loading slots. Please try again.</div>';
-      });
-  }
-
-  function renderTimeSlots(slots) {
-    const slotsDiv = document.getElementById('time-slots');
-    slotsDiv.innerHTML = '';
-
-    slots.forEach((slot, index) => {
-      if (slot.available) {
-        const startTime = new Date(slot.start_time);
-        const timeString = startTime.toLocaleTimeString('en-US', {
-          hour: 'numeric',
-          minute: '2-digit',
-          hour12: true
-        });
-
-        const slotHtml = `
-          <div>
-            <input type="radio"
-                   id="time_${index}"
-                   name="selected_time"
-                   value="${slot.start_time}"
-                   class="hidden peer"
-                   onchange="selectTimeSlot('${slot.start_time}')">
-            <label for="time_${index}"
-                   class="flex items-center justify-center p-3 text-sm font-medium text-gray-700 bg-white rounded-lg border border-gray-200 cursor-pointer peer-checked:border-blue-600 peer-checked:bg-blue-600 peer-checked:text-white hover:bg-gray-50 peer-checked:hover:bg-blue-700">
-              ${timeString}
-            </label>
-          </div>
-        `;
-        slotsDiv.innerHTML += slotHtml;
-      }
-    });
-  }
-
-  function selectTimeSlot(datetime) {
-    selectedTime = datetime;
-    document.getElementById('new_start_time').value = datetime;
-    document.getElementById('submit-btn').disabled = false;
-  }
-
-  // Form validation
-  document.getElementById('reschedule-form').addEventListener('submit', function(e) {
-    if (!selectedDate || !selectedTime) {
-      e.preventDefault();
-      alert('Please select both a date and time slot');
-      return false;
-    }
-  });
-</script>

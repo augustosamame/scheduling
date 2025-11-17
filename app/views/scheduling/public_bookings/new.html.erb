@@ -156,11 +156,37 @@
             this.startTimeFieldTarget.value = this.selectedDateTime
           }
 
+          // Update selected date/time in details step summary
+          this.updateDetailsSummary()
+
           // Hide/show steps
           if (this.hasDateStepTarget) this.dateStepTarget.classList.add('hidden')
           if (this.hasDetailsStepTarget) this.detailsStepTarget.classList.remove('hidden')
 
           window.scrollTo({ top: 0, behavior: 'smooth' })
+        }
+
+        updateDetailsSummary() {
+          // Format the selected date and time for display in step 2
+          const dateTime = new Date(this.selectedDateTime)
+          const formattedDate = this.formatDate(dateTime.toISOString().split('T')[0])
+          const formattedTime = this.formatTime(dateTime)
+
+          // Update all selectedDate targets (there are 2: one in each step)
+          if (this.hasSelectedDateTarget) {
+            this.selectedDateTargets.forEach(target => {
+              target.textContent = `${formattedDate} - ${formattedTime}`
+            })
+          }
+        }
+
+        formatTime(date) {
+          const hours = date.getHours()
+          const minutes = date.getMinutes()
+          const ampm = hours >= 12 ? 'PM' : 'AM'
+          const displayHours = hours % 12 || 12
+          const displayMinutes = minutes.toString().padStart(2, '0')
+          return `${displayHours}:${displayMinutes} ${ampm}`
         }
 
         goBack(event) {
@@ -369,17 +395,17 @@
           <%= form_with model: @booking,
                        url: create_booking_path(@organization.slug, @member.booking_slug, @event_type.slug),
                        local: true,
-                       class: "space-y-4" do |f| %>
+                       class: "space-y-3" do |f| %>
 
             <%= f.hidden_field :start_time, data: { booking_target: "startTimeField" } %>
             <%= f.hidden_field :timezone, value: @event_type.member.team.location.timezone %>
 
             <% if @booking.errors.any? %>
-              <div class="p-4 bg-red-50 rounded-lg border border-red-200">
-                <h4 class="mb-2 font-semibold text-red-800">
+              <div class="p-3 mb-3 bg-red-50 rounded-lg border border-red-200">
+                <h4 class="mb-1 text-sm font-semibold text-red-800">
                   <%= pluralize(@booking.errors.count, "error") %>:
                 </h4>
-                <ul class="text-sm list-disc list-inside text-red-700">
+                <ul class="text-xs list-disc list-inside text-red-700">
                   <% @booking.errors.full_messages.each do |message| %>
                     <li><%= message %></li>
                   <% end %>
@@ -387,58 +413,64 @@
               </div>
             <% end %>
 
-            <div>
-              <label class="block mb-2 text-sm font-bold text-gray-900">
-                <%= t('scheduling.forms.first_name') %> <%= t('scheduling.forms.required') %>
-              </label>
-              <%= text_field_tag 'booking[client_first_name]',
-                                params.dig(:booking, :client_first_name),
-                                required: true,
-                                class: "w-full px-4 py-3 text-base rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+            <!-- Name fields in one row -->
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block mb-1.5 text-sm font-medium text-gray-900">
+                  <%= t('scheduling.forms.first_name') %> <%= t('scheduling.forms.required') %>
+                </label>
+                <%= text_field_tag 'booking[client_first_name]',
+                                  params.dig(:booking, :client_first_name),
+                                  required: true,
+                                  class: "w-full px-3 py-2 text-sm rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+              </div>
+
+              <div>
+                <label class="block mb-1.5 text-sm font-medium text-gray-900">
+                  <%= t('scheduling.forms.last_name') %> <%= t('scheduling.forms.required') %>
+                </label>
+                <%= text_field_tag 'booking[client_last_name]',
+                                  params.dig(:booking, :client_last_name),
+                                  required: true,
+                                  class: "w-full px-3 py-2 text-sm rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+              </div>
             </div>
 
-            <div>
-              <label class="block mb-2 text-sm font-bold text-gray-900">
-                <%= t('scheduling.forms.last_name') %> <%= t('scheduling.forms.required') %>
-              </label>
-              <%= text_field_tag 'booking[client_last_name]',
-                                params.dig(:booking, :client_last_name),
-                                required: true,
-                                class: "w-full px-4 py-3 text-base rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
-            </div>
+            <!-- Email and phone in one row -->
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block mb-1.5 text-sm font-medium text-gray-900">
+                  <%= t('scheduling.forms.email') %> <%= t('scheduling.forms.required') %>
+                </label>
+                <%= email_field_tag 'booking[client_email]',
+                                   params.dig(:booking, :client_email),
+                                   required: true,
+                                   class: "w-full px-3 py-2 text-sm rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+              </div>
 
-            <div>
-              <label class="block mb-2 text-sm font-bold text-gray-900">
-                <%= t('scheduling.forms.email') %> <%= t('scheduling.forms.required') %>
-              </label>
-              <%= email_field_tag 'booking[client_email]',
-                                 params.dig(:booking, :client_email),
-                                 required: true,
-                                 class: "w-full px-4 py-3 text-base rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
-            </div>
-
-            <div>
-              <label class="block mb-2 text-sm font-bold text-gray-900">
-                <%= t('scheduling.forms.phone') %>
-              </label>
-              <%= telephone_field_tag 'booking[client_phone]',
-                                     params.dig(:booking, :client_phone),
-                                     class: "w-full px-4 py-3 text-base rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+              <div>
+                <label class="block mb-1.5 text-sm font-medium text-gray-900">
+                  <%= t('scheduling.forms.phone') %>
+                </label>
+                <%= telephone_field_tag 'booking[client_phone]',
+                                       params.dig(:booking, :client_phone),
+                                       class: "w-full px-3 py-2 text-sm rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+              </div>
             </div>
 
             <!-- Custom Questions -->
             <% if @booking_questions.any? %>
-              <div class="pt-4 mt-6 border-t">
+              <div class="pt-3 mt-3 space-y-3 border-t">
                 <% @booking_questions.each do |question| %>
-                  <div class="mb-4">
-                    <label class="block mb-2 text-sm font-bold text-gray-900">
+                  <div>
+                    <label class="block mb-1.5 text-sm font-medium text-gray-900">
                       <%= question.label %>
                       <% if question.required? %>
                         <span class="text-red-500">*</span>
                       <% end %>
                     </label>
                     <% if question.help_text.present? %>
-                      <p class="mb-2 text-sm text-gray-600"><%= question.help_text %></p>
+                      <p class="mb-1.5 text-xs text-gray-600"><%= question.help_text %></p>
                     <% end %>
                     <%= render partial: 'question_field', locals: { question: question } %>
                   </div>
@@ -447,14 +479,14 @@
             <% end %>
 
             <!-- Notes -->
-            <div class="pt-4 border-t">
-              <label class="block mb-2 text-sm font-bold text-gray-900">
+            <div class="pt-3 mt-3 border-t">
+              <label class="block mb-1.5 text-sm font-medium text-gray-900">
                 <%= t('scheduling.forms.notes') %>
               </label>
               <%= f.text_area :notes,
                             rows: 3,
                             placeholder: t('scheduling.forms.notes_placeholder'),
-                            class: "w-full px-4 py-3 text-base rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+                            class: "w-full px-3 py-2 text-sm rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
             </div>
 
             <!-- Payment Section (if required) -->

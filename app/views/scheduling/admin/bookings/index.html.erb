@@ -214,8 +214,8 @@
               <div class="text-sm text-gray-900"><%= booking.member.full_name %></div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
-              <div class="text-sm font-medium text-gray-900"><%= booking.start_time.strftime("%b %d, %Y") %></div>
-              <div class="text-sm text-gray-500"><%= booking.start_time.strftime("%I:%M %p") %> - <%= booking.end_time.strftime("%I:%M %p") %></div>
+              <div class="text-sm font-medium text-gray-900"><%= booking.start_time.in_time_zone(booking.timezone).strftime("%b %d, %Y") %></div>
+              <div class="text-sm text-gray-500"><%= booking.start_time.in_time_zone(booking.timezone).strftime("%I:%M %p") %> - <%= booking.end_time.in_time_zone(booking.timezone).strftime("%I:%M %p") %></div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
               <span class="inline-flex px-2 text-xs font-semibold leading-5 rounded-full <%= case booking.status

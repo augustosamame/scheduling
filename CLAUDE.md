@@ -52,6 +52,38 @@ Scheduling.configure do |config|
 end
 ```
 
+### Syncing Existing Users (Rake Tasks)
+
+**IMPORTANT:** The auto-sync callbacks only trigger on User create/update. For apps installing the gem with existing users, use these rake tasks:
+
+```bash
+# Check statistics (how many users need syncing)
+rails scheduling:stats
+
+# Sync all existing users without Member records
+rails scheduling:sync_existing_users
+# - Finds all users without Members
+# - Asks for confirmation
+# - Syncs using MemberSyncService
+# - Shows progress and errors
+# - Displays summary
+
+# Sync a specific user by email
+rails scheduling:sync_user[user@example.com]
+# - Syncs single user
+# - Shows detailed output
+# - Asks for confirmation if Member exists
+```
+
+**When to Use:**
+- Installing gem in app with existing users
+- After manual User creation outside Rails (e.g., SQL import)
+- After disabling auto_create_members temporarily
+- Troubleshooting missing Members
+
+**Key Files:**
+- `lib/tasks/scheduling_tasks.rake` - Rake task definitions
+
 ### Testing with Dummy App
 
 The engine includes a full dummy Rails app at `test/dummy/` for testing:
@@ -432,9 +464,44 @@ end
 - URLs: `https://book.example.com/test-clinic/dr-maria-rodriguez`
 - Requires DNS/SSL configuration
 
+## Environment Variables
+
+**Critical:** ENV variables are set in the **host application**, NOT in the engine.
+
+**Location:** Host app's `.env` file or `config/credentials.yml`
+
+**Required:**
+- `APP_URL` - Base URL for booking confirmation links (e.g., `http://localhost:3000`)
+
+**Optional (Payment):**
+- `STRIPE_SECRET_KEY` / `STRIPE_PUBLISHABLE_KEY` - For Stripe payments
+- `CULQI_SECRET_KEY` / `CULQI_PUBLIC_KEY` - For Culqi payments (Peru)
+
+**Optional (Calendar Integration):**
+- `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` - For Google Calendar sync
+- `MICROSOFT_CLIENT_ID` / `MICROSOFT_CLIENT_SECRET` - For Outlook Calendar sync
+
+**How the engine accesses them:**
+```ruby
+# Engine initializers check ENV first, then fall back to configuration
+stripe_key = ENV['STRIPE_SECRET_KEY'] || Scheduling.configuration.stripe_secret_key
+```
+
+**Testing in console:**
+```ruby
+ENV['STRIPE_SECRET_KEY']  # Check if set
+Scheduling.configuration.stripe_available?  # Check if feature is enabled
+```
+
+**Reference Files:**
+- `config/initializers/payment_gateways.rb` - Payment ENV handling
+- `config/initializers/culqi.rb` - Culqi-specific ENV
+- `app/services/scheduling/google_calendar_service.rb` - Google OAuth
+- `app/services/scheduling/outlook_calendar_service.rb` - Microsoft OAuth
+
 ## Configuration
 
-Location: `config/initializers/scheduling.rb`
+Location: `config/initializers/scheduling.rb` (in host app)
 
 **All Available Configuration Options:**
 
