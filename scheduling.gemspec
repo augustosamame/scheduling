@@ -22,7 +22,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "pg", "~> 1.5"
 
   # Multi-currency support
-  spec.add_dependency "money-rails", "~> 1.15"
+  spec.add_dependency "money-rails", ">= 1.15", "< 3.0"
 
   # Payment processing (optional - install as needed)
   # spec.add_dependency "stripe", "~> 10.0"
